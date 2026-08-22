@@ -4,7 +4,7 @@
 
 # HOP — ecossistema de atendimento a elevadores
 
-HOP é um MVP acadêmico criado para o Challenge FIAP em parceria com a OTIS. A proposta conecta clientes, operação e técnicos de campo em um único fluxo demonstrativo para registrar, priorizar, despachar e acompanhar ocorrências de elevadores. O projeto não representa um produto oficial implantado pela OTIS.
+HOP é um MVP acadêmico criado para o Challenge FIAP em parceria com a OTIS. A proposta conecta a operação centralizada e técnicos de campo em um único fluxo demonstrativo para registrar, priorizar, despachar e acompanhar ocorrências de elevadores. O projeto não representa um produto oficial implantado pela OTIS.
 
 <div align="center">
   <h2>Equipe</h2>
@@ -25,15 +25,14 @@ Falhas de elevadores têm contextos e riscos diferentes — de funcionamento par
 
 | Módulo | Público | Visão principal |
 | --- | --- | --- |
-| **HOP Control** | Lideranças | Central operacional com mapa, ocorrências, técnicos, elevadores e indicadores. |
+| **HOP Control** | Lideranças e Operação | Central operacional com mapa, fila, técnicos, elevadores, registro de ocorrências e indicadores. |
 | **HOP Operator** | Técnicos de campo | Turno, fila priorizada, rota, diagnóstico técnico, modelo 2D e fluxo de atendimento. |
-| **HOP Client** | Responsáveis locais | Estado dos elevadores, solicitação de suporte e acompanhamento do chamado. |
 
 ## Fluxo integrado
 
-**Cliente informa a ocorrência** → **HOP calcula a prioridade** → **Control organiza e atribui** → **Operator recebe e se desloca** → **atendimento é realizado** → **os três módulos refletem a resolução**.
+**Central recebe o chamado e registra** → **HOP calcula a prioridade** → **Control organiza e atribui** → **Operator recebe e se desloca** → **atendimento é realizado** → **os dois módulos refletem a resolução**.
 
-Todos os módulos leem e atualizam a mesma ocorrência no navegador. O cenário principal usa Mariana Alves, Hospital Santa Helena, Elevador 03 e o operador João Carlos.
+Todos os módulos leem e atualizam a mesma base operacional no navegador. O cenário principal de campo usa o operador João Carlos.
 
 ## Funcionalidades do MVP
 
@@ -43,7 +42,7 @@ Todos os módulos leem e atualizam a mesma ocorrência no navegador. O cenário 
 - mapa local interativo de Nova Aurora, com pan, zoom, filtros e rota compartilhada;
 - diagnóstico preliminar/completo e representação 2D interativa detalhada do elevador;
 - dashboards, filas, histórico e dados demonstrativos consistentes;
-- turno e tema claro/escuro persistentes, com navegação lateral responsiva nos três módulos;
+- turno e tema claro/escuro persistentes, com navegação lateral responsiva nos dois módulos;
 - restauração discreta dos dados originais para repetir a demonstração.
 
 ## Tecnologias
@@ -77,7 +76,7 @@ npm run preview
 ```text
 src/
 ├── assets/       # logos oficiais
-├── components/   # componentes globais e dos três módulos
+├── components/   # componentes globais e dos dois módulos
 ├── context/      # tema da aplicação
 ├── data/         # mocks, estado compartilhado e mapa
 ├── hooks/        # assinaturas de estado e acessibilidade

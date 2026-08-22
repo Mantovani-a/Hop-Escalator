@@ -9,26 +9,31 @@ export default function OccurrenceQueueItem({ occurrence, workflowStatus }) {
 
   return (
     <a
-      className={`operator-queue-item operator-queue-item--${occurrence.priority.classification}${resolved ? ' is-resolved' : ''}`}
+      className={`d-block p-4 border rounded bg-white text-decoration-none ${resolved ? 'opacity-75' : ''}`}
+      style={{ borderLeft: `5px solid var(--color-severity-${occurrence.priority.classification === 'baixa' ? 'low' : occurrence.priority.classification === 'atenção' ? 'attention' : occurrence.priority.classification === 'alta' ? 'high' : 'critical'})`, transition: 'border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease' }}
       href={`#/operator/occurrence/${occurrence.id}`}
       aria-label={`Abrir ocorrência ${occurrence.id} de ${occurrence.client.name}`}
+      onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = 'var(--shadow-subtle)'; }}
+      onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
     >
-      <div className="operator-queue-item__topline">
+      <div className="d-flex flex-wrap align-items-center justify-content-between gap-2">
         <PriorityIndicator priority={occurrence.priority} compact />
         <StatusBadge value={workflowStatus} />
       </div>
-      <div className="operator-queue-item__body">
-        <div>
-          <span className="operator-queue-item__type">{occurrence.client.type}</span>
-          <h3>{occurrence.client.name}</h3>
-          <p>{occurrence.elevator.identification} · {occurrence.description}</p>
+      <div className="row g-4 mt-3">
+        <div className="col-12 col-md-7">
+          <span className="d-block text-secondary fw-bold text-uppercase mb-1" style={{ fontSize: '0.78rem' }}>{occurrence.client.type}</span>
+          <h3 className="fs-5 mb-1 text-dark">{occurrence.client.name}</h3>
+          <p className="mb-0 text-secondary" style={{ fontSize: '0.9rem' }}>{occurrence.elevator.identification} · {occurrence.description}</p>
         </div>
-        <dl>
-          <div><dt>Distância</dt><dd>{distance} km</dd></div>
-          <div><dt>Abertura</dt><dd>{formatDateTime(occurrence.time)}</dd></div>
-        </dl>
+        <div className="col-12 col-md-5">
+          <dl className="row g-3 mb-0">
+            <div className="col-6"><dt className="text-secondary fw-bold text-uppercase mb-1" style={{ fontSize: '0.72rem' }}>Distância</dt><dd className="fw-bold mb-0 text-dark">{distance} km</dd></div>
+            <div className="col-6"><dt className="text-secondary fw-bold text-uppercase mb-1" style={{ fontSize: '0.72rem' }}>Abertura</dt><dd className="fw-bold mb-0 text-dark">{formatDateTime(occurrence.time)}</dd></div>
+          </dl>
+        </div>
       </div>
-      <span className="operator-queue-item__open">Ver detalhes <span aria-hidden="true">→</span></span>
+      <span className="d-block mt-3 text-primary fw-bold" style={{ fontSize: '0.86rem' }}>Ver detalhes <span aria-hidden="true">→</span></span>
     </a>
   );
 }

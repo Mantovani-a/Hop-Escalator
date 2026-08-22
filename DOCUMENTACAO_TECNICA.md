@@ -4,7 +4,7 @@
 
 O HOP é uma aplicação React de página única. `src/main.jsx` inicializa o React, importa Bootstrap e os estilos, e envolve a aplicação com `ThemeProvider`. `src/App.jsx` lê o fragmento da URL (`window.location.hash`) e escolhe Home, Control, Operator ou Client.
 
-Os três módulos são apresentações diferentes da mesma operação. A fonte compartilhada fica em `src/data/operationStore.js`; páginas obtêm um snapshot estável por `useOperationState` e gravam alterações pelas funções do store. Assim, o chamado criado no Client é o mesmo objeto atribuído no Control e concluído no Operator.
+Os dois módulos são apresentações diferentes da mesma operação. A fonte compartilhada fica em `src/data/operationStore.js`; páginas obtêm um snapshot estável por `useOperationState` e gravam alterações pelas funções do store. Assim, o chamado inserido no Control é o mesmo objeto atribuído e concluído no Operator.
 
 ## 2. Estrutura real
 
@@ -23,7 +23,6 @@ src/
 │   ├── hop-client-logo.png
 │   └── hop-operator-shift-logo.png  # opcional; versão clara para a tela de turno
 ├── components/
-│   ├── client/          # shell, elevadores, formulário e timeline do Client
 │   ├── control/         # shell, mapa, detalhes e reatribuição do Control
 │   ├── operator/        # shell, fila, rota, diagnóstico e modelo 2D
 │   └── componentes compartilhados (sidebar, retorno à Home, logo, mapa, badge, tema, métricas e feedback)
@@ -32,13 +31,13 @@ src/
 ├── data/
 │   ├── mockData.js
 │   ├── operationStore.js
-│   ├── operatorData.js, clientData.js e controlData.js
+│   ├── operatorData.js e controlData.js
 │   └── cityMapData.js
 ├── hooks/
 │   ├── useOperationState.js
 │   └── useDialogFocus.js
 ├── pages/
-│   ├── HomePage.jsx, ControlPage.jsx, OperatorPage.jsx e ClientPage.jsx
+│   ├── HomePage.jsx, ControlPage.jsx e OperatorPage.jsx
 │   ├── control/         # visões internas do Control
 │   └── operator/        # visões internas do Operator
 ├── styles/
@@ -80,10 +79,9 @@ O projeto usa hash routing nativo; não há React Router. `App.jsx` escolhe o m�
 
 ### Gerais
 
-- `#/` — seleção das três experiências;
+- `#/` — seleção das experiências;
 - `#/control` — HOP Control;
-- `#/operator` — HOP Operator;
-- `#/client` — HOP Client.
+- `#/operator` — HOP Operator.
 
 ### Control
 
@@ -107,7 +105,7 @@ Para criar uma página interna, crie o componente, importe-o na página raiz do 
 
 - `HopLogo` centraliza as logos oficiais, aceita `variant`, `size` e `className` e resolve a logo especial opcional do turno.
 - `ThemeToggle`, `StatusBadge`, `MetricCard` e `FeedbackMessage` são compartilháveis.
-- `ModuleSidebar` contém a estrutura visual compartilhada; `ControlShell`, `OperatorShell` e `ClientShell` configuram itens, perfil e cabeçalho de cada módulo.
+- `ModuleSidebar` contém a estrutura visual compartilhada; `ControlShell` e `OperatorShell` configuram itens, perfil e cabeçalho de cada módulo.
 - `DemoHomeLink` mantém o retorno ao painel demonstrativo acessível nos três cabeçalhos.
 - `ControlOperationsMap` monta marcadores a partir dos dados do Control e entrega-os ao `CityMap`.
 - `RouteMap` usa o mesmo `CityMap` e as mesmas coordenadas no atendimento do Operator.
@@ -171,7 +169,7 @@ Adicione em `occurrences` um ID e referências válidas de elevador/cliente/téc
 
 `calculatePriority`, em `priorityScore.js`, começa em 5 pontos e considera passageiros presos, risco à vida, hospital/instalação crítica, elevador parado ou falha parcial, tempo aberto e reincidência. O resultado é limitado a 0–100 e inclui motivos legíveis.
 
-Classificação: 0–29 baixa, 30–54 atenção, 55–79 alta e 80–100 crítica. Alterar um peso afeta ordenação no Operator, fila/indicadores do Control e mensagem do Client; portanto mantenha os limites coerentes com os tokens de gravidade.
+Classificação: 0–29 baixa, 30–54 atenção, 55–79 alta e 80–100 crítica. Alterar um peso afeta ordenação no Operator, fila/indicadores do Control; portanto mantenha os limites coerentes com os tokens de gravidade.
 
 ## 10. Despacho e status
 
@@ -243,7 +241,6 @@ O CSS é mobile-first. Nos três módulos, a navegação lateral vira drawer em 
 - A estrutura, logo, perfil e drawer comuns ficam em `ModuleSidebar.jsx`; cada shell fornece sua lista de links.
 - Control: itens em `ControlShell.jsx`; conteúdo/rota em `ControlPage.jsx`.
 - Operator: itens em `OperatorShell.jsx`; conteúdo/rota/turno em `OperatorPage.jsx`.
-- Client: itens em `ClientShell.jsx`; conteúdo/rota em `ClientPage.jsx`.
 
 Passo a passo: crie o componente em `pages/<módulo>`, importe na página raiz, registre a condição de rota, adicione o link ao shell e use os tokens/estruturas já existentes. Não crie uma segunda fonte de ocorrências.
 
@@ -267,7 +264,7 @@ Passo a passo: crie o componente em `pages/<módulo>`, importe na página raiz, 
 | Interação visual do mapa | `src/components/CityMap.jsx`, `src/styles/map.css` |
 | Modelo 2D | `src/components/operator/Elevator2DModel.jsx` |
 | Estrutura comum das sidebars | `src/components/ModuleSidebar.jsx`, `src/styles/components.css` |
-| Itens dos menus Operator/Control/Client | respectivos `src/components/*/*Shell.jsx` |
+| Itens dos menus Operator/Control | respectivos `src/components/*/*Shell.jsx` |
 | Home | `src/pages/HomePage.jsx`, `src/styles/components.css` |
 | Tema e persistência | `src/context/ThemeContext.jsx` |
 

@@ -29,10 +29,7 @@ export const clients = [
   { id: 'CLI-008', name: 'Residencial Bosque Alto', type: 'Condomínio', address: 'R. Dona Tecla, 410 — Guarulhos', contact: 'Eduardo Viana' },
   { id: 'CLI-009', name: 'Hotel Estação Premium', type: 'Hotel', address: 'R. dos Timbiras, 540 — República', contact: 'Patrícia Luz' },
   { id: 'CLI-010', name: 'Shopping Pátio Leste', type: 'Shopping', address: 'Av. Aricanduva, 5555 — Aricanduva', contact: 'André Meireles' },
-].map((client) => ({
-  ...client,
-  contactAvatar: getProfilePhotoPath(client.contact, 'clients'),
-}));
+];
 
 export const elevators = [
   { id: 'ELV-001', identification: 'Torre A • Elevador 01', clientId: 'CLI-001', model: 'Linha hospitalar H-01', address: 'Av. Paulista, 1450 — Bloco A', status: 'operando', lastMaintenance: '2026-08-12' },

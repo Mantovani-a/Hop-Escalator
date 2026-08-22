@@ -1,4 +1,4 @@
-const PROFILE_CATEGORIES = new Set(['operators', 'leadership', 'clients']);
+const PROFILE_CATEGORIES = new Set(['operators', 'leadership']);
 
 export const slugifyProfileName = (name = '') => name
   .normalize('NFD')

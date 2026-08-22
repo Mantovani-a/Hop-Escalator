@@ -17,13 +17,6 @@ const experiences = [
     audience: 'Técnicos de campo',
     description: 'Fila de atendimento, rota e diagnóstico para a operação em campo.',
   },
-  {
-    key: 'client',
-    number: '03',
-    name: 'HOP Client',
-    audience: 'Responsáveis locais',
-    description: 'Elevadores, solicitação de suporte e acompanhamento do atendimento.',
-  },
 ];
 
 export default function HomePage() {
@@ -40,17 +33,17 @@ export default function HomePage() {
         <div className="home-selector__heading">
           <h1 id="experiences-title">Escolha uma experiência</h1>
         </div>
-        <div className="row g-3 home-experience-grid">
+        <div className="row g-4 mt-4">
           {experiences.map((experience) => (
-            <div className="col-12 col-md-4" key={experience.key}>
-              <article className="experience-card h-100">
-                <div className="experience-card__topline">
-                  <span className="experience-index" aria-hidden="true">{experience.number}</span>
+            <div className="col-12 col-md-6" key={experience.key}>
+              <article className="app-card p-4 d-flex flex-column align-items-start h-100">
+                <div className="d-flex w-100 align-items-center justify-content-between gap-2">
+                  <span className="experience-index fw-bold text-primary" style={{ letterSpacing: '0.08em', fontSize: '0.75rem' }} aria-hidden="true">{experience.number}</span>
                 </div>
-                <span className="experience-audience">{experience.audience}</span>
-                <h2>{experience.name}</h2>
-                <p>{experience.description}</p>
-                <a className="btn btn-primary w-100" href={`#/${experience.key}`}>
+                <span className="text-primary fw-bold text-uppercase mt-3" style={{ fontSize: '0.75rem' }}>{experience.audience}</span>
+                <h2 className="my-2 fs-4">{experience.name}</h2>
+                <p className="text-secondary mb-4">{experience.description}</p>
+                <a className="btn btn-primary w-100 mt-auto" href={`#/${experience.key}`}>
                   Acessar {experience.name}
                 </a>
               </article>

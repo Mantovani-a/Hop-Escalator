@@ -24,18 +24,27 @@ export default function OperatorHistory({ historyItems }) {
 
   return (
     <>
-      <section className="operator-page-heading">
-        <div><p className="eyebrow eyebrow--dark">Atendimentos de João Carlos</p><h1>Histórico</h1></div>
+      <section className="d-flex flex-column gap-2 mb-4">
+        <div><p className="text-primary fw-bold text-uppercase mb-1" style={{ fontSize: '0.75rem', letterSpacing: '0.08em' }}>Atendimentos de João Carlos</p><h1 className="mb-0" style={{ fontSize: 'clamp(1.8rem, 6vw, 2.6rem)' }}>Histórico</h1></div>
       </section>
-      <div className="operator-filter-group" aria-label="Filtrar histórico">
-        {filters.map((filter) => <button className={filter.id === activeFilter ? 'is-active' : ''} type="button" key={filter.id} onClick={() => setActiveFilter(filter.id)}>{filter.label}</button>)}
+      <div className="d-flex p-1 border rounded bg-white mb-4 overflow-x-auto" style={{ maxWidth: '480px' }} aria-label="Filtrar histórico">
+        {filters.map((filter) => <button className={`btn flex-grow-1 border-0 fw-bold text-nowrap rounded-sm ${filter.id === activeFilter ? 'btn-primary' : 'text-secondary bg-transparent'}`} style={{ fontSize: '0.84rem', minHeight: '42px' }} type="button" key={filter.id} onClick={() => setActiveFilter(filter.id)}>{filter.label}</button>)}
       </div>
       {filteredItems.length ? (
-        <div className="operator-history-list">
+        <div className="d-grid gap-3">
           {filteredItems.map((item) => (
-            <article className="app-card operator-history-item" key={item.id}>
-              <div><StatusBadge value="Resolvido" /><span className="operator-history-item__protocol">{item.occurrence.protocol}</span><h2>{item.occurrence.client.name}</h2><p>{item.occurrence.elevator.identification} · {item.occurrence.description}</p></div>
-              <dl><div><dt>Concluído</dt><dd>{formatDateTime(item.completedAt)}</dd></div><div><dt>Duração</dt><dd>{item.duration}</dd></div><div><dt>Responsável</dt><dd><span className="profile-inline"><ProfileAvatar name={operatorTechnician.name} src={operatorTechnician.avatar} size="sm" decorative />{operatorTechnician.name}</span></dd></div></dl>
+            <article className="app-card p-4 border-start rounded border-start border-4" style={{ borderLeftColor: 'var(--color-severity-low) !important' }} key={item.id}>
+              <div className="mb-4">
+                <StatusBadge value="Resolvido" />
+                <span className="ms-2 text-secondary fw-bold text-uppercase" style={{ fontSize: '0.72rem' }}>{item.occurrence.protocol}</span>
+                <h2 className="fs-5 mt-3 mb-1 text-dark">{item.occurrence.client.name}</h2>
+                <p className="mb-0 text-secondary" style={{ fontSize: '0.88rem' }}>{item.occurrence.elevator.identification} · {item.occurrence.description}</p>
+              </div>
+              <dl className="row g-3 mb-0">
+                <div className="col-12 col-md-4"><dt className="text-secondary fw-bold text-uppercase mb-1" style={{ fontSize: '0.72rem' }}>Concluído</dt><dd className="fw-bold mb-0 text-dark">{formatDateTime(item.completedAt)}</dd></div>
+                <div className="col-12 col-md-4"><dt className="text-secondary fw-bold text-uppercase mb-1" style={{ fontSize: '0.72rem' }}>Duração</dt><dd className="fw-bold mb-0 text-dark">{item.duration}</dd></div>
+                <div className="col-12 col-md-4"><dt className="text-secondary fw-bold text-uppercase mb-1" style={{ fontSize: '0.72rem' }}>Responsável</dt><dd className="fw-bold mb-0 text-dark"><span className="d-inline-flex align-items-center gap-2"><ProfileAvatar name={operatorTechnician.name} src={operatorTechnician.avatar} size="sm" decorative />{operatorTechnician.name}</span></dd></div>
+              </dl>
             </article>
           ))}
         </div>

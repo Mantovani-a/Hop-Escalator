@@ -1,6 +1,20 @@
 import { OPERATION_STATUS } from '../../data/operationStore';
 
-const BarList = ({ items, max }) => <div className="control-bar-list">{items.map((item) => <div key={item.label}><div><span>{item.label}</span><strong>{item.value}</strong></div><span className="control-bar-track"><i style={{ width: `${Math.max(8, (item.value / max) * 100)}%` }} /></span></div>)}</div>;
+const BarList = ({ items, max }) => (
+  <div className="d-grid gap-3 mt-4">
+    {items.map((item) => (
+      <div key={item.label}>
+        <div className="d-flex justify-content-between gap-3 mb-1" style={{ fontSize: '0.74rem' }}>
+          <span className="text-capitalize">{item.label}</span>
+          <strong className="text-dark">{item.value}</strong>
+        </div>
+        <span className="d-block overflow-hidden rounded-pill bg-light-subtle" style={{ height: '7px' }}>
+          <i className="d-block h-100 rounded-pill bg-primary" style={{ width: `${Math.max(8, (item.value / max) * 100)}%` }} />
+        </span>
+      </div>
+    ))}
+  </div>
+);
 
 export default function ControlAnalytics({ occurrences }) {
   const severityLabels = ['crítica','alta','atenção','baixa'];
@@ -17,14 +31,14 @@ export default function ControlAnalytics({ occurrences }) {
   const daily = [18,22,19,27,24,31,active.length];
   return (
     <>
-      <section className="control-page-heading"><div><p className="eyebrow eyebrow--dark">Leitura operacional</p><h1>Análises</h1></div><span className="control-shift">Últimos 7 dias</span></section>
-      <section className="control-analytics-grid">
-        <article><header><h2>Ocorrências por gravidade</h2><span>{occurrences.length} registros</span></header><BarList items={severity} max={Math.max(...severity.map((item) => item.value))} /></article>
-        <article><header><h2>Ocorrências por status</h2><span>Fluxo atual</span></header><BarList items={statuses} max={Math.max(...statuses.map((item) => item.value))} /></article>
-        <article><header><h2>Falhas mais frequentes</h2><span>Classificação textual</span></header><BarList items={failures} max={Math.max(...failures.map((item) => item.value))} /></article>
-        <article><header><h2>Tempo médio de atendimento</h2><span>Dado demonstrativo</span></header><div className="control-big-number"><strong>1h 14min</strong><span>−8 min em relação à semana anterior</span></div></article>
-        <article><header><h2>Locais com mais ocorrências</h2><span>Top 5</span></header><BarList items={byClient} max={Math.max(...byClient.map((item) => item.value))} /></article>
-        <article><header><h2>Evolução de chamados</h2><span>Últimos 7 dias</span></header><div className="control-spark-bars" aria-label="Chamados nos últimos sete dias">{daily.map((value,index) => <div key={`${index}-${value}`}><i style={{ height:`${(value/Math.max(...daily))*100}%` }} /><span>{['S','T','Q','Q','S','S','D'][index]}</span></div>)}</div></article>
+      <section className="d-flex flex-column flex-sm-row align-items-start align-items-sm-end justify-content-sm-between gap-4 pb-4 border-bottom"><div><p className="eyebrow eyebrow--dark">Leitura operacional</p><h1>Análises</h1></div><span className="badge bg-white text-secondary border px-3 py-2 fs-6 rounded-pill fw-bold">Últimos 7 dias</span></section>
+      <section className="row g-4 mt-2">
+        <article className="col-12 col-md-6 col-xxl-4 card shadow-sm border-0 p-4"><header className="d-flex align-items-start justify-content-between gap-3 pb-3 border-bottom"><h2 className="fs-6 mb-0">Ocorrências por gravidade</h2><span className="text-secondary" style={{ fontSize: '0.68rem' }}>{occurrences.length} registros</span></header><BarList items={severity} max={Math.max(...severity.map((item) => item.value))} /></article>
+        <article className="col-12 col-md-6 col-xxl-4 card shadow-sm border-0 p-4"><header className="d-flex align-items-start justify-content-between gap-3 pb-3 border-bottom"><h2 className="fs-6 mb-0">Ocorrências por status</h2><span className="text-secondary" style={{ fontSize: '0.68rem' }}>Fluxo atual</span></header><BarList items={statuses} max={Math.max(...statuses.map((item) => item.value))} /></article>
+        <article className="col-12 col-md-6 col-xxl-4 card shadow-sm border-0 p-4"><header className="d-flex align-items-start justify-content-between gap-3 pb-3 border-bottom"><h2 className="fs-6 mb-0">Falhas mais frequentes</h2><span className="text-secondary" style={{ fontSize: '0.68rem' }}>Classificação textual</span></header><BarList items={failures} max={Math.max(...failures.map((item) => item.value))} /></article>
+        <article className="col-12 col-md-6 col-xxl-4 card shadow-sm border-0 p-4"><header className="d-flex align-items-start justify-content-between gap-3 pb-3 border-bottom"><h2 className="fs-6 mb-0">Tempo médio de atendimento</h2><span className="text-secondary" style={{ fontSize: '0.68rem' }}>Dado demonstrativo</span></header><div className="d-flex flex-column align-items-center justify-content-center text-center mt-4" style={{ minHeight: '210px' }}><strong className="text-dark" style={{ fontSize: 'clamp(2.4rem, 6vw, 3.8rem)', fontWeight: 800, lineHeight: 1 }}>1h 14min</strong><span className="text-secondary mt-3" style={{ fontSize: '0.86rem' }}>−8 min em relação à semana anterior</span></div></article>
+        <article className="col-12 col-md-6 col-xxl-4 card shadow-sm border-0 p-4"><header className="d-flex align-items-start justify-content-between gap-3 pb-3 border-bottom"><h2 className="fs-6 mb-0">Locais com mais ocorrências</h2><span className="text-secondary" style={{ fontSize: '0.68rem' }}>Top 5</span></header><BarList items={byClient} max={Math.max(...byClient.map((item) => item.value))} /></article>
+        <article className="col-12 col-md-6 col-xxl-4 card shadow-sm border-0 p-4"><header className="d-flex align-items-start justify-content-between gap-3 pb-3 border-bottom"><h2 className="fs-6 mb-0">Evolução de chamados</h2><span className="text-secondary" style={{ fontSize: '0.68rem' }}>Últimos 7 dias</span></header><div className="d-flex align-items-end justify-content-between gap-1 mt-4 pt-2" style={{ height: '210px' }} aria-label="Chamados nos últimos sete dias">{daily.map((value,index) => <div className="d-flex flex-column align-items-center flex-grow-1" style={{ height: '100%', gap: 'var(--space-2)' }} key={`${index}-${value}`}><i className="w-100 bg-primary opacity-75 rounded-top mt-auto" style={{ height:`${(value/Math.max(...daily))*100}%`, maxWidth: '28px' }} /><span className="text-secondary" style={{ fontSize: '0.68rem', fontWeight: 700 }}>{['S','T','Q','Q','S','S','D'][index]}</span></div>)}</div></article>
       </section>
     </>
   );

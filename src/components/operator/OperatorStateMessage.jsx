@@ -1,8 +1,16 @@
 export default function OperatorStateMessage({ type, title, children }) {
   return (
-    <section className={`operator-state operator-state--${type}`} role={type === 'error' ? 'alert' : 'status'}>
-      <span className="operator-state__icon" aria-hidden="true">{type === 'loading' ? '' : type === 'error' ? '!' : '✓'}</span>
-      <div><h2>{title}</h2><p>{children}</p></div>
+    <section className="d-flex align-items-center gap-4 p-4 border rounded bg-white" style={{ minHeight: '150px', borderLeft: type === 'error' ? '4px solid var(--color-severity-critical)' : '1px solid var(--color-border)' }} role={type === 'error' ? 'alert' : 'status'}>
+      {type === 'loading' ? (
+        <div className="spinner-border text-primary flex-shrink-0" style={{ width: '42px', height: '42px', borderWidth: '3px' }} role="status">
+          <span className="visually-hidden">Carregando...</span>
+        </div>
+      ) : (
+        <span className="d-inline-flex align-items-center justify-content-center flex-shrink-0 rounded-circle" style={{ width: '42px', height: '42px', color: type === 'error' ? 'var(--color-severity-critical-text)' : 'var(--color-primary)', backgroundColor: type === 'error' ? 'var(--color-severity-critical-soft)' : 'var(--color-primary-soft)', fontWeight: 800 }} aria-hidden="true">
+          {type === 'error' ? '!' : '✓'}
+        </span>
+      )}
+      <div><h2 className="fs-5 mb-1 text-dark">{title}</h2><p className="mb-0 text-secondary">{children}</p></div>
     </section>
   );
 }

@@ -19,22 +19,25 @@ export default function ControlOverview({ occurrences, technicians, onSelectOccu
     : 'Cenário HOP-1048 pronto para abertura pelo HOP Client';
   return (
     <>
-      <section className="control-page-heading"><div><p className="eyebrow eyebrow--dark">Visão geral em tempo real</p><h1>Central de Operações</h1></div><span className="control-shift">Turno atual · 07:00–16:00</span></section>
-      <section className="control-alert-strip" aria-label="Alertas operacionais"><strong><span aria-hidden="true">!</span> {critical.length} ocorrências críticas exigem acompanhamento</strong><span>3 elevadores apresentaram falhas recorrentes</span><span>{scenarioAlert}</span></section>
-      <section className="control-metrics" aria-label="Indicadores principais">
-        <MetricCard label="Ocorrências abertas" value={active.length} detail="na operação atual" />
-        <MetricCard label="Críticas" value={critical.length} detail="prioridade imediata" tone="critical" />
-        <MetricCard label="Técnicos disponíveis" value={available} detail={`de ${technicians.length} profissionais`} tone="success" />
-        <MetricCard label="Em atendimento" value={attending} detail="técnicos no local" />
-        <MetricCard label="Resposta média" value="11 min" detail="dado demonstrativo" />
+      <section className="d-flex flex-column flex-sm-row align-items-start align-items-sm-end justify-content-sm-between gap-4 pb-4 border-bottom"><div><p className="text-primary fw-bold text-uppercase mb-1" style={{ fontSize: '0.75rem', letterSpacing: '0.08em' }}>Visão geral em tempo real</p><h1 className="mb-2" style={{ fontSize: 'clamp(2rem, 5vw, 3rem)' }}>Central de Operações</h1></div><span className="badge bg-white text-secondary border px-3 py-2 fs-6 rounded-pill fw-bold">Turno atual · 07:00–16:00</span></section>
+      <section className="d-grid gap-2 mt-4 p-4 border border-start-0 rounded bg-white shadow-sm" style={{ borderLeft: '4px solid var(--color-severity-critical) !important' }} aria-label="Alertas operacionais"><strong className="text-danger"><span className="d-inline-flex align-items-center justify-content-center border border-danger rounded-circle me-1" style={{ width: '1.2rem', height: '1.2rem' }} aria-hidden="true">!</span> {critical.length} ocorrências críticas exigem acompanhamento</strong><span className="text-secondary">3 elevadores apresentaram falhas recorrentes</span><span className="text-secondary">{scenarioAlert}</span></section>
+      <section className="row g-3 mt-4" aria-label="Indicadores principais">
+        <div className="col-12 col-sm-4 col-xl-2"><MetricCard label="Ocorrências abertas" value={active.length} detail="na operação atual" /></div>
+        <div className="col-12 col-sm-4 col-xl-2"><MetricCard label="Críticas" value={critical.length} detail="prioridade imediata" tone="critical" /></div>
+        <div className="col-12 col-sm-4 col-xl-2"><MetricCard label="Técnicos disponíveis" value={available} detail={`de ${technicians.length} profissionais`} tone="success" /></div>
+        <div className="col-12 col-sm-4 col-xl-2"><MetricCard label="Em atendimento" value={attending} detail="técnicos no local" /></div>
+        <div className="col-12 col-sm-4 col-xl-4"><MetricCard label="Resposta média" value="11 min" detail="dado demonstrativo" /></div>
       </section>
-      <div className="control-overview-grid">
+      <div className="row g-4 mt-5 align-items-start">
         <ControlOperationsMap technicians={technicians} occurrences={highlightedActive} onSelectTechnician={onSelectTechnician} onSelectOccurrence={onSelectOccurrence} />
-        <section className="app-card control-priority-panel" aria-labelledby="priority-panel-title">
-          <div className="section-heading control-section-heading"><div><p className="eyebrow eyebrow--dark">Atenção imediata</p><h2 id="priority-panel-title">Ocorrências prioritárias</h2></div><a href="#/control/occurrences">Ver fila</a></div>
-          <div className="control-priority-list">{priorityItems.map((occurrence) => <button key={occurrence.id} type="button" onClick={() => onSelectOccurrence(occurrence.id)}><div><strong>{occurrence.protocol}</strong><span><StatusBadge value={occurrence.priority.classification} type="severity" /> <b>{occurrence.priority.score}</b></span></div><h3>{occurrence.client.name}</h3><p>{occurrence.description}</p><footer><span>{occurrence.technician?.name || 'Sem técnico'} · {occurrence.operationalStatus}</span><small>{formatElapsedMinutes(occurrence.priority.elapsedMinutes)}</small></footer></button>)}</div>
-        </section>
+        <div className="col-12 col-xl-4">
+          <section className="card shadow-sm border-0 p-4 overflow-auto" style={{ maxHeight: "650px" }} aria-labelledby="priority-panel-title">
+            <div className="d-flex align-items-center justify-content-between gap-3 mb-4"><div><p className="text-primary fw-bold text-uppercase mb-1" style={{ fontSize: '0.75rem', letterSpacing: '0.08em' }}>Atenção imediata</p><h2 className="fs-5 mb-0" id="priority-panel-title">Ocorrências prioritárias</h2></div><a href="#/control/occurrences" className="text-decoration-none fw-bold text-secondary" style={{ fontSize: '0.76rem' }}>Ver fila</a></div>
+            <div className="d-grid gap-2">{priorityItems.map((occurrence) => <button key={occurrence.id} type="button" className="btn btn-light border text-start p-3 w-100" onClick={() => onSelectOccurrence(occurrence.id)}><div className="d-flex align-items-center justify-content-between mb-2"><strong>{occurrence.protocol}</strong><span><StatusBadge value={occurrence.priority.classification} type="severity" /> <b className="ms-2">{occurrence.priority.score}</b></span></div><h3 className="fs-6 mb-1 text-dark">{occurrence.client.name}</h3><p className="text-secondary mb-3 fs-6">{occurrence.description}</p><footer className="d-flex justify-content-between text-muted" style={{ fontSize: '0.75rem' }}><span>{occurrence.technician?.name || 'Sem técnico'} · {occurrence.operationalStatus}</span><small>{formatElapsedMinutes(occurrence.priority.elapsedMinutes)}</small></footer></button>)}</div>
+          </section>
+        </div>
       </div>
+      
     </>
   );
 }
