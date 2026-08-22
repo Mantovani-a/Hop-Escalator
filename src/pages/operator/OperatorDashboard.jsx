@@ -46,7 +46,7 @@ export default function OperatorDashboard({
               <h3 className="my-2" style={{ fontSize: 'clamp(1.55rem, 5vw, 2.15rem)' }}>{nextOccurrence.client.name}</h3>
               <p className="text-secondary mb-0">{nextOccurrence.address}</p>
               <div className="mt-4 pt-3 border-top d-grid gap-1 mb-4"><span className="text-secondary" style={{ fontSize: '0.82rem' }}>{nextOccurrence.elevator.identification}</span><strong style={{ fontSize: '1.08rem' }}>{nextOccurrence.description}</strong></div>
-              <div className={`d-inline-flex align-items-center gap-2 px-3 py-2 rounded ${nextOccurrence.trappedPeople ? 'bg-danger text-white' : 'bg-light text-dark'}`} style={{ fontSize: '0.86rem', fontWeight: 750 }}>
+              <div className={`d-inline-flex align-items-center gap-2 px-3 py-2 rounded ${nextOccurrence.trappedPeople ? 'bg-danger text-white' : 'text-secondary'}`} style={{ backgroundColor: nextOccurrence.trappedPeople ? undefined : 'var(--color-surface-hover)', fontSize: '0.86rem', fontWeight: 750 }}>
                 <span className="d-inline-flex align-items-center justify-content-center border border-current rounded-circle" style={{ width: '1.2rem', height: '1.2rem' }} aria-hidden="true">!</span>
                 {nextOccurrence.trappedPeople
                   ? `${nextOccurrence.trappedPeople} ${nextOccurrence.trappedPeople === 1 ? 'passageiro preso' : 'passageiros presos'}`

@@ -16,7 +16,7 @@ export default function NewOccurrenceAlert({ occurrence, open, onClose, onAccept
 
   return (
     <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3" style={{ zIndex: 1080, backgroundColor: 'rgba(0, 0, 0, 0.5)' }} role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
-      <section className="bg-white rounded shadow-lg position-relative w-100 overflow-auto" style={{ maxWidth: '560px', maxHeight: 'calc(100vh - 2rem)', padding: '2rem', borderTop: '5px solid var(--color-severity-critical)' }} role="dialog" aria-modal="true" aria-labelledby="new-occurrence-title">
+      <section className="app-card rounded shadow-lg position-relative w-100 overflow-auto" style={{ maxWidth: '560px', maxHeight: 'calc(100vh - 2rem)', padding: '2rem', borderTop: '5px solid var(--color-severity-critical)' }} role="dialog" aria-modal="true" aria-labelledby="new-occurrence-title">
         <button ref={closeButtonRef} className="position-absolute top-0 end-0 m-3 btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center border-0" style={{ width: '44px', height: '44px', fontSize: '1.5rem' }} type="button" aria-label="Fechar alerta" onClick={onClose}>&times;</button>
         <p className="text-primary fw-bold text-uppercase mb-2" style={{ fontSize: '0.75rem', letterSpacing: '0.08em' }}>Nova atribuição</p>
         <h2 className="fs-4 mb-4 pe-5" id="new-occurrence-title">Nova ocorrência atribuída a João Carlos</h2>

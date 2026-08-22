@@ -1,6 +1,6 @@
 export default function OperatorStateMessage({ type, title, children }) {
   return (
-    <section className="d-flex align-items-center gap-4 p-4 border rounded bg-white" style={{ minHeight: '150px', borderLeft: type === 'error' ? '4px solid var(--color-severity-critical)' : '1px solid var(--color-border)' }} role={type === 'error' ? 'alert' : 'status'}>
+    <section className="d-flex align-items-center gap-4 p-4 border rounded app-card" style={{ minHeight: '150px', borderLeft: type === 'error' ? '4px solid var(--color-severity-critical)' : '1px solid var(--color-border)' }} role={type === 'error' ? 'alert' : 'status'}>
       {type === 'loading' ? (
         <div className="spinner-border text-primary flex-shrink-0" style={{ width: '42px', height: '42px', borderWidth: '3px' }} role="status">
           <span className="visually-hidden">Carregando...</span>
@@ -10,7 +10,7 @@ export default function OperatorStateMessage({ type, title, children }) {
           {type === 'error' ? '!' : '✓'}
         </span>
       )}
-      <div><h2 className="fs-5 mb-1 text-dark">{title}</h2><p className="mb-0 text-secondary">{children}</p></div>
+      <div><h2 className="fs-5 mb-1" style={{ color: 'var(--color-text)' }}>{title}</h2><p className="mb-0 text-secondary">{children}</p></div>
     </section>
   );
 }

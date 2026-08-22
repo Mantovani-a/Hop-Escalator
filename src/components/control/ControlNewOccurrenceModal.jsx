@@ -34,7 +34,7 @@ export default function ControlNewOccurrenceModal({ onClose }) {
   return (
     <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ zIndex: 1050, backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
       <div
-        className="bg-white rounded shadow-lg overflow-hidden d-flex flex-column"
+        className="app-card rounded shadow-lg overflow-hidden d-flex flex-column"
         style={{ width: '100%', maxWidth: '500px', maxHeight: '90vh' }}
         role="dialog"
         aria-modal="true"
@@ -120,7 +120,7 @@ export default function ControlNewOccurrenceModal({ onClose }) {
             )}
           </form>
         </div>
-        <div className="d-flex justify-content-end gap-2 p-4 border-top mt-auto bg-light">
+        <div className="d-flex justify-content-end gap-2 p-4 border-top mt-auto" style={{ backgroundColor: 'var(--color-surface-hover)' }}>
           <button type="button" className="btn btn-outline-secondary" onClick={onClose}>
             Cancelar
           </button>
