@@ -1,72 +1,93 @@
-# 🏢 LiftHope • Hop-Escalator
+<p align="center">
+  <img src="src/assets/logos/hop-logo.png" alt="HOP" width="380">
+</p>
 
-> **Plataforma de Triagem Inteligente e Manutenção Preditiva para Transporte Vertical**
+# HOP — ecossistema de atendimento a elevadores
 
----
+HOP é um MVP acadêmico criado para o Challenge FIAP em parceria com a OTIS. A proposta conecta clientes, operação e técnicos de campo em um único fluxo demonstrativo para registrar, priorizar, despachar e acompanhar ocorrências de elevadores. O projeto não representa um produto oficial implantado pela OTIS.
 
-## 📌 Sobre o Projeto
+<div align="center">
+  <h2>Equipe</h2>
+  <p>
+    Davi Rabelo<br>
+    Enzo Mitev<br>
+    Felipe Domingues<br>
+    Marcris Filho<br>
+    Nicolas Mantovani
+  </p>
+</div>
 
-O **LiftHope** (Hop-Escalator) é um sistema web corporativo voltado para o monitoramento em tempo real, triagem inteligente de alertas e manutenção preditiva de elevadores e esteiras rolantes.
+## O problema
 
-A plataforma permite que operadores e equipes de engenharia identifiquem anomalias mecânicas antes que ocorra uma parada não programada, através de telemetria contínua (temperatura, vibração RMS, desgaste de cabos) e visualização estrutural interativa em **Raio-X (SVG Dinâmico)**.
+Falhas de elevadores têm contextos e riscos diferentes — de funcionamento parcial a passageiros presos. Organizar informações, prioridade, equipe e acompanhamento em interfaces desconectadas aumenta o tempo de resposta e reduz a visibilidade operacional.
 
----
+## A solução
 
-## 🎯 Principais Funcionalidades
+| Módulo | Público | Visão principal |
+| --- | --- | --- |
+| **HOP Control** | Lideranças | Central operacional com mapa, ocorrências, técnicos, elevadores e indicadores. |
+| **HOP Operator** | Técnicos de campo | Turno, fila priorizada, rota, diagnóstico técnico, modelo 2D e fluxo de atendimento. |
+| **HOP Client** | Responsáveis locais | Estado dos elevadores, solicitação de suporte e acompanhamento do chamado. |
 
-- **🚨 Triagem de Alertas & Priorização Automática:**
-  - **P1 (Crítico):** Falhas de alto risco com parada iminente (destaque em vermelho sólido e priorização no topo da fila).
-  - **P2 (Urgente):** Alertas operacionais e desgaste acelerado (laranja sólido).
-  - **Saudável:** Equipamentos operando dentro dos parâmetros nominais (verde esmeralda).
-- **🩻 Planta de Raio-X Estrutural (SVG Dinâmico):**
-  - Representação técnica em corte do poço do elevador com destaque visual em tempo real dos componentes em anomalia (`Motor`, `Cabos/Contrapeso`, `Cabine`, `Portas`, `Poço/Amortecedores`).
-- **⚡ Chaos Simulator:**
-  - Injeção controlada de ocorrências e anomalias mecânicas para testes de estresse e validação de tempo de resposta da equipe de manutenção.
-- **📊 Telemetria em Tempo Real:**
-  - Monitoramento de temperatura do estator, vibração global (RMS), tensão de cabos de tração e lotação de passageiros.
+## Fluxo integrado
 
----
+**Cliente informa a ocorrência** → **HOP calcula a prioridade** → **Control organiza e atribui** → **Operator recebe e se desloca** → **atendimento é realizado** → **os três módulos refletem a resolução**.
 
-## 🎨 Diretrizes de Design & UI/UX
+Todos os módulos leem e atualizam a mesma ocorrência no navegador. O cenário principal usa Mariana Alves, Hospital Santa Helena, Elevador 03 e o operador João Carlos.
 
-- **Estilo:** Corporativo, *Flat Design*, Clean e Minimalista.
-- **Gradientes:** Estritamente proibido o uso de gradientes (100% cores sólidas de alto contraste).
-- **Paleta de Cores:**
-  - Fundo Geral: Off-white (`#fafafa` / `bg-slate-50`)
-  - Primária / Sidebar: Azul Sólido (`#2563eb` / `bg-blue-600`)
-  - Alerta P1 (Crítico): Vermelho Sólido (`#ef4444` / `bg-red-500`) com pulso
-  - Alerta P2 (Urgente): Laranja Sólido (`#f97316` / `bg-orange-500`)
-  - Operacional / Saudável: Verde Sólido (`#10b981` / `bg-emerald-500`)
-  - Tipografia: Cinza chumbo / Azul escuro (`#0f172a` / `text-slate-900`)
+## Funcionalidades do MVP
 
----
+- priorização por contexto operacional, passageiros presos, risco, local, condição do elevador, tempo e reincidência;
+- recomendação e atribuição demonstrativa de técnico;
+- ciclo completo do chamado, da abertura à resolução, com três ações operacionais no Operator;
+- mapa local interativo de Nova Aurora, com pan, zoom, filtros e rota compartilhada;
+- diagnóstico preliminar/completo e representação 2D interativa detalhada do elevador;
+- dashboards, filas, histórico e dados demonstrativos consistentes;
+- turno e tema claro/escuro persistentes, com navegação lateral responsiva nos três módulos;
+- restauração discreta dos dados originais para repetir a demonstração.
 
-## 🛠️ Stack Tecnológica Recomendada
+## Tecnologias
 
-- **Frontend:** [React](https://react.dev/) + [Vite](https://vitejs.dev/)
-- **Estilização:** [Tailwind CSS](https://tailwindcss.com/)
-- **Ícones:** [Lucide React](https://lucide.dev/)
-- **Animações (Opcional):** [Framer Motion](https://www.framer.com/motion/)
+- React 19 e JavaScript;
+- HTML semântico e CSS responsivo;
+- Bootstrap 5;
+- Vite;
+- APIs nativas do navegador (`localStorage`, Geolocation, Web Audio e Pointer Events).
 
----
+O mapa é implementado localmente em React/CSS, sem API externa, chave ou serviço pago.
 
-## 🚀 Como Iniciar o Projeto (Quando Pronto)
+## Como executar
+
+Requer Node.js e npm instalados.
 
 ```bash
-# 1. Inicializar o template Vite com React
-npm create vite@latest . -- --template react
-
-# 2. Instalar dependências e Tailwind CSS
 npm install
-npm install -D tailwindcss postcss autoprefixer
-npm install lucide-react
-
-# 3. Iniciar o servidor de desenvolvimento
 npm run dev
 ```
 
----
+Para validar a versão de produção:
 
-## 📄 Licença
+```bash
+npm run build
+npm run preview
+```
 
-Projeto desenvolvido para fins acadêmicos e técnicos no âmbito do projeto **Hop-Escalator**.
+## Estrutura resumida
+
+```text
+src/
+├── assets/       # logos oficiais
+├── components/   # componentes globais e dos três módulos
+├── context/      # tema da aplicação
+├── data/         # mocks, estado compartilhado e mapa
+├── hooks/        # assinaturas de estado e acessibilidade
+├── pages/        # páginas e roteamento interno dos módulos
+├── styles/       # tokens, estilos compartilhados e ajustes responsivos por módulo
+└── utils/        # prioridade, despacho, fluxo e apresentação
+```
+
+Detalhes de arquitetura e manutenção estão em [DOCUMENTACAO_TECNICA.md](DOCUMENTACAO_TECNICA.md).
+
+## Dados demonstrativos
+
+Técnicos, clientes, ocorrências, endereços, coordenadas, códigos, diagnósticos, ETA e cidade são fictícios ou simulados para apresentação acadêmica. Não há backend, GPS em tempo real, IA ou especificações técnicas oficiais de equipamentos OTIS neste MVP.

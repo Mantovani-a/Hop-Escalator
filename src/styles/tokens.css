@@ -1,0 +1,100 @@
+:root {
+  --color-primary: #252D7A;
+  --color-primary-action: #3F5BD8;
+  --color-background: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-border: #D8DEE8;
+  --color-text: #1E293B;
+  --color-text-muted: #64748B;
+  --color-on-primary: #FFFFFF;
+  --color-primary-soft: #EEF2FF;
+  --color-primary-muted: #C7D2FE;
+  --color-neutral-soft: #F1F5F9;
+  --color-neutral-strong: #475569;
+
+  --color-severity-low: #2EC4B6;
+  --color-severity-attention: #EAB308;
+  --color-severity-high: #F59E0B;
+  --color-severity-critical: #DC2626;
+  --color-severity-low-soft: #E6F9F7;
+  --color-severity-attention-soft: #FEF9C3;
+  --color-severity-high-soft: #FFF7E6;
+  --color-severity-critical-soft: #FEE2E2;
+  --color-severity-low-text: #0F766E;
+  --color-severity-attention-text: #854D0E;
+  --color-severity-high-text: #9A5700;
+  --color-severity-critical-text: #991B1B;
+
+  --focus-ring: rgba(63, 91, 216, 0.32);
+  --primary-border-soft: rgba(255, 255, 255, 0.58);
+  --primary-text-soft: rgba(255, 255, 255, 0.78);
+  --shadow-subtle: 0 8px 24px rgba(30, 41, 59, 0.06);
+  --shadow-focus: 0 0 0 0.25rem var(--focus-ring);
+  --overlay-background: rgba(30, 41, 59, 0.58);
+  --map-background: #DCE5ED;
+  --map-district-border: #B7C8D5;
+  --map-district-background: #EAF0F4;
+  --map-district-text: #607586;
+  --map-block-border: #C7D3DC;
+  --map-block-background: #F7FAFC;
+  --map-block-shadow: #E2E9EF;
+  --map-road: #AEBFCA;
+  --map-road-edge: #D4DEE5;
+  --map-label: #536978;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+
+  --bs-primary: var(--color-primary-action);
+  --bs-primary-rgb: 63, 91, 216;
+  --bs-body-color: var(--color-text);
+  --bs-body-bg: var(--color-background);
+  --bs-border-color: var(--color-border);
+  --bs-secondary-color: var(--color-text-muted);
+  --bs-tertiary-bg: var(--color-neutral-soft);
+}
+
+:root[data-theme='dark'] {
+  --color-background: #151D2E;
+  --color-surface: #1E293B;
+  --color-border: #3B4A63;
+  --color-text: #F8FAFC;
+  --color-text-muted: #B7C2D0;
+  --color-primary-soft: #29366B;
+  --color-primary-muted: #D7DEFF;
+  --color-neutral-soft: #273449;
+  --color-neutral-strong: #C5CFDC;
+  --color-severity-low-soft: #163E3C;
+  --color-severity-attention-soft: #463D12;
+  --color-severity-high-soft: #4A3215;
+  --color-severity-critical-soft: #4A2027;
+  --color-severity-low-text: #72E0D5;
+  --color-severity-attention-text: #F6D75E;
+  --color-severity-high-text: #FDBA55;
+  --color-severity-critical-text: #FF8A8A;
+  --focus-ring: rgba(125, 145, 255, 0.45);
+  --primary-border-soft: rgba(255, 255, 255, 0.18);
+  --primary-text-soft: rgba(248, 250, 252, 0.78);
+  --shadow-subtle: 0 8px 24px rgba(3, 7, 18, 0.22);
+  --overlay-background: rgba(3, 7, 18, 0.72);
+  --map-background: #172235;
+  --map-district-border: #34455C;
+  --map-district-background: #1C2A3D;
+  --map-district-text: #9BAFC0;
+  --map-block-border: #3B4A5F;
+  --map-block-background: #253448;
+  --map-block-shadow: #1C293A;
+  --map-road: #526276;
+  --map-road-edge: #27374A;
+  --map-label: #B8C5D1;
+  color-scheme: dark;
+}
