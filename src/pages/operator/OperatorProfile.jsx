@@ -4,7 +4,12 @@ import ProfileAvatar from '../../components/ProfileAvatar';
 export default function OperatorProfile({ technician, technicianStatus }) {
   return (
     <>
-      <section className="d-flex flex-column gap-2 mb-4 pb-4 border-bottom"><div><p className="text-primary fw-bold text-uppercase mb-1" style={{ fontSize: '0.75rem', letterSpacing: '0.08em' }}>Dados demonstrativos</p><h1 className="mb-0" style={{ fontSize: 'clamp(1.8rem, 6vw, 2.7rem)' }}>Perfil</h1></div></section>
+      <header className="page-header">
+        <div>
+          <p className="page-header__subtitle">Dados demonstrativos</p>
+          <h1 className="page-header__title">Perfil</h1>
+        </div>
+      </header>
       <section className="app-card border rounded shadow-sm p-4 p-md-5">
         <div className="d-flex flex-wrap align-items-center gap-4 pb-4 border-bottom"><ProfileAvatar name={technician.name} src={technician.avatar} size="lg" decorative /><div className="flex-grow-1"><h2 className="fs-4 mb-1" style={{ color: 'var(--color-text)' }}>{technician.name}</h2><p className="mb-3 text-secondary" style={{ fontSize: '0.9rem' }}>{technician.employeeId}</p><StatusBadge value={technicianStatus} /></div></div>
         <dl className="d-grid gap-4 mt-4 pt-2" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>

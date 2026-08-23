@@ -24,21 +24,24 @@ export default function OperatorDashboard({
 
   return (
     <>
-      <section className="d-flex flex-column gap-2 mb-4 position-relative">
-        <div><p className="text-primary fw-bold text-uppercase mb-1" style={{ fontSize: '0.75rem', letterSpacing: '0.08em' }}>Visão operacional</p><h1 className="mb-0" style={{ fontSize: 'clamp(1.8rem, 6vw, 2.6rem)' }}>Bom dia, João Carlos</h1></div>
-        <button className="btn btn-sm btn-outline-primary d-md-none mt-2" type="button" onClick={onSimulate}>Simular nova ocorrência</button>
-      </section>
+      <header className="page-header">
+        <div>
+          <p className="page-header__subtitle">Visão operacional</p>
+          <h1 className="page-header__title">Bom dia, João Carlos</h1>
+        </div>
+        <button className="btn btn-sm btn-outline-primary d-md-none" type="button" onClick={onSimulate}>Simular nova ocorrência</button>
+      </header>
 
-      <section className="row row-cols-1 row-cols-md-2 g-3 mb-5" aria-label="Resumo operacional">
-        <div className="col"><article className="app-card p-4 d-flex flex-column h-100"><span className="text-secondary" style={{ fontSize: '0.75rem' }}>Próxima ocorrência</span><strong className="text-primary my-1" style={{ fontSize: 'clamp(1.45rem, 5vw, 2rem)', lineHeight: 1 }}>{nextOccurrence ? `${nextOccurrence.priority.score}/100` : '—'}</strong><small className="text-secondary text-truncate" style={{ fontSize: '0.75rem' }}>{nextOccurrence?.client.name || 'Fila livre'}</small></article></div>
-        <div className="col"><article className="app-card p-4 d-flex flex-column h-100"><span className="text-secondary" style={{ fontSize: '0.75rem' }}>Chamados pendentes</span><strong className="text-primary my-1" style={{ fontSize: 'clamp(1.45rem, 5vw, 2rem)', lineHeight: 1 }}>{occurrences.length}</strong><small className="text-secondary text-truncate" style={{ fontSize: '0.75rem' }}>atribuídos a João Carlos</small></article></div>
-        <div className="col"><article className="app-card p-4 d-flex flex-column h-100"><span className="text-secondary" style={{ fontSize: '0.75rem' }}>Ocorrências críticas</span><strong className="text-primary my-1" style={{ fontSize: 'clamp(1.45rem, 5vw, 2rem)', lineHeight: 1 }}>{criticalCount}</strong><small className="text-secondary text-truncate" style={{ fontSize: '0.75rem' }}>prioridade imediata</small></article></div>
-        <div className="col"><article className="app-card p-4 d-flex flex-column h-100"><span className="text-secondary" style={{ fontSize: '0.75rem' }}>Concluídos hoje</span><strong className="text-primary my-1" style={{ fontSize: 'clamp(1.45rem, 5vw, 2rem)', lineHeight: 1 }}>{completedToday}</strong><small className="text-secondary text-truncate" style={{ fontSize: '0.75rem' }}>atendimentos finalizados</small></article></div>
+      <section className="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3 mb-4" aria-label="Resumo operacional">
+        <div className="col"><article className="app-card p-3 d-flex flex-column justify-content-between h-100"><span className="text-secondary fw-semibold" style={{ fontSize: '0.78rem' }}>Próxima ocorrência</span><strong className="text-primary my-1" style={{ fontSize: 'clamp(1.45rem, 3.5vw, 1.95rem)', lineHeight: 1.1, fontWeight: 800 }}>{nextOccurrence ? `${nextOccurrence.priority.score}/100` : '—'}</strong><small className="text-secondary text-truncate" style={{ fontSize: '0.74rem' }}>{nextOccurrence?.client.name || 'Fila livre'}</small></article></div>
+        <div className="col"><article className="app-card p-3 d-flex flex-column justify-content-between h-100"><span className="text-secondary fw-semibold" style={{ fontSize: '0.78rem' }}>Chamados pendentes</span><strong className="text-primary my-1" style={{ fontSize: 'clamp(1.45rem, 3.5vw, 1.95rem)', lineHeight: 1.1, fontWeight: 800 }}>{occurrences.length}</strong><small className="text-secondary text-truncate" style={{ fontSize: '0.74rem' }}>atribuídos a João Carlos</small></article></div>
+        <div className="col"><article className="app-card p-3 d-flex flex-column justify-content-between h-100"><span className="text-secondary fw-semibold" style={{ fontSize: '0.78rem' }}>Ocorrências críticas</span><strong className="text-primary my-1" style={{ fontSize: 'clamp(1.45rem, 3.5vw, 1.95rem)', lineHeight: 1.1, fontWeight: 800 }}>{criticalCount}</strong><small className="text-secondary text-truncate" style={{ fontSize: '0.74rem' }}>prioridade imediata</small></article></div>
+        <div className="col"><article className="app-card p-3 d-flex flex-column justify-content-between h-100"><span className="text-secondary fw-semibold" style={{ fontSize: '0.78rem' }}>Concluídos hoje</span><strong className="text-primary my-1" style={{ fontSize: 'clamp(1.45rem, 3.5vw, 1.95rem)', lineHeight: 1.1, fontWeight: 800 }}>{completedToday}</strong><small className="text-secondary text-truncate" style={{ fontSize: '0.74rem' }}>atendimentos finalizados</small></article></div>
       </section>
 
       {nextOccurrence ? (
-        <section className="mt-5" aria-labelledby="next-occurrence-title">
-          <div className="d-flex align-items-center justify-content-between mb-3"><div><p className="text-primary fw-bold text-uppercase mb-1" style={{ fontSize: '0.75rem', letterSpacing: '0.08em' }}>Atender primeiro</p><h2 className="fs-5 mb-0" id="next-occurrence-title">Próxima ocorrência</h2></div><a href={`#/operator/occurrence/${nextOccurrence.id}`} className="fw-bold text-decoration-none">Ver detalhes</a></div>
+        <section className="mt-4" aria-labelledby="next-occurrence-title">
+          <div className="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom"><div><p className="page-header__subtitle mb-0">Atender primeiro</p><h2 className="fs-5 mb-0" id="next-occurrence-title">Próxima ocorrência</h2></div><a href={`#/operator/occurrence/${nextOccurrence.id}`} className="fw-bold text-decoration-none" style={{ fontSize: '0.82rem' }}>Ver detalhes</a></div>
           <article className="app-card row g-0" style={{ borderLeft: `5px solid var(--color-severity-${nextOccurrence.priority.classification === 'baixa' ? 'low' : nextOccurrence.priority.classification === 'atenção' ? 'attention' : nextOccurrence.priority.classification === 'alta' ? 'high' : 'critical'})`, padding: '1.5rem', boxShadow: 'var(--shadow-subtle)' }}>
             <div className="col-12 col-md-7 pe-md-4">
               <PriorityIndicator priority={nextOccurrence.priority} />

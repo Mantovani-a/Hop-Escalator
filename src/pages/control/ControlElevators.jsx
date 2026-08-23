@@ -4,7 +4,15 @@ import { formatDate, formatDateTime } from '../../utils/presentation';
 export default function ControlElevators({ elevators }) {
   return (
     <>
-      <section className="d-flex flex-column flex-sm-row align-items-start align-items-sm-end justify-content-sm-between gap-4 pb-4 border-bottom"><div><p className="text-primary fw-bold text-uppercase mb-1" style={{ fontSize: '0.75rem', letterSpacing: '0.08em' }}>Parque monitorado</p><h1 className="mb-2" style={{ fontSize: 'clamp(2rem, 5vw, 3rem)' }}>Elevadores</h1></div><span className="badge app-card text-secondary border px-3 py-2 fs-6 rounded-pill fw-bold">{elevators.filter((item) => item.status === 'operando').length} operando</span></section>
+      <header className="page-header">
+        <div>
+          <p className="page-header__subtitle">Parque monitorado</p>
+          <h1 className="page-header__title">Elevadores</h1>
+        </div>
+        <span className="badge app-card text-secondary border px-3 py-2 fs-6 rounded-pill fw-bold">
+          {elevators.filter((item) => item.status === 'operando').length} operando
+        </span>
+      </header>
       <section className="row g-4 mt-2">
         {elevators.map((elevator) => (
           <div className="col-12 col-sm-6 col-lg-4 col-xl-3" key={elevator.id}>

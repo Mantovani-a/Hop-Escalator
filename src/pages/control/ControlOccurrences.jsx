@@ -21,15 +21,30 @@ export default function ControlOccurrences({ occurrences, onSelectOccurrence }) 
   });
   return (
     <>
-      <section className="d-flex flex-column flex-sm-row align-items-start align-items-sm-end justify-content-sm-between gap-4 pb-4 border-bottom">
-        <div><p className="text-primary fw-bold text-uppercase mb-1" style={{ fontSize: '0.75rem', letterSpacing: '0.08em' }}>Fila operacional</p><h1 className="mb-2" style={{ fontSize: 'clamp(2rem, 5vw, 3rem)' }}>Ocorrências</h1></div>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+      <header className="page-header">
+        <div>
+          <p className="page-header__subtitle">Fila operacional</p>
+          <h1 className="page-header__title">Ocorrências</h1>
+        </div>
+        <div className="d-flex gap-3 align-items-center">
           <span className="badge app-card text-secondary border px-3 py-2 fs-6 rounded-pill fw-bold">{active.length} ativas</span>
           <button type="button" className="btn btn-primary" onClick={() => setIsModalOpen(true)}>Registrar Ocorrência</button>
         </div>
-      </section>
+      </header>
       {isModalOpen && <ControlNewOccurrenceModal onClose={() => setIsModalOpen(false)} />}
-      <div className="d-flex gap-2 my-4 pb-2 overflow-x-auto" role="group" aria-label="Filtrar ocorrências">{filters.map(([id, label]) => <button key={id} className={`btn rounded-pill fw-bold text-nowrap flex-shrink-0 ${filter === id ? 'btn-primary bg-opacity-10 text-primary border-primary' : 'btn-outline-secondary text-secondary app-card border-light-subtle'}`} style={{ minHeight: '42px', fontSize: '0.8rem' }} type="button" onClick={() => setFilter(id)}>{label}</button>)}</div>
+      <div className="d-flex gap-2 my-3 pb-1 overflow-x-auto" role="group" aria-label="Filtrar ocorrências">
+        {filters.map(([id, label]) => (
+          <button
+            key={id}
+            className={`btn rounded-pill fw-bold text-nowrap flex-shrink-0 ${filter === id ? 'btn-primary' : 'btn-outline-secondary text-secondary app-card'}`}
+            style={{ minHeight: '38px', fontSize: '0.8rem', padding: '0.4rem 1rem' }}
+            type="button"
+            onClick={() => setFilter(id)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
       <section className="app-card overflow-hidden" aria-label="Fila de ocorrências">
         <div className="w-100 overflow-x-auto">
           <table className="w-100 table table-hover mb-0" style={{ minWidth: '1020px', fontSize: '0.8rem' }}>

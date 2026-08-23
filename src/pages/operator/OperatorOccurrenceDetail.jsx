@@ -19,10 +19,17 @@ export default function OperatorOccurrenceDetail({ occurrence, workflowStatus, o
   return (
     <>
       <a className="d-inline-flex align-items-center gap-2 mb-4 text-decoration-none fw-bold" style={{ minHeight: '44px' }} href="#/operator/occurrences"><span aria-hidden="true">&larr;</span> Voltar para ocorrências</a>
-      <section className="d-flex flex-column gap-4 pb-4 mb-4 border-bottom">
-        <div><p className="text-primary fw-bold text-uppercase mb-1" style={{ fontSize: '0.75rem', letterSpacing: '0.08em' }}>{occurrence.protocol || occurrence.metadata.serviceNumber}</p><h1 className="mb-2" style={{ fontSize: 'clamp(1.8rem, 6vw, 2.7rem)' }}>{occurrence.client.name}</h1><p className="mb-0 text-secondary">{occurrence.description}</p></div>
-        <div className="d-flex flex-wrap align-items-center gap-3"><PriorityIndicator priority={occurrence.priority} /><StatusBadge value={workflowStatus} /></div>
-      </section>
+      <header className="page-header">
+        <div>
+          <p className="page-header__subtitle">{occurrence.protocol || occurrence.metadata.serviceNumber}</p>
+          <h1 className="page-header__title">{occurrence.client.name}</h1>
+          <p className="mb-0 text-secondary mt-1">{occurrence.description}</p>
+        </div>
+        <div className="d-flex flex-wrap align-items-center gap-3">
+          <PriorityIndicator priority={occurrence.priority} />
+          <StatusBadge value={workflowStatus} />
+        </div>
+      </header>
 
       {isResolved && <FeedbackMessage tone="success" title="Ocorrência resolvida">Este atendimento foi finalizado por João Carlos e já consta no histórico.</FeedbackMessage>}
 

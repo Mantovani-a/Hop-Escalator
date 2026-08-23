@@ -31,7 +31,13 @@ export default function ControlAnalytics({ occurrences }) {
   const daily = [18,22,19,27,24,31,active.length];
   return (
     <>
-      <section className="d-flex flex-column flex-sm-row align-items-start align-items-sm-end justify-content-sm-between gap-4 pb-4 border-bottom"><div><p className="text-primary fw-bold text-uppercase mb-1" style={{ fontSize: '0.75rem', letterSpacing: '0.08em' }}>Leitura operacional</p><h1 className="mb-2" style={{ fontSize: 'clamp(2rem, 5vw, 3rem)' }}>Análises</h1></div><span className="badge app-card text-secondary border px-3 py-2 fs-6 rounded-pill fw-bold">Últimos 7 dias</span></section>
+      <header className="page-header">
+        <div>
+          <p className="page-header__subtitle">Leitura operacional</p>
+          <h1 className="page-header__title">Análises</h1>
+        </div>
+        <span className="badge app-card text-secondary border px-3 py-2 fs-6 rounded-pill fw-bold">Últimos 7 dias</span>
+      </header>
       <section className="row g-4 mt-2">
         <div className="col-12 col-md-6 col-xxl-4"><article className="app-card shadow-sm border p-4 h-100" style={{ borderRadius: 'var(--radius-lg)' }}><header className="d-flex align-items-start justify-content-between gap-3 pb-3 border-bottom"><h2 className="fs-6 mb-0">Ocorrências por gravidade</h2><span className="text-secondary" style={{ fontSize: '0.68rem' }}>{occurrences.length} registros</span></header><BarList items={severity} max={Math.max(...severity.map((item) => item.value))} /></article></div>
         <div className="col-12 col-md-6 col-xxl-4"><article className="app-card shadow-sm border p-4 h-100" style={{ borderRadius: 'var(--radius-lg)' }}><header className="d-flex align-items-start justify-content-between gap-3 pb-3 border-bottom"><h2 className="fs-6 mb-0">Ocorrências por status</h2><span className="text-secondary" style={{ fontSize: '0.68rem' }}>Fluxo atual</span></header><BarList items={statuses} max={Math.max(...statuses.map((item) => item.value))} /></article></div>

@@ -18,13 +18,13 @@ export default function ControlTechnicians({ technicians, onSelectTechnician }) 
 
   return (
     <>
-      <section className="d-flex flex-column flex-sm-row align-items-start align-items-sm-end justify-content-sm-between gap-4 pb-4 border-bottom">
+      <header className="page-header">
         <div>
-          <p className="text-primary fw-bold text-uppercase mb-1" style={{ fontSize: '0.75rem', letterSpacing: '0.08em' }}>Operação de campo</p>
-          <h1 className="mb-2" style={{ fontSize: 'clamp(2rem, 5vw, 3rem)' }}>Equipe de Campo</h1>
+          <p className="page-header__subtitle">Operação de campo</p>
+          <h1 className="page-header__title">Equipe de Campo</h1>
         </div>
         <span className="badge app-card text-secondary border px-3 py-2 fs-6 rounded-pill fw-bold">{available} disponíveis</span>
-      </section>
+      </header>
       
       <section className="d-flex flex-wrap gap-2 mt-4">
         <div className="d-flex align-items-center gap-2 me-3">

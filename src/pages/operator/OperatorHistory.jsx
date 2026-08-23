@@ -24,9 +24,12 @@ export default function OperatorHistory({ historyItems }) {
 
   return (
     <>
-      <section className="d-flex flex-column gap-2 mb-4">
-        <div><p className="text-primary fw-bold text-uppercase mb-1" style={{ fontSize: '0.75rem', letterSpacing: '0.08em' }}>Atendimentos de João Carlos</p><h1 className="mb-0" style={{ fontSize: 'clamp(1.8rem, 6vw, 2.6rem)' }}>Histórico</h1></div>
-      </section>
+      <header className="page-header">
+        <div>
+          <p className="page-header__subtitle">Atendimentos de João Carlos</p>
+          <h1 className="page-header__title">Histórico</h1>
+        </div>
+      </header>
       <div className="d-flex p-1 border rounded app-card mb-4 overflow-x-auto" style={{ maxWidth: '480px' }} aria-label="Filtrar histórico">
         {filters.map((filter) => <button className={`btn flex-grow-1 border-0 fw-bold text-nowrap rounded-sm ${filter.id === activeFilter ? 'btn-primary' : 'text-secondary bg-transparent'}`} style={{ fontSize: '0.84rem', minHeight: '42px' }} type="button" key={filter.id} onClick={() => setActiveFilter(filter.id)}>{filter.label}</button>)}
       </div>

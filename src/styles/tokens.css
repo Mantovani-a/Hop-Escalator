@@ -3,6 +3,9 @@
   --color-primary-action: #3f5bd8;
   --color-background: #f8fafc;
   --color-surface: #ffffff;
+  --color-surface-hover: #f1f5f9;
+  --color-surface-soft: #f8fafc;
+  --color-card-border: #e2e8f0;
   --color-border: #d8dee8;
   --color-text: #1e293b;
   --color-text-muted: #64748b;
@@ -66,6 +69,9 @@
 :root[data-theme="dark"] {
   --color-background: #151d2e;
   --color-surface: #1e293b;
+  --color-surface-hover: #273449;
+  --color-surface-soft: #192233;
+  --color-card-border: #334155;
   --color-border: #3b4a63;
   --color-text: #f8fafc;
   --color-text-muted: #b7c2d0;

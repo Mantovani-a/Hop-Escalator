@@ -96,9 +96,20 @@ export default function ControlOperationsMap({ technicians, occurrences, onSelec
 
   return (
     <section className="app-card control-map-card" aria-labelledby="operations-map-title">
-      <div className="section-heading control-section-heading"><div><p className="eyebrow eyebrow--dark">Situação em campo</p><h2 id="operations-map-title">Mapa operacional</h2></div><span>Nova Aurora · cidade demonstrativa</span></div>
+      <div className="d-flex align-items-center justify-content-between gap-3 mb-3 pb-2 border-bottom">
+        <div>
+          <p className="page-header__subtitle mb-0">Situação em campo</p>
+          <h2 className="fs-5 mb-0" id="operations-map-title">Mapa operacional</h2>
+        </div>
+        <span className="text-secondary" style={{ fontSize: '0.78rem' }}>Nova Aurora · cidade demonstrativa</span>
+      </div>
       <CityMap markers={[...establishmentMarkers, ...occurrenceMarkers, ...technicianMarkers]} route={joaoRoute} />
-      <div className="control-map-statuses"><StatusBadge value="disponível" /><StatusBadge value="em deslocamento" /><StatusBadge value="em atendimento" /><StatusBadge value="indisponível" /></div>
+      <div className="control-map-statuses">
+        <StatusBadge value="disponível" />
+        <StatusBadge value="em deslocamento" />
+        <StatusBadge value="em atendimento" />
+        <StatusBadge value="indisponível" />
+      </div>
     </section>
   );
 }

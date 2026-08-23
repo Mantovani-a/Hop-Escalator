@@ -19,8 +19,8 @@ export default function ControlShell({ route, user, children }) {
       <div className="module-workspace control-workspace">
         <header className="module-utility-bar control-utility-bar">
           <button className="module-menu-button control-menu-button" type="button" aria-label="Abrir menu" aria-expanded={drawerOpen} onClick={() => setDrawerOpen(true)}>☰</button>
-          <div><strong>Central de Operações</strong><span>Visão geral em tempo real</span></div>
-          <span className="control-live-status"><span aria-hidden="true">●</span> Atualizado há poucos segundos</span>
+          <div><strong>HOP Control</strong><span>Central de Operações</span></div>
+          <span className="control-live-status"><span aria-hidden="true">●</span> Atualizado em tempo real</span>
           <DemoHomeLink />
           <ThemeToggle compact />
         </header>

@@ -26,10 +26,18 @@ export default function OperatorServicePage({ occurrence, workflowStatus, onAdva
   return (
     <>
       <a className="d-inline-flex align-items-center fw-bold text-decoration-none mb-3" href={`#/operator/occurrence/${occurrence.id}`} style={{ minHeight: '44px' }}><span className="me-2" aria-hidden="true">←</span> Ver ocorrência</a>
-      <section className="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-lg-between gap-3 mb-5">
-        <div><p className="text-primary fw-bold text-uppercase mb-1" style={{ fontSize: '0.75rem', letterSpacing: '0.08em' }}>Atendimento #{occurrence.metadata.serviceNumber}</p><h1 className="mb-0 fs-3">{occurrence.client.name} <span className="text-secondary fw-normal d-block d-sm-inline mt-1 mt-sm-0 fs-5">• {occurrence.elevator.identification}</span></h1></div>
-        <div className="d-flex flex-wrap align-items-center gap-3"><PriorityIndicator priority={occurrence.priority} /><StatusBadge value={workflowStatus} /></div>
-      </section>
+      <header className="page-header">
+        <div>
+          <p className="page-header__subtitle">Atendimento #{occurrence.metadata.serviceNumber}</p>
+          <h1 className="page-header__title">
+            {occurrence.client.name} <span className="text-secondary fw-normal fs-5">· {occurrence.elevator.identification}</span>
+          </h1>
+        </div>
+        <div className="d-flex flex-wrap align-items-center gap-3">
+          <PriorityIndicator priority={occurrence.priority} />
+          <StatusBadge value={workflowStatus} />
+        </div>
+      </header>
 
       <div className={`row g-4 align-items-start ${isMaintenance ? 'justify-content-center' : ''}`}>
         {!isMaintenance && <div className="col-12 col-xl-8"><RouteMap occurrence={occurrence} /></div>}
