@@ -33,23 +33,11 @@
   max-width: 1280px;
 }
 
-
-.operator-section-heading h2,
-.operator-section-heading p,
 .elevator-model-card__heading h2,
 .elevator-model-card__heading p,
 .hop-route-card__heading h2,
 .hop-route-card__heading p {
   margin-bottom: 0;
-}
-
-.operator-section-heading a,
-.operator-back-link {
-  display: inline-flex;
-  min-height: 44px;
-  align-items: center;
-  flex: 0 0 auto;
-  font-weight: 750;
 }
 
 .operator-priority-indicator {
@@ -68,77 +56,7 @@
   font-size: 0.86rem;
 }
 
-.operator-queue-item__type {
-  display: block;
-  margin-top: var(--space-4);
-  color: var(--color-text-muted);
-  font-size: 0.78rem;
-  font-weight: 750;
-  text-transform: uppercase;
-}
-
-.operator-passenger-alert {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  width: fit-content;
-  max-width: 100%;
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-sm);
-  color: var(--color-neutral-strong);
-  background: var(--color-neutral-soft);
-  font-size: 0.86rem;
-  font-weight: 750;
-}
-
-.operator-passenger-alert span {
-  display: inline-flex;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: center;
-  width: 1.2rem;
-  height: 1.2rem;
-  border: 1px solid currentColor;
-  border-radius: 50%;
-}
-
-.operator-passenger-alert.has-passengers {
-  color: var(--color-severity-critical-text);
-  background: var(--color-severity-critical-soft);
-}
-
-
-
-.operator-page-count {
-  padding: var(--space-2) var(--space-3);
-  border-radius: 999px;
-  color: var(--color-primary);
-  background: var(--color-primary-soft);
-  font-size: 0.8rem;
-  font-weight: 750;
-}
-
-
-
-.operator-back-link {
-  width: fit-content;
-  gap: var(--space-2);
-  margin-bottom: var(--space-4);
-  text-decoration: none;
-}
-
-
-
-
-
-
-
-
-
-.operator-alert-panel__summary p {
-  margin: var(--space-2) 0 0;
-}
-
+/* Representação esquemática do elevador 2D */
 .elevator-model-card {
   --model-severity: var(--color-primary-action);
   --model-severity-soft: var(--color-primary-soft);
@@ -420,16 +338,11 @@
   font-weight: 700;
 }
 
-
-
-.hop-route-card,
-.operator-diagnosis-preview {
-  min-width: 0;
-  padding: var(--space-4);
-}
-
+/* Card de rota e navegação */
 .hop-route-card {
   grid-area: route;
+  min-width: 0;
+  padding: var(--space-4);
 }
 
 .operator-route-map-wrap {
@@ -500,64 +413,7 @@
   font-size: 0.8rem;
 }
 
-.operator-diagnosis-preview {
-  grid-area: diagnosis;
-  display: flex;
-  height: 100%;
-  flex-direction: column;
-  overflow-wrap: normal;
-  word-break: normal;
-}
-
-.operator-diagnosis-probability {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  margin: var(--space-5) 0 var(--space-3);
-  padding: var(--space-3);
-  border-radius: var(--radius-sm);
-  background: var(--color-primary-soft);
-}
-
-.operator-diagnosis-probability strong {
-  color: var(--color-primary);
-  font-size: 1.4rem;
-}
-
-.operator-diagnosis-preview > p:not(.eyebrow) {
-  color: var(--color-text-muted);
-  font-size: 0.88rem;
-}
-
-.operator-diagnosis-preview .btn {
-  margin-top: auto;
-}
-
-.operator-diagnostic-details {
-  display: grid;
-  gap: var(--space-3);
-  margin-top: var(--space-4);
-}
-.operator-diagnostic-details section {
-  padding: var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-background);
-}
-.operator-diagnostic-details h3 {
-  margin-bottom: var(--space-2);
-  font-size: 0.9rem;
-}
-.operator-diagnostic-details ul {
-  display: grid;
-  gap: var(--space-2);
-  margin: 0;
-  padding-left: 1.15rem;
-  color: var(--color-text-muted);
-  font-size: 0.8rem;
-}
-
+/* Encerramento de turno */
 .operator-shift-closed {
   position: relative;
   display: grid;
@@ -615,55 +471,11 @@
   .operator-utility-bar__actions > .btn:first-child {
     display: inline-flex;
   }
-  .operator-page-heading {
-    flex-direction: row;
-    align-items: flex-end;
-    justify-content: space-between;
-  }
-  .operator-heading-actions {
-    width: auto;
-    align-items: flex-end;
-  }
-  .operator-simulate-mobile {
-    display: none;
-  }
-  .operator-queue-item__body {
-    grid-template-columns: minmax(0, 1.5fr) minmax(190px, 0.7fr);
-    align-items: end;
-  }
-  .operator-info-grid,
-  .operator-profile-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .operator-info-grid .is-wide,
-  .operator-profile-grid .is-wide {
-    grid-column: 1 / -1;
-  }
-  .operator-history-item {
-    grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
-    align-items: center;
-  }
-  .operator-history-item dl {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-  .operator-alert-panel {
-    padding: var(--space-6);
-  }
-  .operator-alert-panel__actions {
-    grid-template-columns: 1.2fr 1fr;
-  }
   .elevator-model-card__heading {
     flex-direction: row;
     align-items: flex-start;
     justify-content: space-between;
   }
-  .operator-technical-panel__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .operator-technical-panel__grid article:last-child {
-    grid-column: 1 / -1;
-  }
-  .operator-service-heading,
   .hop-route-footer {
     flex-direction: row;
     align-items: flex-end;
@@ -671,96 +483,3 @@
   }
 }
 
-@media (min-width: 768px) {
-  .operator-page-heading--dashboard {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .operator-detail-heading {
-    flex-direction: row;
-    align-items: flex-end;
-    justify-content: space-between;
-  }
-  .operator-detail-heading__status {
-    justify-content: flex-end;
-  }
-}
-
-@media (min-width: 992px) {
-  .operator-page-heading--dashboard {
-    flex-direction: row;
-    align-items: flex-end;
-  }
-  .operator-summary-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-  .operator-next-card {
-    grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.65fr);
-    gap: var(--space-6);
-    padding: var(--space-6);
-  }
-  .operator-next-card__action {
-    padding: 0 0 0 var(--space-5);
-    border-top: 0;
-    border-left: 1px solid var(--color-border);
-  }
-  .operator-detail-layout {
-    grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.75fr);
-  }
-  .operator-priority-explanation {
-    position: sticky;
-    top: 88px;
-  }
-  .operator-technical-panel__grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .operator-technical-panel__grid article:last-child {
-    grid-column: auto;
-  }
-  .operator-service-layout {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-areas:
-      "route diagnosis"
-      "technical model";
-    align-items: stretch;
-  }
-  .operator-service-layout > .hop-route-card {
-    display: flex;
-    height: 100%;
-    flex-direction: column;
-  }
-  .operator-service-layout
-    > .hop-route-card
-    :is(.operator-route-map-wrap, .city-map, .city-map__viewport) {
-    flex: 1;
-  }
-  .operator-service-layout > .hop-route-card .city-map {
-    display: flex;
-    flex-direction: column;
-  }
-  .operator-service-layout > .hop-route-card .city-map__viewport {
-    min-height: 480px;
-  }
-  .operator-diagnosis-preview {
-    position: static;
-  }
-  .operator-service-layout.is-maintenance {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-areas:
-      "diagnosis diagnosis"
-      "technical model";
-  }
-  .operator-service-layout.is-maintenance .operator-diagnosis-preview dl,
-  .operator-service-layout.is-maintenance .operator-diagnostic-details {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .operator-queue-item {
-    transition: none;
-  }
-  .operator-state--loading .operator-state__icon {
-    animation-duration: 1.8s;
-  }
-}
