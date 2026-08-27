@@ -7,6 +7,7 @@ import './styles/components.css';
 import './styles/map.css';
 import './styles/operator.css';
 import './styles/control.css';
+import './styles/client.css';
 import App from './App';
 import { ThemeProvider } from './context/ThemeContext';
 

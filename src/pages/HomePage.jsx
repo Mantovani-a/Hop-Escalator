@@ -17,6 +17,13 @@ const experiences = [
     audience: 'Técnicos de campo',
     description: 'Fila de atendimento, rota e diagnóstico para a operação em campo.',
   },
+  {
+    key: 'client',
+    number: '03',
+    name: 'HOP Client',
+    audience: 'Clientes e estabelecimentos',
+    description: 'Status dos elevadores em tempo real e abertura assistida de chamados.',
+  },
 ];
 
 export default function HomePage() {
@@ -33,9 +40,9 @@ export default function HomePage() {
         <div className="home-selector__heading">
           <h1 id="experiences-title">Escolha uma experiência</h1>
         </div>
-        <div className="row g-4 mt-4">
+        <div className="row g-4 mt-4 w-100 justify-content-center">
           {experiences.map((experience) => (
-            <div className="col-12 col-md-6" key={experience.key}>
+            <div className="col-12 col-md-6 col-lg-4" key={experience.key}>
               <article className="app-card p-4 d-flex flex-column align-items-start h-100">
                 <div className="d-flex w-100 align-items-center justify-content-between gap-2">
                   <span className="experience-index fw-bold text-primary" style={{ letterSpacing: '0.08em', fontSize: '0.75rem' }} aria-hidden="true">{experience.number}</span>

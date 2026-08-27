@@ -1,0 +1,556 @@
+/* ==========================================================================
+   HOP Client - Estilização da Área do Cliente
+   ========================================================================== */
+
+.client-utility-bar {
+  z-index: 1020;
+}
+
+.client-menu-button {
+  font-size: 1.2rem;
+}
+
+.client-utility-bar__title {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.client-utility-bar__title strong {
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.client-utility-bar__title span {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 0.74rem;
+  line-height: 1.2;
+}
+
+.client-utility-bar__actions {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+.client-main {
+  max-width: 1320px;
+}
+
+.client-kicker {
+  margin: 0 0 var(--space-1);
+  color: var(--color-primary-action);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Banner de boas-vindas */
+.client-welcome {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border-radius: var(--radius-lg);
+  color: var(--color-on-primary);
+  background: var(--color-primary);
+  box-shadow: var(--shadow-subtle);
+}
+
+.client-welcome .client-kicker {
+  color: var(--color-primary-muted);
+}
+
+.client-welcome h1 {
+  margin-bottom: var(--space-2);
+  font-size: clamp(1.8rem, 6vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.client-welcome p:last-child {
+  margin: 0;
+  color: var(--primary-text-soft);
+  font-size: 0.95rem;
+}
+
+.client-establishment-type {
+  width: fit-content;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--primary-border-soft);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+@media (min-width: 576px) {
+  .client-welcome {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+}
+
+/* Seção Dedicada de Registro de Ocorrência */
+.client-register-card {
+  position: relative;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-left: 5px solid var(--color-primary-action);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-subtle);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.client-register-card:hover {
+  box-shadow: var(--shadow-medium);
+}
+
+.client-register-badge {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-primary-action);
+  background: var(--color-primary-soft);
+  border-radius: var(--radius-sm);
+}
+
+.client-register-ongoing-note {
+  border-color: var(--color-border) !important;
+}
+
+/* Card de Elevador */
+.client-elevator-card {
+  display: flex;
+  min-height: 230px;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 1.5rem;
+  border-radius: var(--radius-md);
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.client-elevator-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-primary-action);
+  box-shadow: var(--shadow-subtle);
+}
+
+.client-elevator-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.client-elevator-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  color: var(--color-primary-action);
+  background: var(--color-primary-soft);
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.client-elevator-card__name {
+  margin: 0.2rem 0;
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.client-elevator-card__status {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.client-active-call-pill {
+  border: 1px solid var(--color-border);
+  font-size: 0.82rem;
+}
+
+.client-elevator-card__footer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+/* Card de Chamado */
+.client-call-item {
+  display: block;
+  padding: 1.5rem;
+  color: var(--color-text);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.client-call-item:hover {
+  color: var(--color-text);
+  border-color: var(--color-primary-action);
+  transform: translateY(-2px);
+}
+
+.client-call-item__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+/* Linha do Tempo (Status Timeline) */
+.client-timeline {
+  position: relative;
+  display: grid;
+  gap: 0;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.client-timeline li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  align-items: center;
+  min-height: 56px;
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+}
+
+.client-timeline li::before {
+  position: absolute;
+  top: 36px;
+  bottom: -20px;
+  left: 12px;
+  width: 2px;
+  background: var(--color-border);
+  content: '';
+}
+
+.client-timeline li:last-child::before {
+  display: none;
+}
+
+.client-timeline__marker {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  color: var(--color-text-muted);
+  background: var(--color-neutral-soft);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.client-timeline li.is-reached {
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+.client-timeline li.is-reached::before {
+  background: var(--color-severity-low);
+}
+
+.client-timeline li.is-reached .client-timeline__marker {
+  color: var(--color-on-primary);
+  background: var(--color-severity-low-text);
+}
+
+.client-timeline li.is-current .client-timeline__marker {
+  color: var(--color-primary-action);
+  background: var(--color-primary-soft);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+
+/* Grade de Confirmação no Detalhe do Chamado */
+.client-confirmation-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-border);
+}
+
+.client-confirmation-grid div {
+  display: flex;
+  min-height: 84px;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface);
+}
+
+.client-confirmation-grid span {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.client-confirmation-grid strong {
+  margin-top: 0.2rem;
+  font-size: 0.95rem;
+  text-transform: capitalize;
+}
+
+@media (min-width: 768px) {
+  .client-confirmation-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.client-priority-copy {
+  border-left: 4px solid var(--color-primary-action);
+  background: var(--color-primary-soft);
+  color: var(--color-text);
+}
+
+.client-technician-card,
+.client-waiting-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.client-waiting-card {
+  background: var(--color-neutral-soft);
+}
+
+/* Fluxo de Suporte (Stepper e Questionário) */
+.client-flow {
+  max-width: 840px;
+  margin: 0 auto;
+}
+
+.client-stepper {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+.client-stepper-step {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.client-stepper-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-border);
+  transition: background-color 0.2s ease;
+}
+
+.client-stepper-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.client-stepper-step.is-active .client-stepper-bar {
+  background: var(--color-primary-action);
+}
+
+.client-stepper-step.is-active .client-stepper-label {
+  color: var(--color-text);
+}
+
+.client-stepper-step.is-current .client-stepper-label {
+  color: var(--color-primary-action);
+  font-weight: 800;
+}
+
+.client-choice-group {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.client-choice-legend {
+  margin-bottom: var(--space-4);
+  font-size: clamp(1.2rem, 3.5vw, 1.5rem);
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.client-choice-grid {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.client-choice-label {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 1.15rem 1.25rem;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  cursor: pointer;
+  font-weight: 700;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.client-choice-label:hover,
+.client-choice-label.is-selected {
+  border-color: var(--color-primary-action);
+  background: var(--color-primary-soft);
+}
+
+.client-choice-label input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.client-choice-check {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--color-border);
+  border-radius: 50%;
+  color: var(--color-on-primary);
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.client-choice-label.is-selected .client-choice-check {
+  border-color: var(--color-primary-action);
+  background: var(--color-primary-action);
+}
+
+.client-inline-alert,
+.client-error-message,
+.client-success-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+}
+
+.client-inline-alert {
+  flex-direction: column;
+  border-left: 4px solid var(--color-severity-critical);
+  background: var(--color-severity-critical-soft);
+  color: var(--color-severity-critical-text);
+}
+
+.client-error-message {
+  border-left: 4px solid var(--color-severity-critical);
+  background: var(--color-severity-critical-soft);
+  color: var(--color-severity-critical-text);
+}
+
+.client-success-banner {
+  border-left: 4px solid var(--color-severity-low);
+  background: var(--color-severity-low-soft);
+  color: var(--color-severity-low-text);
+}
+
+.client-success-banner > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: var(--color-on-primary);
+  background: var(--color-severity-low-text);
+  font-weight: 800;
+}
+
+.client-validation {
+  margin: var(--space-3) 0 0;
+  color: var(--color-severity-critical-text);
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+/* Lista de Revisão */
+.client-review-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin: var(--space-4) 0 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.client-review-list div {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.client-review-list div:last-child {
+  border-bottom: 0;
+}
+
+.client-review-list dt {
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.client-review-list dd {
+  margin: 0.2rem 0 0;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+@media (min-width: 576px) {
+  .client-review-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .client-review-list div {
+    border-right: 1px solid var(--color-border);
+  }
+  .client-review-list div:nth-child(even) {
+    border-right: 0;
+  }
+  .client-review-list div.client-review-list__wide {
+    grid-column: 1 / -1;
+    border-right: 0;
+  }
+}

@@ -2,7 +2,6 @@ import { useState } from 'react';
 import StatusBadge from '../../components/StatusBadge';
 import { formatElapsedMinutes } from '../../utils/presentation';
 import { OPERATION_STATUS } from '../../data/operationStore';
-import ControlNewOccurrenceModal from '../../components/control/ControlNewOccurrenceModal';
 
 const filters = [
   ['all', 'Todas'], ['critical', 'Críticas'], ['unassigned', 'Sem técnico'], ['traveling', 'Em deslocamento'], ['attending', 'Em atendimento'],
@@ -10,7 +9,6 @@ const filters = [
 
 export default function ControlOccurrences({ occurrences, onSelectOccurrence }) {
   const [filter, setFilter] = useState('all');
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const active = occurrences.filter((occurrence) => occurrence.operationalStatus !== OPERATION_STATUS.RESOLVED);
   const filtered = active.filter((occurrence) => {
     if (filter === 'critical') return occurrence.priority.classification === 'crítica';
@@ -28,10 +26,8 @@ export default function ControlOccurrences({ occurrences, onSelectOccurrence }) 
         </div>
         <div className="d-flex gap-3 align-items-center">
           <span className="badge app-card text-secondary border px-3 py-2 fs-6 rounded-pill fw-bold">{active.length} ativas</span>
-          <button type="button" className="btn btn-primary" onClick={() => setIsModalOpen(true)}>Registrar Ocorrência</button>
         </div>
       </header>
-      {isModalOpen && <ControlNewOccurrenceModal onClose={() => setIsModalOpen(false)} />}
       <div className="d-flex gap-2 my-3 pb-1 overflow-x-auto" role="group" aria-label="Filtrar ocorrências">
         {filters.map(([id, label]) => (
           <button

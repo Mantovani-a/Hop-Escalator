@@ -13,10 +13,8 @@ export default function ControlOverview({ occurrences, technicians, onSelectOccu
   const highlightedActive = scenarioOccurrence && scenarioOccurrence.operationalStatus !== OPERATION_STATUS.RESOLVED
     ? [scenarioOccurrence, ...active.filter((occurrence) => occurrence.id !== scenarioOccurrence.id)]
     : active;
-  const priorityItems = highlightedActive.slice(0, 5);
-  const scenarioAlert = scenarioOccurrence
-    ? `${scenarioOccurrence.technician?.name || 'Sem técnico'} — ${scenarioOccurrence.operationalStatus} em HOP-1048`
-    : 'Cenário HOP-1048 pronto para abertura pelo HOP Client';
+  const priorityItems = highlightedActive.slice(0, 3);
+
   return (
     <>
       <header className="page-header">
@@ -27,25 +25,11 @@ export default function ControlOverview({ occurrences, technicians, onSelectOccu
         <span className="badge app-card text-secondary border px-3 py-2 fs-6 rounded-pill fw-bold">Turno atual · 07:00–16:00</span>
       </header>
 
-      <section className="control-alert-strip" aria-label="Alertas operacionais">
-        <div className="control-alert-strip__item">
-          <span className="d-inline-flex align-items-center justify-content-center border border-danger text-danger rounded-circle fw-bold" style={{ width: '1.2rem', height: '1.2rem', fontSize: '0.75rem' }} aria-hidden="true">!</span>
-          <strong>{critical.length} ocorrências críticas exigem acompanhamento</strong>
-        </div>
-        <div className="control-alert-strip__item">
-          <span>3 elevadores com falhas recorrentes</span>
-        </div>
-        <div className="control-alert-strip__item">
-          <span>{scenarioAlert}</span>
-        </div>
-      </section>
-
       <section className="control-metrics-grid" aria-label="Indicadores principais">
-        <MetricCard label="Ocorrências abertas" value={active.length} detail="na operação atual" />
-        <MetricCard label="Críticas" value={critical.length} detail="prioridade imediata" tone="critical" />
+        <MetricCard label="Ocorrências críticas" value={critical.length} detail="prioridade imediata" tone="critical" />
+        <MetricCard label="Chamados abertos" value={active.length} detail="em andamento na central" />
         <MetricCard label="Técnicos disponíveis" value={available} detail={`de ${technicians.length} profissionais`} tone="success" />
-        <MetricCard label="Em atendimento" value={attending} detail="técnicos no local" />
-        <MetricCard label="Resposta média" value="11 min" detail="dado demonstrativo" />
+        <MetricCard label="Em atendimento" value={attending} detail="equipes em campo" />
       </section>
 
       <div className="control-overview-layout">
