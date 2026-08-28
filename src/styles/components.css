@@ -224,6 +224,12 @@
   line-height: 1;
 }
 
+:root[data-theme="dark"] .profile-avatar:not(.module-sidebar__avatar) {
+  color: #ffffff;
+  background: var(--color-primary-action);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
 .profile-avatar--sm {
   width: 32px;
   height: 32px;

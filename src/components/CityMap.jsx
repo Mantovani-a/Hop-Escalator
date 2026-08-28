@@ -7,25 +7,76 @@ const DEFAULT_VIEW = { x: 0, y: 0, scale: 0.88 };
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
 const districts = [
-  ['Vila Norte', 45, 55, 285, 190], ['Centro Cívico', 355, 55, 285, 190],
-  ['Jardins do Leste', 670, 55, 285, 190], ['Parque Oeste', 45, 275, 285, 180],
-  ['Distrito Saúde', 355, 275, 285, 180], ['Nova Aurora', 670, 275, 285, 180],
-  ['Vale Residencial', 45, 485, 285, 165], ['Estação Sul', 355, 485, 285, 165],
-  ['Pátio Metropolitano', 670, 485, 285, 165],
+  ['Vila Norte', 20, 20, 295, 210],
+  ['Centro Cívico', 365, 20, 270, 210],
+  ['Jardins do Leste', 685, 20, 295, 210],
+  ['Parque Oeste', 20, 280, 295, 165],
+  ['Distrito Saúde', 365, 280, 270, 165],
+  ['Nova Aurora', 685, 280, 295, 165],
+  ['Vale Residencial', 20, 495, 295, 185],
+  ['Estação Sul', 365, 495, 270, 185],
+  ['Pátio Metropolitano', 685, 495, 295, 185],
 ];
 
-const blocks = Array.from({ length: 42 }, (_, index) => ({
-  id: index,
-  x: 72 + (index % 7) * 132 + (index % 3) * 5,
-  y: 92 + Math.floor(index / 7) * 96,
-  width: 72 + (index % 3) * 12,
-  height: 42 + (index % 2) * 12,
-}));
+const blocks = [
+  // Vila Norte
+  { id: 0, x: 45, y: 65, width: 110, height: 60 },
+  { id: 1, x: 175, y: 65, width: 115, height: 60 },
+  { id: 2, x: 45, y: 145, width: 110, height: 60 },
+  { id: 3, x: 175, y: 145, width: 115, height: 60 },
+
+  // Centro Cívico
+  { id: 4, x: 385, y: 65, width: 105, height: 60 },
+  { id: 5, x: 510, y: 65, width: 105, height: 60 },
+  { id: 6, x: 385, y: 145, width: 105, height: 60 },
+  { id: 7, x: 510, y: 145, width: 105, height: 60 },
+
+  // Jardins do Leste
+  { id: 8, x: 705, y: 65, width: 115, height: 60 },
+  { id: 9, x: 840, y: 65, width: 115, height: 60 },
+  { id: 10, x: 705, y: 145, width: 115, height: 60 },
+  { id: 11, x: 840, y: 145, width: 115, height: 60 },
+
+  // Parque Oeste
+  { id: 12, x: 45, y: 320, width: 110, height: 50 },
+  { id: 13, x: 175, y: 320, width: 115, height: 50 },
+  { id: 14, x: 45, y: 385, width: 110, height: 45 },
+  { id: 15, x: 175, y: 385, width: 115, height: 45 },
+
+  // Distrito Saúde
+  { id: 16, x: 385, y: 320, width: 105, height: 50 },
+  { id: 17, x: 510, y: 320, width: 105, height: 50 },
+  { id: 18, x: 385, y: 385, width: 105, height: 45 },
+  { id: 19, x: 510, y: 385, width: 105, height: 45 },
+
+  // Nova Aurora
+  { id: 20, x: 705, y: 320, width: 115, height: 50 },
+  { id: 21, x: 840, y: 320, width: 115, height: 50 },
+  { id: 22, x: 705, y: 385, width: 115, height: 45 },
+  { id: 23, x: 840, y: 385, width: 115, height: 45 },
+
+  // Vale Residencial
+  { id: 24, x: 45, y: 535, width: 110, height: 55 },
+  { id: 25, x: 175, y: 535, width: 115, height: 55 },
+  { id: 26, x: 45, y: 605, width: 110, height: 55 },
+  { id: 27, x: 175, y: 605, width: 115, height: 55 },
+
+  // Estação Sul
+  { id: 28, x: 385, y: 535, width: 105, height: 55 },
+  { id: 29, x: 510, y: 535, width: 105, height: 55 },
+  { id: 30, x: 385, y: 605, width: 105, height: 55 },
+  { id: 31, x: 510, y: 605, width: 105, height: 55 },
+
+  // Pátio Metropolitano
+  { id: 32, x: 705, y: 535, width: 115, height: 55 },
+  { id: 33, x: 840, y: 535, width: 115, height: 55 },
+  { id: 34, x: 705, y: 605, width: 115, height: 55 },
+  { id: 35, x: 840, y: 605, width: 115, height: 55 },
+];
 
 const roads = [
-  ['horizontal', 0, 250, 1000, 22], ['horizontal', 0, 465, 1000, 24],
+  ['horizontal', 0, 246, 1000, 24], ['horizontal', 0, 460, 1000, 24],
   ['vertical', 330, 0, 24, 700], ['vertical', 650, 0, 24, 700],
-  ['diagonal', 95, 630, 780, 20],
 ];
 
 const segmentStyle = (start, end) => {

@@ -161,6 +161,7 @@ button:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -174,4 +175,77 @@ button:focus-visible {
 textarea.form-control {
   min-height: 116px;
   resize: vertical;
+}
+
+:root[data-theme="dark"] .text-secondary,
+:root[data-theme="dark"] .text-muted {
+  color: var(--color-text-muted) !important;
+}
+
+:root[data-theme="dark"] .table {
+  --bs-table-color: var(--color-text);
+  --bs-table-bg: transparent;
+  --bs-table-border-color: var(--color-border);
+  --bs-table-hover-color: var(--color-text);
+  --bs-table-hover-bg: var(--color-surface-hover);
+  color: var(--color-text) !important;
+}
+
+:root[data-theme="dark"] .table th,
+:root[data-theme="dark"] .table td {
+  color: var(--color-text);
+}
+
+:root[data-theme="dark"] .table thead th {
+  color: var(--color-text-muted) !important;
+  background-color: var(--color-surface-hover) !important;
+}
+
+:root[data-theme="dark"] .btn-link.text-primary {
+  color: #60a5fa !important;
+}
+
+:root[data-theme="dark"] .bg-light-subtle {
+  background-color: var(--color-surface-hover) !important;
+}
+
+:root[data-theme="dark"] .bg-light {
+  background-color: var(--color-surface-soft) !important;
+  color: var(--color-text-muted) !important;
+}
+
+:root[data-theme="dark"] .bg-body {
+  background-color: var(--color-surface) !important;
+  color: var(--color-text) !important;
+}
+
+:root[data-theme="dark"] .bg-primary-subtle {
+  background-color: var(--color-primary-soft) !important;
+  color: var(--color-text) !important;
+}
+
+:root[data-theme="dark"] .border-secondary-subtle {
+  border-color: var(--color-border) !important;
+}
+
+:root[data-theme="dark"] .client-choice-label {
+  color: var(--color-text);
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+:root[data-theme="dark"] .client-choice-label.is-selected {
+  border-color: var(--color-primary-action);
+  background: var(--color-primary-soft);
+}
+
+:root[data-theme="dark"] .client-choice-check {
+  border-color: var(--color-border);
+  color: #ffffff;
+}
+
+:root[data-theme="dark"] .client-choice-label.is-selected .client-choice-check {
+  border-color: var(--color-primary-action);
+  background: var(--color-primary-action);
+  color: #ffffff;
 }

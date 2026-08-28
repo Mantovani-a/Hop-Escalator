@@ -6,7 +6,7 @@ export default function OperatorStateMessage({ type, title, children }) {
           <span className="visually-hidden">Carregando...</span>
         </div>
       ) : (
-        <span className="d-inline-flex align-items-center justify-content-center flex-shrink-0 rounded-circle" style={{ width: '42px', height: '42px', color: type === 'error' ? 'var(--color-severity-critical-text)' : 'var(--color-primary)', backgroundColor: type === 'error' ? 'var(--color-severity-critical-soft)' : 'var(--color-primary-soft)', fontWeight: 800 }} aria-hidden="true">
+        <span className="d-inline-flex align-items-center justify-content-center flex-shrink-0 rounded-circle" style={{ width: '42px', height: '42px', color: type === 'error' ? 'var(--color-severity-critical-text)' : 'var(--color-on-primary)', backgroundColor: type === 'error' ? 'var(--color-severity-critical-soft)' : 'var(--color-primary-action)', fontWeight: 800 }} aria-hidden="true">
           {type === 'error' ? '!' : '✓'}
         </span>
       )}

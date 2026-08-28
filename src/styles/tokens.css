@@ -29,7 +29,7 @@
   --color-severity-critical-text: #991b1b;
 
   --focus-ring: rgba(63, 91, 216, 0.32);
-  --primary-border-soft: rgba(255, 255, 255, 0.58);
+  --primary-border-soft: rgba(255, 255, 255, 0.18);
   --primary-text-soft: rgba(255, 255, 255, 0.78);
   --shadow-subtle: 0 8px 24px rgba(30, 41, 59, 0.06);
   --shadow-focus: 0 0 0 0.25rem var(--focus-ring);
@@ -67,6 +67,7 @@
 }
 
 :root[data-theme="dark"] {
+  --color-primary-action: #4f6ef7;
   --color-background: #151d2e;
   --color-surface: #1e293b;
   --color-surface-hover: #273449;
@@ -74,9 +75,9 @@
   --color-card-border: #334155;
   --color-border: #3b4a63;
   --color-text: #f8fafc;
-  --color-text-muted: #b7c2d0;
+  --color-text-muted: #94a3b8;
   --color-primary-soft: #29366b;
-  --color-primary-muted: #d7deff;
+  --color-primary-muted: #93c5fd;
   --color-neutral-soft: #273449;
   --color-neutral-strong: #c5cfdc;
   --color-severity-low-soft: #163e3c;
@@ -102,5 +103,10 @@
   --map-road: #526276;
   --map-road-edge: #27374a;
   --map-label: #b8c5d1;
+  --bs-body-color: var(--color-text);
+  --bs-body-bg: var(--color-background);
+  --bs-border-color: var(--color-border);
+  --bs-secondary-color: var(--color-text-muted);
+  --bs-tertiary-bg: var(--color-neutral-soft);
   color-scheme: dark;
 }
