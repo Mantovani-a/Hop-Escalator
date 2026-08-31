@@ -4,7 +4,7 @@
 
 # HOP — ecossistema de atendimento a elevadores
 
-HOP é um MVP acadêmico criado para o Challenge FIAP em parceria com a OTIS. A proposta conecta a operação centralizada e técnicos de campo em um único fluxo demonstrativo para registrar, priorizar, despachar e acompanhar ocorrências de elevadores. O projeto não representa um produto oficial implantado pela OTIS.
+HOP é um MVP acadêmico criado para o Challenge FIAP em parceria com a OTIS. A proposta conecta clientes de estabelecimentos, a operação centralizada e técnicos de campo em um único fluxo demonstrativo para registrar, priorizar, despachar e acompanhar ocorrências de elevadores. O projeto não representa um produto oficial implantado pela OTIS.
 
 <div align="center">
   <h2>Equipe</h2>
@@ -19,30 +19,32 @@ HOP é um MVP acadêmico criado para o Challenge FIAP em parceria com a OTIS. A 
 
 ## O problema
 
-Falhas de elevadores têm contextos e riscos diferentes — de funcionamento parcial a passageiros presos. Organizar informações, prioridade, equipe e acompanhamento em interfaces desconectadas aumenta o tempo de resposta e reduz a visibilidade operacional.
+Falhas de elevadores têm contextos e riscos diferentes — de funcionamento parcial a passageiros presos. Organizar informações, prioridade, equipe e acompanhamento em interfaces desconectadas aumenta o tempo de resposta e reduz a visibilidade operacional para a empresa e para o cliente.
 
 ## A solução
 
 | Módulo | Público | Visão principal |
 | --- | --- | --- |
+| **HOP Client** | Clientes e Estabelecimentos | Monitoramento de elevadores em tempo real, abertura guiada de chamados com triagem de risco e acompanhamento de status. |
 | **HOP Control** | Lideranças e Operação | Central operacional com mapa, fila, técnicos, elevadores, registro de ocorrências e indicadores. |
 | **HOP Operator** | Técnicos de campo | Turno, fila priorizada, rota, diagnóstico técnico, modelo 2D e fluxo de atendimento. |
 
 ## Fluxo integrado
 
-**Central recebe o chamado e registra** → **HOP calcula a prioridade** → **Control organiza e atribui** → **Operator recebe e se desloca** → **atendimento é realizado** → **os dois módulos refletem a resolução**.
+**Cliente registra chamado no Client (ou Central abre)** → **HOP calcula a prioridade por risco** → **Control organiza e despacha técnico** → **Operator recebe rota e diagnóstico** → **atendimento é concluído** → **os três módulos refletem a resolução em tempo real**.
 
 Todos os módulos leem e atualizam a mesma base operacional no navegador. O cenário principal de campo usa o operador João Carlos.
 
 ## Funcionalidades do MVP
 
-- priorização por contexto operacional, passageiros presos, risco, local, condição do elevador, tempo e reincidência;
-- recomendação e atribuição demonstrativa de técnico;
+- portal do cliente com status dos elevadores em tempo real e abertura assistida de chamados com triagem de risco;
+- priorização por contexto operacional, passageiros presos, risco, local crítico (ex.: hospitais), condição do elevador, tempo e reincidência;
+- recomendação e atribuição demonstrativa de técnico por proximidade e especialidade;
 - ciclo completo do chamado, da abertura à resolução, com três ações operacionais no Operator;
 - mapa local interativo de Nova Aurora, com pan, zoom, filtros e rota compartilhada;
 - diagnóstico preliminar/completo e representação 2D interativa detalhada do elevador;
-- dashboards, filas, histórico e dados demonstrativos consistentes;
-- turno e tema claro/escuro persistentes, com navegação lateral responsiva nos dois módulos;
+- dashboards, filas, histórico e sincronização em tempo real entre os três módulos;
+- turno e tema claro/escuro persistentes, com navegação lateral responsiva nos três módulos;
 - restauração discreta dos dados originais para repetir a demonstração.
 
 ## Tecnologias
