@@ -46,13 +46,21 @@ export const operatorOccurrenceMetadata = {
   },
 };
 
-export const quickHistoryByElevator = {
-  'ELV-012': ['12/08 — Falha de porta — Resolvido', '28/07 — Sensor de nivelamento — Resolvido', '03/06 — Manutenção preventiva'],
-  'ELV-005': ['09/08 — Painel de chamada — Resolvido', '18/07 — Manutenção preventiva', '22/06 — Ajuste de porta — Resolvido'],
-  'ELV-007': ['14/08 — Falha de porta — Resolvido', '29/07 — Manutenção preventiva'],
-  'ELV-011': ['10/08 — Chamada do G2 — Resolvido', '24/07 — Manutenção preventiva'],
-  'ELV-018': ['07/08 — Painel interno — Resolvido', '16/07 — Manutenção preventiva'],
+const formatDayMonth = (daysAgo, base = new Date()) => {
+  const d = new Date(base.getTime() - daysAgo * 86400000);
+  return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
 };
+
+export const createQuickHistory = (now = new Date()) => ({
+  'ELV-012': [`${formatDayMonth(6, now)} — Falha de porta — Resolvido`, `${formatDayMonth(20, now)} — Sensor de nivelamento — Resolvido`, `${formatDayMonth(45, now)} — Manutenção preventiva`],
+  'ELV-005': [`${formatDayMonth(8, now)} — Painel de chamada — Resolvido`, `${formatDayMonth(25, now)} — Manutenção preventiva`, `${formatDayMonth(50, now)} — Ajuste de porta — Resolvido`],
+  'ELV-007': [`${formatDayMonth(5, now)} — Falha de porta — Resolvido`, `${formatDayMonth(22, now)} — Manutenção preventiva`],
+  'ELV-011': [`${formatDayMonth(7, now)} — Chamada do G2 — Resolvido`, `${formatDayMonth(28, now)} — Manutenção preventiva`],
+  'ELV-018': [`${formatDayMonth(11, now)} — Painel interno — Resolvido`, `${formatDayMonth(32, now)} — Manutenção preventiva`],
+});
+
+export const quickHistoryByElevator = createQuickHistory();
+
 
 export const buildOperatorOccurrence = (occurrence, now = new Date()) => {
   const client = getClientById(occurrence.clientId);

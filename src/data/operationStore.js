@@ -1,8 +1,8 @@
 import { operatorOccurrenceMetadata } from './operatorData.js';
-import { clients, elevators, occurrences as mockOccurrences } from './mockData.js';
+import { clients, elevators, createMockOccurrences } from './mockData.js';
 import { calculatePriority } from '../utils/priorityScore.js';
 
-const OPERATION_STORAGE_KEY = 'hop-shared-operation-v1';
+const OPERATION_STORAGE_KEY = 'hop-shared-operation-v2';
 const OPERATION_UPDATED_EVENT = 'hop-operation-updated';
 
 let cachedRawState = null;
@@ -44,20 +44,23 @@ const createSeedOccurrence = (occurrence, index, now) => {
     priority,
     workflowStatus,
     origin: 'mock',
-    completedAt: workflowStatus === OPERATION_STATUS.RESOLVED ? occurrence.time : null,
-    duration: workflowStatus === OPERATION_STATUS.RESOLVED ? 'Atendimento demonstrativo' : null,
+    completedAt: workflowStatus === OPERATION_STATUS.RESOLVED ? (occurrence.completedAt || occurrence.time) : null,
+    duration: workflowStatus === OPERATION_STATUS.RESOLVED ? (occurrence.duration || 'Atendimento demonstrativo') : null,
   };
 };
 
-export const createInitialOperationState = (now = new Date()) => ({
-  version: 1,
-  updatedAt: now.toISOString(),
-  operatorShiftActive: true,
-  occurrences: mockOccurrences.map((occurrence, index) => createSeedOccurrence(occurrence, index, now)),
-});
+export const createInitialOperationState = (now = new Date()) => {
+  const seedOccurrences = createMockOccurrences(now);
+  return {
+    version: 2,
+    updatedAt: now.toISOString(),
+    operatorShiftActive: true,
+    occurrences: seedOccurrences.map((occurrence, index) => createSeedOccurrence(occurrence, index, now)),
+  };
+};
 
 const normalizeState = (state) => ({
-  version: 1,
+  version: 2,
   updatedAt: state?.updatedAt || new Date().toISOString(),
   operatorShiftActive: state?.operatorShiftActive !== false,
   occurrences: Array.isArray(state?.occurrences) ? state.occurrences : [],
@@ -71,12 +74,27 @@ const cacheState = (state) => {
 
 const readOperationState = () => {
   try {
+    window.localStorage.removeItem('hop-shared-operation-v1');
     const stored = window.localStorage.getItem(OPERATION_STORAGE_KEY);
     if (stored === cachedRawState && cachedOperationState) return cachedOperationState;
     if (stored) {
-      cachedRawState = stored;
-      cachedOperationState = normalizeState(JSON.parse(stored));
-      return cachedOperationState;
+      const parsed = JSON.parse(stored);
+      const storedTime = new Date(parsed.updatedAt || 0).getTime();
+      const isStale = Number.isNaN(storedTime) || (Date.now() - storedTime > 12 * 60 * 60 * 1000);
+
+      if (!isStale) {
+        cachedRawState = stored;
+        cachedOperationState = normalizeState(parsed);
+        return cachedOperationState;
+      }
+
+      // Re-ancora as ocorrências de demonstração se forem de outro dia (>12h), mantendo o MVP sempre atualizado
+      const freshState = createInitialOperationState(new Date());
+      const clientCreated = (parsed.occurrences || []).filter((item) => item.origin !== 'mock');
+      if (clientCreated.length) {
+        freshState.occurrences = [...clientCreated, ...freshState.occurrences];
+      }
+      return cacheState(freshState);
     }
     const initialState = createInitialOperationState();
     const cachedInitialState = cacheState(initialState);
@@ -133,6 +151,7 @@ export const resetOperationState = () => {
   const obsoleteKeys = [
     'hop-client-calls', 'hop-client-created-occurrences', 'hop-operator-occurrence-statuses',
     'hop-operator-technician-status', 'hop-operator-completed-items', 'hop-control-occurrence-assignments',
+    'hop-shared-operation-v1', 'hop-shared-operation-v2',
   ];
   try {
     obsoleteKeys.forEach((key) => window.localStorage.removeItem(key));
@@ -157,12 +176,17 @@ export const subscribeOperationState = (callback) => {
     }
     callback();
   };
+  // Atualiza a cada 60s para manter tempos relativos sincronizados com precisão
+  const intervalId = window.setInterval(callback, 60000);
+
   window.addEventListener(OPERATION_UPDATED_EVENT, handleCustomUpdate);
   window.addEventListener('storage', handleStorageUpdate);
   return () => {
+    window.clearInterval(intervalId);
     window.removeEventListener(OPERATION_UPDATED_EVENT, handleCustomUpdate);
     window.removeEventListener('storage', handleStorageUpdate);
   };
 };
+
 
 export const getOperationSnapshot = () => readOperationState();

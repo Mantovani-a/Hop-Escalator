@@ -67,7 +67,7 @@ export const buildControlOccurrences = (operationState, now = new Date()) => {
     const workflowStatus = workflowFromStatus(occurrence);
     const technicianId = occurrence.technicianId || occurrence.assignedTechnicianId || null;
     const technician = technicianId ? getTechnicianById(technicianId) : null;
-    const priority = occurrence.priority || calculatePriority({ occurrence, client, elevator, metadata, now });
+    const priority = calculatePriority({ occurrence, client, elevator, metadata, now });
     return {
       ...occurrence,
       client,
