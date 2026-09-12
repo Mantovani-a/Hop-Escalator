@@ -63,11 +63,16 @@ export const quickHistoryByElevator = createQuickHistory();
 
 
 export const buildOperatorOccurrence = (occurrence, now = new Date()) => {
-  const client = getClientById(occurrence.clientId);
+  const client = getClientById(occurrence.clientId) || {
+    id: occurrence.clientId || 'CLI-001',
+    name: occurrence.address?.split('—')[0]?.trim() || 'Cliente Corporativo',
+    type: 'Estabelecimento',
+    address: occurrence.address || 'São Paulo — SP',
+  };
   const templateMetadata = operatorOccurrenceMetadata[occurrence.id] || {};
   const metadata = {
-    distanceKm: 0,
-    etaMinutes: 0,
+    distanceKm: 2.4,
+    etaMinutes: 10,
     ...templateMetadata,
     ...(occurrence.metadata || {}),
     diagnosis: {
@@ -82,9 +87,18 @@ export const buildOperatorOccurrence = (occurrence, now = new Date()) => {
       ...(occurrence.metadata?.diagnosis || {}),
     },
   };
-  const baseElevator = getElevatorById(occurrence.elevatorId);
+  const baseElevator = getElevatorById(occurrence.elevatorId) || {
+    id: occurrence.elevatorId || 'ELV-001',
+    identification: 'Elevador Principal',
+    model: 'Passageiros',
+    status: 'operando',
+    clientId: client.id,
+    lastMaintenance: '2026-08-15',
+  };
   const elevator = metadata.elevatorStopped ? { ...baseElevator, status: 'parado' } : baseElevator;
-  const priority = calculatePriority({ occurrence, client, elevator, metadata, now });
+  const priority = (occurrence.priority && typeof occurrence.priority.score === 'number')
+    ? occurrence.priority
+    : calculatePriority({ occurrence, client, elevator, metadata, now });
 
   return { ...occurrence, client, elevator, metadata, priority };
 };

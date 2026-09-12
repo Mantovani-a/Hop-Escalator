@@ -60,14 +60,27 @@ const buildMetadata = (occurrence, index, elevator) => {
 export const buildControlOccurrences = (operationState, now = new Date()) => {
   const sharedOccurrences = operationState?.occurrences || [];
   return sharedOccurrences.map((occurrence, index) => {
-    const client = getClientById(occurrence.clientId);
-    const baseElevator = getElevatorById(occurrence.elevatorId);
+    const client = getClientById(occurrence.clientId) || {
+      id: occurrence.clientId || 'CLI-001',
+      name: occurrence.address?.split('—')[0]?.trim() || 'Cliente Corporativo',
+      type: 'Estabelecimento',
+      address: occurrence.address || 'São Paulo — SP',
+    };
+    const baseElevator = getElevatorById(occurrence.elevatorId) || {
+      id: occurrence.elevatorId || 'ELV-001',
+      identification: 'Elevador Principal',
+      model: 'Passageiros',
+      status: 'operando',
+      clientId: client.id,
+    };
     const metadata = buildMetadata(occurrence, index, baseElevator);
     const elevator = metadata.elevatorStopped ? { ...baseElevator, status: 'parado' } : baseElevator;
     const workflowStatus = workflowFromStatus(occurrence);
     const technicianId = occurrence.technicianId || occurrence.assignedTechnicianId || null;
     const technician = technicianId ? getTechnicianById(technicianId) : null;
-    const priority = calculatePriority({ occurrence, client, elevator, metadata, now });
+    const priority = (occurrence.priority && typeof occurrence.priority.score === 'number')
+      ? occurrence.priority
+      : calculatePriority({ occurrence, client, elevator, metadata, now });
     return {
       ...occurrence,
       client,
@@ -80,7 +93,7 @@ export const buildControlOccurrences = (operationState, now = new Date()) => {
       workflowStatus,
       operationalStatus: getOperationalStatus(workflowStatus, Boolean(technicianId)),
     };
-  }).sort((first, second) => second.priority.score - first.priority.score);
+  }).sort((first, second) => (second.priority?.score ?? 0) - (first.priority?.score ?? 0));
 };
 
 export const buildControlTechnicians = (controlOccurrences, operatorShiftActive = true) => technicians.map((technician, index) => {
@@ -109,10 +122,15 @@ export const buildElevatorOverview = (controlOccurrences = []) => elevators.map(
   const related = controlOccurrences.filter((occurrence) => occurrence.elevatorId === elevator.id);
   const lastOccurrence = [...related].sort((first, second) => new Date(second.time) - new Date(first.time))[0];
   const activeOccurrence = related.find((occurrence) => occurrence.operationalStatus !== OPERATION_STATUS.RESOLVED);
+  const client = getClientById(elevator.clientId) || {
+    id: elevator.clientId || 'CLI-001',
+    name: 'Cliente Corporativo',
+    type: 'Estabelecimento',
+  };
   return {
     ...elevator,
     status: activeOccurrence?.elevator?.status || elevator.status,
-    client: getClientById(elevator.clientId),
+    client,
     lastOccurrence,
     recentOccurrenceCount: related.length + (elevator.id === 'ELV-007' ? 2 : 0),
     recurrent: related.length >= 2 || elevator.id === 'ELV-007',

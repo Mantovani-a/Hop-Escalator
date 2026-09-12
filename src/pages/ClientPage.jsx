@@ -46,9 +46,9 @@ export default function ClientPage({ route = '/client' }) {
   }, [route]);
 
   const allCalls = useMemo(
-    () => operationState.occurrences
-      .filter((call) => call.clientId === clientEstablishment.id)
-      .sort((first, second) => new Date(second.time) - new Date(first.time)),
+    () => (operationState?.occurrences || [])
+      .filter((call) => call?.clientId === clientEstablishment?.id)
+      .sort((first, second) => new Date(second.time || 0) - new Date(first.time || 0)),
     [operationState],
   );
 

@@ -1,7 +1,7 @@
 const specialtyScore = (technician, occurrence) => {
-  const specialty = technician.specialty.toLowerCase();
-  const description = occurrence.description.toLowerCase();
-  if (occurrence.trappedPeople > 0 && specialty.includes('resgate')) return 35;
+  const specialty = (technician?.specialty || '').toLowerCase();
+  const description = (occurrence?.description || '').toLowerCase();
+  if (occurrence?.trappedPeople > 0 && specialty.includes('resgate')) return 35;
   if (description.includes('porta') && specialty.includes('porta')) return 25;
   if (description.includes('painel') && specialty.includes('pain')) return 25;
   return 5;

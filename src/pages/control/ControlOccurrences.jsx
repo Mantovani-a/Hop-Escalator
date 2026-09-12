@@ -11,7 +11,7 @@ export default function ControlOccurrences({ occurrences, onSelectOccurrence }) 
   const [filter, setFilter] = useState('all');
   const active = occurrences.filter((occurrence) => occurrence.operationalStatus !== OPERATION_STATUS.RESOLVED);
   const filtered = active.filter((occurrence) => {
-    if (filter === 'critical') return occurrence.priority.classification === 'crítica';
+    if (filter === 'critical') return occurrence.priority?.classification === 'crítica';
     if (filter === 'unassigned') return !occurrence.technicianId;
     if (filter === 'traveling') return occurrence.operationalStatus === OPERATION_STATUS.TRAVELING;
     if (filter === 'attending') return [OPERATION_STATUS.ON_SITE, OPERATION_STATUS.MAINTENANCE].includes(occurrence.operationalStatus);
@@ -51,12 +51,12 @@ export default function ControlOccurrences({ occurrences, onSelectOccurrence }) 
               {filtered.map((occurrence) => (
                 <tr key={occurrence.id} onClick={() => onSelectOccurrence(occurrence.id)} style={{ cursor: 'pointer' }}>
                   <td className="p-3 align-middle"><button className="btn btn-link p-0 text-primary fw-bold text-decoration-none" type="button" onClick={() => onSelectOccurrence(occurrence.id)}>{occurrence.protocol}</button></td>
-                  <td className="p-3 align-middle"><div className="d-flex align-items-center"><StatusBadge value={occurrence.priority.classification} type="severity" /><strong className="ms-2 fs-6">{occurrence.priority.score}</strong></div></td>
-                  <td className="p-3 align-middle"><strong className="d-block" style={{ color: 'var(--color-text)' }}>{occurrence.client.name}</strong><small className="d-block text-secondary mt-1 text-truncate" style={{ maxWidth: '270px' }}>{occurrence.client.type}</small></td>
-                  <td className="p-3 align-middle"><strong className="d-block" style={{ color: 'var(--color-text)' }}>{occurrence.elevator.identification}</strong><small className="d-block text-secondary mt-1 text-truncate" style={{ maxWidth: '270px' }}>{occurrence.description}</small></td>
+                  <td className="p-3 align-middle"><div className="d-flex align-items-center"><StatusBadge value={occurrence.priority?.classification || 'baixa'} type="severity" /><strong className="ms-2 fs-6">{occurrence.priority?.score ?? 0}</strong></div></td>
+                  <td className="p-3 align-middle"><strong className="d-block" style={{ color: 'var(--color-text)' }}>{occurrence.client?.name || 'Cliente'}</strong><small className="d-block text-secondary mt-1 text-truncate" style={{ maxWidth: '270px' }}>{occurrence.client?.type || 'Estabelecimento'}</small></td>
+                  <td className="p-3 align-middle"><strong className="d-block" style={{ color: 'var(--color-text)' }}>{occurrence.elevator?.identification || 'Elevador'}</strong><small className="d-block text-secondary mt-1 text-truncate" style={{ maxWidth: '270px' }}>{occurrence.description || 'Intercorrência reportada'}</small></td>
                   <td className="p-3 align-middle">{occurrence.technician?.name || <span className="text-danger fw-bold">Sem técnico</span>}</td>
                   <td className="p-3 align-middle"><StatusBadge value={occurrence.operationalStatus} /></td>
-                  <td className="p-3 align-middle fw-bold">{formatElapsedMinutes(occurrence.priority.elapsedMinutes)}</td>
+                  <td className="p-3 align-middle fw-bold">{formatElapsedMinutes(occurrence.priority?.elapsedMinutes ?? 0)}</td>
                 </tr>
               ))}
             </tbody>

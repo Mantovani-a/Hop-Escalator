@@ -19,15 +19,15 @@ const BarList = ({ items, max }) => (
 export default function ControlAnalytics({ occurrences }) {
   const severityLabels = ['crítica','alta','atenção','baixa'];
   const active = occurrences.filter((occurrence) => occurrence.operationalStatus !== OPERATION_STATUS.RESOLVED);
-  const severity = severityLabels.map((label) => ({ label, value: occurrences.filter((item) => item.priority.classification === label).length }));
+  const severity = severityLabels.map((label) => ({ label, value: occurrences.filter((item) => item.priority?.classification === label).length }));
   const statuses = Object.values(OPERATION_STATUS).map((label) => ({ label, value: occurrences.filter((item) => item.operationalStatus === label).length }));
   const failures = [
-    { label:'Portas e acessos', value: occurrences.filter((item) => /porta/i.test(item.description)).length },
-    { label:'Parada da cabine', value: occurrences.filter((item) => /parad|preso/i.test(item.description)).length },
-    { label:'Painéis e comandos', value: occurrences.filter((item) => /painel|botão/i.test(item.description)).length },
-    { label:'Energia', value: occurrences.filter((item) => /energia/i.test(item.description)).length },
+    { label:'Portas e acessos', value: occurrences.filter((item) => /porta/i.test(item.description || '')).length },
+    { label:'Parada da cabine', value: occurrences.filter((item) => /parad|preso/i.test(item.description || '')).length },
+    { label:'Painéis e comandos', value: occurrences.filter((item) => /painel|botão/i.test(item.description || '')).length },
+    { label:'Energia', value: occurrences.filter((item) => /energia/i.test(item.description || '')).length },
   ];
-  const byClient = Object.values(occurrences.reduce((acc, item) => { const key = item.client.name; acc[key] = acc[key] || { label:key,value:0 }; acc[key].value += 1; return acc; }, {})).sort((a,b) => b.value-a.value).slice(0,5);
+  const byClient = Object.values(occurrences.reduce((acc, item) => { const key = item.client?.name || 'Cliente Corporativo'; acc[key] = acc[key] || { label:key,value:0 }; acc[key].value += 1; return acc; }, {})).sort((a,b) => b.value-a.value).slice(0,5);
   const daily = [18,22,19,27,24,31,active.length];
   return (
     <>

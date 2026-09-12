@@ -74,7 +74,7 @@ export default function OperatorPage({ route = '/operator' }) {
     || OPERATION_STATUS.TECHNICIAN_ASSIGNED;
   const pendingOccurrences = allOccurrences
     .filter((occurrence) => statusFor(occurrence.id) !== OPERATION_STATUS.RESOLVED)
-    .sort((first, second) => second.priority.score - first.priority.score);
+    .sort((first, second) => (second.priority?.score ?? 0) - (first.priority?.score ?? 0));
   const activeOccurrence = pendingOccurrences.find((occurrence) => [
     OPERATION_STATUS.TRAVELING,
     OPERATION_STATUS.ON_SITE,
@@ -139,11 +139,14 @@ export default function OperatorPage({ route = '/operator' }) {
       id: `SHARED-${occurrence.id}`,
       occurrenceId: occurrence.id,
       occurrence,
-      completedAt: occurrence.completedAt || occurrence.time,
+      completedAt: occurrence.completedAt || occurrence.time || new Date().toISOString(),
       duration: occurrence.duration || 'Atendimento demonstrativo',
     }))
-    .sort((first, second) => new Date(second.completedAt) - new Date(first.completedAt));
-  const completedToday = historyItems.filter((item) => new Date(item.completedAt).toDateString() === new Date().toDateString()).length;
+    .sort((first, second) => new Date(second.completedAt || 0) - new Date(first.completedAt || 0));
+  const completedToday = historyItems.filter((item) => {
+    const itemDate = new Date(item.completedAt);
+    return !Number.isNaN(itemDate.getTime()) && itemDate.toDateString() === new Date().toDateString();
+  }).length;
   const workflowStatuses = Object.fromEntries(allOccurrences.map((occurrence) => [occurrence.id, statusFor(occurrence.id)]));
 
   let pageContent;

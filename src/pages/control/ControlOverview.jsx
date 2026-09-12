@@ -6,7 +6,7 @@ import { OPERATION_STATUS } from '../../data/operationStore';
 
 export default function ControlOverview({ occurrences, technicians, onSelectOccurrence, onSelectTechnician }) {
   const active = occurrences.filter((occurrence) => occurrence.operationalStatus !== OPERATION_STATUS.RESOLVED);
-  const critical = active.filter((occurrence) => occurrence.priority.classification === 'crítica');
+  const critical = active.filter((occurrence) => occurrence.priority?.classification === 'crítica');
   const available = technicians.filter((technician) => technician.status === 'disponível').length;
   const attending = technicians.filter((technician) => technician.status === 'em atendimento').length;
   const scenarioOccurrence = occurrences.find((occurrence) => occurrence.protocol === 'HOP-1048');
@@ -63,15 +63,15 @@ export default function ControlOverview({ occurrences, technicians, onSelectOccu
                   <header>
                     <strong>{occurrence.protocol}</strong>
                     <span>
-                      <StatusBadge value={occurrence.priority.classification} type="severity" />
-                      <b className="ms-2">{occurrence.priority.score}</b>
+                      <StatusBadge value={occurrence.priority?.classification || 'baixa'} type="severity" />
+                      <b className="ms-2">{occurrence.priority?.score ?? 0}</b>
                     </span>
                   </header>
-                  <h3>{occurrence.client.name}</h3>
-                  <p>{occurrence.description}</p>
+                  <h3>{occurrence.client?.name || 'Cliente'}</h3>
+                  <p>{occurrence.description || 'Intercorrência reportada'}</p>
                   <footer>
                     <span>{occurrence.technician?.name || 'Sem técnico'} · {occurrence.operationalStatus}</span>
-                    <small>{formatElapsedMinutes(occurrence.priority.elapsedMinutes)}</small>
+                    <small>{formatElapsedMinutes(occurrence.priority?.elapsedMinutes ?? 0)}</small>
                   </footer>
                 </button>
               ))}

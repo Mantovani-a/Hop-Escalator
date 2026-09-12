@@ -59,12 +59,66 @@ export const createInitialOperationState = (now = new Date()) => {
   };
 };
 
-const normalizeState = (state) => ({
-  version: 2,
-  updatedAt: state?.updatedAt || new Date().toISOString(),
-  operatorShiftActive: state?.operatorShiftActive !== false,
-  occurrences: Array.isArray(state?.occurrences) ? state.occurrences : [],
-});
+export const validateAndSanitizeOccurrence = (occ, index = 0, now = new Date()) => {
+  if (!occ || typeof occ !== 'object') return null;
+  const clientId = occ.clientId || 'CLI-001';
+  const elevatorId = occ.elevatorId || 'ELV-001';
+  const client = clientById(clientId) || clients[0];
+  const elevator = elevatorById(elevatorId) || elevators[0];
+  const templateMeta = operatorOccurrenceMetadata[occ.id] || {};
+  const metadata = {
+    distanceKm: 2.4,
+    etaMinutes: 10,
+    serviceNumber: `HOP-${1100 + index}`,
+    ...templateMeta,
+    ...(occ.metadata || {}),
+  };
+
+  const validPriority = occ.priority
+    && typeof occ.priority.score === 'number'
+    && typeof occ.priority.classification === 'string'
+    && Array.isArray(occ.priority.reasons);
+
+  const priority = validPriority
+    ? occ.priority
+    : calculatePriority({ occurrence: { ...occ, clientId, elevatorId }, client, elevator, metadata, now });
+
+  const workflowStatus = occ.workflowStatus || initialWorkflowStatus(occ);
+
+  return {
+    ...occ,
+    id: occ.id || `OCC-AUTO-${index}`,
+    clientId,
+    elevatorId,
+    description: occ.description || 'Intercorrência reportada no equipamento.',
+    protocol: occ.protocol || metadata.serviceNumber || `HOP-${1100 + index}`,
+    time: occ.time || now.toISOString(),
+    trappedPeople: Number(occ.trappedPeople) || 0,
+    severity: occ.severity || priority.classification || 'baixa',
+    status: occ.status || 'aberta',
+    technicianId: occ.technicianId || null,
+    origin: occ.origin || 'mock',
+    metadata,
+    priority,
+    workflowStatus,
+    completedAt: workflowStatus === OPERATION_STATUS.RESOLVED ? (occ.completedAt || occ.time || now.toISOString()) : null,
+    duration: workflowStatus === OPERATION_STATUS.RESOLVED ? (occ.duration || 'Atendimento demonstrativo') : null,
+  };
+};
+
+const normalizeState = (state, now = new Date()) => {
+  const rawOccurrences = Array.isArray(state?.occurrences) ? state.occurrences : [];
+  const occurrences = rawOccurrences
+    .map((occ, idx) => validateAndSanitizeOccurrence(occ, idx, now))
+    .filter(Boolean);
+
+  return {
+    version: 2,
+    updatedAt: state?.updatedAt || now.toISOString(),
+    operatorShiftActive: state?.operatorShiftActive !== false,
+    occurrences: occurrences.length ? occurrences : createInitialOperationState(now).occurrences,
+  };
+};
 
 const cacheState = (state) => {
   cachedOperationState = normalizeState(state);
@@ -78,29 +132,56 @@ const readOperationState = () => {
     const stored = window.localStorage.getItem(OPERATION_STORAGE_KEY);
     if (stored === cachedRawState && cachedOperationState) return cachedOperationState;
     if (stored) {
-      const parsed = JSON.parse(stored);
-      const storedTime = new Date(parsed.updatedAt || 0).getTime();
-      const isStale = Number.isNaN(storedTime) || (Date.now() - storedTime > 12 * 60 * 60 * 1000);
-
-      if (!isStale) {
-        cachedRawState = stored;
-        cachedOperationState = normalizeState(parsed);
-        return cachedOperationState;
+      let parsed = null;
+      try {
+        parsed = JSON.parse(stored);
+      } catch {
+        parsed = null;
       }
 
-      // Re-ancora as ocorrências de demonstração se forem de outro dia (>12h), mantendo o MVP sempre atualizado
-      const freshState = createInitialOperationState(new Date());
-      const clientCreated = (parsed.occurrences || []).filter((item) => item.origin !== 'mock');
-      if (clientCreated.length) {
-        freshState.occurrences = [...clientCreated, ...freshState.occurrences];
+      if (parsed && typeof parsed === 'object' && Array.isArray(parsed.occurrences) && parsed.occurrences.length > 0) {
+        const storedTime = new Date(parsed.updatedAt || 0).getTime();
+        const isStale = Number.isNaN(storedTime) || (Date.now() - storedTime > 12 * 60 * 60 * 1000);
+
+        if (!isStale) {
+          const sanitizedState = normalizeState(parsed);
+          cachedOperationState = sanitizedState;
+          cachedRawState = JSON.stringify(sanitizedState);
+          return cachedOperationState;
+        }
+
+        // Re-ancora as ocorrências de demonstração se forem de outro dia (>12h), mantendo o MVP sempre atualizado
+        const freshState = createInitialOperationState(new Date());
+        const clientCreated = (parsed.occurrences || [])
+          .filter((item) => item?.origin !== 'mock')
+          .map((item, idx) => validateAndSanitizeOccurrence(item, idx))
+          .filter(Boolean);
+
+        if (clientCreated.length) {
+          freshState.occurrences = [...clientCreated, ...freshState.occurrences];
+        }
+
+        const cachedFresh = cacheState(freshState);
+        try {
+          window.localStorage.setItem(OPERATION_STORAGE_KEY, cachedRawState);
+        } catch {
+          /* mantém em memória */
+        }
+        return cachedFresh;
       }
-      return cacheState(freshState);
     }
+
+    // Se não há dados salvos ou estavam corrompidos, inicia com o estado limpo
     const initialState = createInitialOperationState();
     const cachedInitialState = cacheState(initialState);
-    window.localStorage.setItem(OPERATION_STORAGE_KEY, cachedRawState);
+    try {
+      window.localStorage.setItem(OPERATION_STORAGE_KEY, cachedRawState);
+    } catch {
+      /* mantém em memória */
+    }
     return cachedInitialState;
-  } catch {
+  } catch (err) {
+    console.warn('HOP: Falha ao ler operationState do localStorage. Usando estado inicial limpo.', err);
     if (!cachedOperationState) cacheState(createInitialOperationState());
     return cachedOperationState;
   }
