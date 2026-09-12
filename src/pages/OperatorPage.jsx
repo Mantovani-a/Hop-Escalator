@@ -91,12 +91,13 @@ export default function OperatorPage({ route = '/operator' }) {
     const nextStatus = getWorkflowStep(currentStatus).nextStatus;
     if (!nextStatus) return;
     const occurrence = allOccurrences.find((item) => item.id === occurrenceId);
+    const probableOrigin = occurrence?.metadata?.diagnosis?.probableOrigin;
     const completion = nextStatus === OPERATION_STATUS.RESOLVED
       ? {
           completedAt: new Date().toISOString(),
           duration: '1h 06min',
-          finalDiagnosis: occurrence?.metadata?.diagnosis?.probableOrigin
-            ? `Hipótese confirmada após verificação: ${occurrence.metadata.diagnosis.probableOrigin}.`
+          finalDiagnosis: probableOrigin
+            ? `Hipótese confirmada após verificação: ${probableOrigin}.`
             : 'Falha verificada durante o atendimento em campo.',
           solution: 'Sistema verificado e operação restabelecida em segurança.',
           status: 'resolvida',
@@ -122,7 +123,7 @@ export default function OperatorPage({ route = '/operator' }) {
   const addSimulatedOccurrence = (workflowStatus) => {
     addOperationOccurrence({
       ...simulatedOccurrence,
-      protocol: simulatedOccurrence.metadata.serviceNumber,
+      protocol: simulatedOccurrence.metadata?.serviceNumber || simulatedOccurrence.protocol || 'HOP-1048',
       workflowStatus,
       technicianId: operatorTechnician.id,
       origin: 'simulação',

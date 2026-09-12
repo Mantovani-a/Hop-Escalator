@@ -1,16 +1,20 @@
 export const normalizeToken = (value = '') =>
-  value
+  String(value || '')
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/\s+/g, '-')
     .toLowerCase();
 
-export const formatDate = (date) =>
-  new Intl.DateTimeFormat('pt-BR', {
+export const formatDate = (date) => {
+  if (!date) return '—';
+  const parsed = new Date(`${date}T12:00:00`);
+  if (Number.isNaN(parsed.getTime())) return '—';
+  return new Intl.DateTimeFormat('pt-BR', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
-  }).format(new Date(`${date}T12:00:00`));
+  }).format(parsed);
+};
 
 export const formatDateTime = (dateTime) => {
   if (!dateTime) return '—';
@@ -45,11 +49,12 @@ export const formatDateTime = (dateTime) => {
   return `${dateStr}, ${timeStr}`;
 };
 
-export const formatElapsedMinutes = (minutes) => {
-  if (minutes < 1) return 'há menos de 1 min';
-  if (minutes < 60) return `há ${minutes} min`;
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
+export const formatElapsedMinutes = (minutes = 0) => {
+  const safeMinutes = Math.max(0, Number(minutes) || 0);
+  if (safeMinutes < 1) return 'há menos de 1 min';
+  if (safeMinutes < 60) return `há ${safeMinutes} min`;
+  const hours = Math.floor(safeMinutes / 60);
+  const remainingMinutes = safeMinutes % 60;
   return remainingMinutes ? `há ${hours}h ${remainingMinutes}min` : `há ${hours}h`;
 };
 

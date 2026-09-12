@@ -39,9 +39,9 @@ export default function OperatorHistory({ historyItems }) {
             <article className="app-card p-4 border-start rounded border-start border-4" style={{ borderLeftColor: 'var(--color-severity-low) !important' }} key={item.id}>
               <div className="mb-4">
                 <StatusBadge value="Resolvido" />
-                <span className="ms-2 text-secondary fw-bold text-uppercase" style={{ fontSize: '0.72rem' }}>{item.occurrence.protocol}</span>
-                <h2 className="fs-5 mt-3 mb-1" style={{ color: 'var(--color-text)' }}>{item.occurrence.client.name}</h2>
-                <p className="mb-0 text-secondary" style={{ fontSize: '0.88rem' }}>{item.occurrence.elevator.identification} · {item.occurrence.description}</p>
+                <span className="ms-2 text-secondary fw-bold text-uppercase" style={{ fontSize: '0.72rem' }}>{item.occurrence?.protocol || 'HOP-1040'}</span>
+                <h2 className="fs-5 mt-3 mb-1" style={{ color: 'var(--color-text)' }}>{item.occurrence?.client?.name || 'Cliente'}</h2>
+                <p className="mb-0 text-secondary" style={{ fontSize: '0.88rem' }}>{item.occurrence?.elevator?.identification || 'Elevador'} · {item.occurrence?.description || 'Atendimento concluído'}</p>
               </div>
               <dl className="row g-3 mb-0">
                 <div className="col-12 col-md-4"><dt className="text-secondary fw-bold text-uppercase mb-1" style={{ fontSize: '0.72rem' }}>Concluído</dt><dd className="fw-bold mb-0" style={{ color: 'var(--color-text)' }}>{formatDateTime(item.completedAt)}</dd></div>

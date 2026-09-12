@@ -15,12 +15,12 @@ export default function RouteMap({ occurrence }) {
       id: 'operator-joao-carlos', type: 'technician', typeLabel: 'Técnico', x: origin.x, y: origin.y,
       symbol: 'JC', label: operatorTechnician.name, shortLabel: operatorTechnician.name, status: 'Em deslocamento', tone: 'em-deslocamento', featured: true,
       avatar: operatorTechnician.avatar, avatarName: operatorTechnician.name,
-      details: [{ label: 'Ocorrência', value: occurrence.protocol || occurrence.metadata.serviceNumber }, { label: 'Destino', value: occurrence.client.name }],
+      details: [{ label: 'Ocorrência', value: occurrence.protocol || occurrence.metadata?.serviceNumber || 'HOP-1040' }, { label: 'Destino', value: occurrence.client?.name || 'Cliente' }],
     },
     {
       id: `operator-destination-${occurrence.clientId}`, type: 'destination', typeLabel: 'Próximo destino', x: destination.x, y: destination.y,
-      symbol: '◆', label: occurrence.client.name, shortLabel: 'Destino', status: occurrence.priority.classification, tone: normalizeToken(occurrence.priority.classification), featured: true,
-      details: [{ label: 'Elevador', value: occurrence.elevator.identification }, { label: 'Endereço', value: occurrence.address }, { label: 'ETA', value: `${occurrence.metadata.etaMinutes} min` }],
+      symbol: '◆', label: occurrence.client?.name || 'Cliente', shortLabel: 'Destino', status: occurrence.priority?.classification || 'baixa', tone: normalizeToken(occurrence.priority?.classification || 'baixa'), featured: true,
+      details: [{ label: 'Elevador', value: occurrence.elevator?.identification || 'Elevador' }, { label: 'Endereço', value: occurrence.address || 'Endereço não informado' }, { label: 'ETA', value: `${occurrence.metadata?.etaMinutes ?? 10} min` }],
     },
   ], [destination.x, destination.y, occurrence]);
 
@@ -58,19 +58,19 @@ export default function RouteMap({ occurrence }) {
           showFilters={false}
           markers={markers}
           route={route}
-          ariaLabel={`Rota demonstrativa de ${operatorTechnician.name} até ${occurrence.client.name}`}
-          fallback={<><strong>{occurrence.client.name}</strong><p>{occurrence.address}</p><span>{distance} km · ETA {eta} min</span></>}
+          ariaLabel={`Rota demonstrativa de ${operatorTechnician.name} até ${occurrence.client?.name || 'Cliente'}`}
+          fallback={<><strong>{occurrence.client?.name || 'Cliente'}</strong><p>{occurrence.address || 'Endereço não informado'}</p><span>{distance} km · ETA {eta} min</span></>}
         />
         <article className="operator-route-summary">
           <span>Próximo destino</span>
-          <strong>{occurrence.client.name}</strong>
-          <small>{occurrence.elevator.identification}</small>
+          <strong>{occurrence.client?.name || 'Cliente'}</strong>
+          <small>{occurrence.elevator?.identification || 'Elevador'}</small>
           <p>{distance} km · {eta} min</p>
-          <StatusBadge value={occurrence.priority.classification} type="severity" />
+          <StatusBadge value={occurrence.priority?.classification || 'baixa'} type="severity" />
         </article>
       </div>
       <div className="hop-route-footer">
-        <div><strong>{occurrence.client.name}</strong><span>{occurrence.address}</span><small>{locationMessages[locationState]}</small></div>
+        <div><strong>{occurrence.client?.name || 'Cliente'}</strong><span>{occurrence.address || 'Endereço não informado'}</span><small>{locationMessages[locationState]}</small></div>
         <button className="btn btn-outline-primary" type="button" onClick={requestLocation} disabled={locationState === 'requesting'}>Usar minha localização</button>
       </div>
     </section>

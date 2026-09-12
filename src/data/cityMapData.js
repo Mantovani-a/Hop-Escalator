@@ -53,9 +53,12 @@ export const getTechnicianCityPoint = (technician) => {
   return base;
 };
 
-export const buildCityRoute = (start, end) => [
-  start,
-  { x: start.x + (end.x - start.x) * 0.32, y: start.y - 54 },
-  { x: start.x + (end.x - start.x) * 0.66, y: end.y + 42 },
-  end,
-];
+export const buildCityRoute = (start, end) => {
+  if (!start || !end) return [];
+  return [
+    start,
+    { x: start.x + (end.x - start.x) * 0.32, y: start.y - 54 },
+    { x: start.x + (end.x - start.x) * 0.66, y: end.y + 42 },
+    end,
+  ];
+};

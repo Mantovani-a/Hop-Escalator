@@ -20,11 +20,11 @@ export default function NewOccurrenceAlert({ occurrence, open, onClose, onAccept
         <button ref={closeButtonRef} className="position-absolute top-0 end-0 m-3 btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center border-0" style={{ width: '44px', height: '44px', fontSize: '1.5rem' }} type="button" aria-label="Fechar alerta" onClick={onClose}>&times;</button>
         <p className="text-primary fw-bold text-uppercase mb-2" style={{ fontSize: '0.75rem', letterSpacing: '0.08em' }}>Nova atribuição</p>
         <h2 className="fs-4 mb-4 pe-5" id="new-occurrence-title">Nova ocorrência atribuída a João Carlos</h2>
-        <PriorityIndicator priority={occurrence.priority} />
+        <PriorityIndicator priority={occurrence?.priority} />
         <div className="my-4 pt-3 border-top d-grid gap-1">
-          <strong className="fs-5">{occurrence.client.name}</strong>
-          <span className="text-secondary" style={{ fontSize: '0.86rem' }}>{occurrence.elevator.identification}</span>
-          <p className="mt-3 mb-0 fs-5 fw-normal">{occurrence.description}</p>
+          <strong className="fs-5">{occurrence?.client?.name || 'Cliente'}</strong>
+          <span className="text-secondary" style={{ fontSize: '0.86rem' }}>{occurrence?.elevator?.identification || 'Elevador'}</span>
+          <p className="mt-3 mb-0 fs-5 fw-normal">{occurrence?.description || 'Intercorrência reportada'}</p>
         </div>
         <div className="d-grid gap-3 mt-5">
           <button className="btn btn-primary btn-lg" type="button" onClick={onAccept}>ACEITAR OCORRÊNCIA</button>

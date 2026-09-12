@@ -31,10 +31,10 @@ export default function ControlOperationsMap({ technicians, occurrences, onSelec
       avatar: technician.avatar,
       avatarName: technician.name,
       details: [
-        { label: 'Região', value: technician.region },
+        { label: 'Região', value: technician.region || '—' },
         { label: 'Ocorrência', value: current?.protocol || 'Sem chamado ativo' },
         { label: 'Destino', value: current?.client?.name || 'Aguardando despacho' },
-        { label: 'ETA', value: current ? `${current.metadata.etaMinutes} min` : '—' },
+        { label: 'ETA', value: current?.metadata?.etaMinutes != null ? `${current.metadata.etaMinutes} min` : '—' },
       ],
       onOpen: () => onSelectTechnician(technician.id),
     };
@@ -42,6 +42,7 @@ export default function ControlOperationsMap({ technicians, occurrences, onSelec
 
   const occurrenceMarkers = activeOccurrences.map((occurrence, index) => {
     const point = getOccurrenceCityPoint(occurrence, index);
+    const priorityClass = occurrence.priority?.classification || 'média';
     return {
       id: `occurrence-${occurrence.id}`,
       type: 'occurrence',
@@ -52,14 +53,14 @@ export default function ControlOperationsMap({ technicians, occurrences, onSelec
       label: occurrence.protocol,
       shortLabel: occurrence.protocol,
       featured: occurrence.protocol === 'HOP-1048',
-      status: `${occurrence.priority.classification} · ${occurrence.operationalStatus}`,
-      tone: normalizeToken(occurrence.priority.classification),
+      status: `${priorityClass} · ${occurrence.operationalStatus || ''}`,
+      tone: normalizeToken(priorityClass),
       details: [
-        { label: 'Local', value: occurrence.client.name },
-        { label: 'Elevador', value: occurrence.elevator.identification },
-        { label: 'Problema', value: occurrence.description },
+        { label: 'Local', value: occurrence.client?.name || 'Local não informado' },
+        { label: 'Elevador', value: occurrence.elevator?.identification || 'Equipamento' },
+        { label: 'Problema', value: occurrence.description || 'Sem descrição' },
         { label: 'Técnico', value: occurrence.technician?.name || 'Aguardando atribuição' },
-        { label: 'Tempo', value: formatElapsedMinutes(occurrence.priority.elapsedMinutes) },
+        { label: 'Tempo', value: formatElapsedMinutes(occurrence.priority?.elapsedMinutes || 0) },
       ],
       onOpen: () => onSelectOccurrence(occurrence.id),
     };
@@ -83,14 +84,14 @@ export default function ControlOperationsMap({ technicians, occurrences, onSelec
         { label: 'Categoria', value: client.type },
         { label: 'Elevadores', value: String(clientElevators.length) },
         { label: 'Ativas', value: String(activeAtClient.length) },
-        { label: 'Estado geral', value: activeAtClient.some((item) => item.priority.classification === 'crítica') ? 'Atenção imediata' : 'Monitorado' },
+        { label: 'Estado geral', value: activeAtClient.some((item) => item.priority?.classification === 'crítica') ? 'Atenção imediata' : 'Monitorado' },
       ],
     };
   });
 
   const joao = technicians.find((technician) => technician.id === 'TEC-010');
   const joaoOccurrence = joao?.currentOccurrence;
-  const joaoRoute = joaoOccurrence?.operationalStatus === OPERATION_STATUS.TRAVELING
+  const joaoRoute = joaoOccurrence?.operationalStatus === OPERATION_STATUS.TRAVELING && joaoOccurrence?.clientId
     ? buildCityRoute(technicianCityPositions['TEC-010'], getEstablishmentCityPoint(joaoOccurrence.clientId))
     : [];
 

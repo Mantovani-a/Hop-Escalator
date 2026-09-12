@@ -14,23 +14,23 @@ export default function OperatorServicePage({ occurrence, workflowStatus, onAdva
 
   const workflowStep = getWorkflowStep(workflowStatus);
   const isMaintenance = [OPERATION_STATUS.ON_SITE, OPERATION_STATUS.MAINTENANCE, OPERATION_STATUS.RESOLVED].includes(workflowStatus);
-  const diagnosis = occurrence.metadata.diagnosis;
+  const diagnosis = occurrence.metadata?.diagnosis || {};
   const affectedComponents = (diagnosis.suspectedRegions || [])
     .map((regionId) => elevatorRegions.find((region) => region.id === regionId)?.label)
     .filter(Boolean);
   const signals = [
-    diagnosis.source,
-    occurrence.metadata.elevatorStopped ? 'Equipamento informou indisponibilidade total' : 'Equipamento informou funcionamento parcial ou intermitente',
-    occurrence.metadata.recurrence ? 'Histórico indica reincidência relacionada' : 'Sem reincidência recente sinalizada',
-  ];
+    diagnosis.source || 'Diagnóstico operacional',
+    occurrence.metadata?.elevatorStopped ? 'Equipamento informou indisponibilidade total' : 'Equipamento informou funcionamento parcial ou intermitente',
+    occurrence.metadata?.recurrence ? 'Histórico indica reincidência relacionada' : 'Sem reincidência recente sinalizada',
+  ].filter(Boolean);
   return (
     <>
       <a className="d-inline-flex align-items-center fw-bold text-decoration-none mb-3" href={`#/operator/occurrence/${occurrence.id}`} style={{ minHeight: '44px' }}><span className="me-2" aria-hidden="true">←</span> Ver ocorrência</a>
       <header className="page-header">
         <div>
-          <p className="page-header__subtitle">Atendimento #{occurrence.metadata.serviceNumber}</p>
+          <p className="page-header__subtitle">Atendimento #{occurrence.protocol || occurrence.metadata?.serviceNumber || 'HOP-1040'}</p>
           <h1 className="page-header__title">
-            {occurrence.client.name} <span className="text-secondary fw-normal fs-5">· {occurrence.elevator.identification}</span>
+            {occurrence.client?.name || 'Cliente'} <span className="text-secondary fw-normal fs-5">· {occurrence.elevator?.identification || 'Elevador'}</span>
           </h1>
         </div>
         <div className="d-flex flex-wrap align-items-center gap-3">
@@ -63,7 +63,7 @@ export default function OperatorServicePage({ occurrence, workflowStatus, onAdva
         </aside>
         <div className={isMaintenance ? 'col-12 col-md-6 col-lg-7 col-xl-8' : 'col-12 col-lg-7 col-xl-8'}>
           <TechnicalInfoPanel occurrence={occurrence} />
-          <div className="mt-4"><Elevator2DModel diagnosis={diagnosis} severity={occurrence.priority.classification} /></div>
+          <div className="mt-4"><Elevator2DModel diagnosis={diagnosis} severity={occurrence.priority?.classification || 'baixa'} /></div>
         </div>
       </div>
     </>
