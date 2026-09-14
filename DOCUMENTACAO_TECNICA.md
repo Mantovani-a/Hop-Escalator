@@ -32,7 +32,7 @@ src/
 │   ├── mockData.js
 │   ├── operationStore.js
 │   ├── operatorData.js e controlData.js
-│   └── cityMapData.js
+│   └── geoCoordinates.js
 ├── hooks/
 │   ├── useOperationState.js
 │   └── useDialogFocus.js
@@ -64,11 +64,11 @@ src/
 | `src/data/mockData.js` | técnicos, clientes, elevadores e ocorrências base | manter dados demonstrativos |
 | `src/utils/priorityScore.js` | pontuação e classificação | revisar pesos de prioridade |
 | `src/utils/dispatchRecommendation.js` | recomendação de técnico | revisar despacho demonstrativo |
-| `src/components/CityMap.jsx` | mapa, interação e marcadores | alterar comportamento do mapa |
+| `src/components/LeafletMap.jsx` | mapa operacional em tempo real com OpenStreetMap | alterar renderização e interação do mapa |
 | `src/components/ModuleSidebar.jsx` | estrutura lateral comum aos três módulos | alterar logo, perfil ou comportamento base dos menus |
 | `src/components/ProfileAvatar.jsx` | foto pública com fallback para iniciais | alterar renderização, acessibilidade ou tamanhos dos avatares |
 | `src/components/DemoHomeLink.jsx` | retorno acessível ao painel demonstrativo | alterar a ação global de retorno |
-| `src/data/cityMapData.js` | coordenadas e rota fictícia | mover pontos na cidade |
+| `src/data/geoCoordinates.js` | coordenadas geográficas de SP e traçado de rotas | atualizar posições de clientes e técnicos |
 | `src/context/ThemeContext.jsx` | tema, sistema e persistência | alterar estratégia de tema |
 | `src/styles/tokens.css` | design tokens claros/escuros | alterar identidade visual |
 | `src/styles/components.css` | estruturas visuais compartilhadas | alterar cards, badges, shells ou cabeçalhos comuns |
@@ -107,8 +107,8 @@ Para criar uma página interna, crie o componente, importe-o na página raiz do 
 - `ThemeToggle`, `StatusBadge`, `MetricCard` e `FeedbackMessage` são compartilháveis.
 - `ModuleSidebar` contém a estrutura visual compartilhada; `ControlShell` e `OperatorShell` configuram itens, perfil e cabeçalho de cada módulo.
 - `DemoHomeLink` mantém o retorno ao painel demonstrativo acessível nos três cabeçalhos.
-- `ControlOperationsMap` monta marcadores a partir dos dados do Control e entrega-os ao `CityMap`.
-- `RouteMap` usa o mesmo `CityMap` e as mesmas coordenadas no atendimento do Operator.
+- `ControlOperationsMap` monta marcadores com geolocalização e entrega-os ao `LeafletMap`.
+- `RouteMap` usa o mesmo `LeafletMap` e as coordenadas de `geoCoordinates.js` para traçar a rota do Operator.
 - `Elevator2DModel` expõe máquina de tração, polias, cintas/cabos, governador, quadro, trilhos, contrapeso, cabine, operador/portas, sensores, fins de curso, amortecedores e poço.
 - `OperatorShiftClosed` apresenta logo, estado encerrado e início de turno quando a operação de João Carlos está encerrada.
 - `ClientSupportFlow` controla as quatro etapas do formulário do cliente.
@@ -143,12 +143,12 @@ O estado é lido na inicialização do hook e gravado apenas por `addOperationOc
 
 ## 8. Mock data
 
-`src/data/mockData.js` contém as coleções `technicians`, `clients`, `elevators` e `occurrences`, além de buscas por ID. Os arquivos `clientData.js`, `operatorData.js` e `controlData.js` enriquecem esses registros para a apresentação de cada módulo. Diagnósticos, ETA e histórico rápido do Operator ficam em `operatorData.js`. Coordenadas ficam em `cityMapData.js`.
+`src/data/mockData.js` contém as coleções `technicians`, `clients`, `elevators` e `occurrences`, além de buscas por ID. Os arquivos `clientData.js`, `operatorData.js` e `controlData.js` enriquecem esses registros para a apresentação de cada módulo. Diagnósticos, ETA e histórico rápido do Operator ficam em `operatorData.js`. Coordenadas ficam em `geoCoordinates.js`.
 
 ### Adicionar técnico
 
 1. Adicione um objeto em `technicians` com ID único, nome, status, especialidade, região, distância e atendimento atual.
-2. Acrescente uma posição para o mesmo ID em `technicianCityPositions`.
+2. Acrescente uma posição para o mesmo ID em `technicianGeoPositions`.
 3. Se o técnico for atribuído a um mock, use esse mesmo ID em `technicianId`.
 
 João Carlos é `TEC-010`. Seu perfil de Operator é derivado em `operatorData.js`; ali ficam ID de funcionário, turno, especialidades e localização demonstrativa. Nome, região, especialidade, status inicial e distância vêm do registro `TEC-010` em `mockData.js`.
@@ -187,13 +187,13 @@ Status internos, centralizados em `OPERATION_STATUS`, preservam compatibilidade 
 
 Na tela encerrada, `HopLogo` procura automaticamente `src/assets/logos/hop-operator-shift-logo.png`, destinada ao contraste em fundo claro. Enquanto esse arquivo opcional não existir, usa `hop-operator-logo.png` como fallback sem quebrar o build.
 
-## 11. Mapa e cidade fictícia
+## 11. Mapa operacional e geolocalização real
 
-O mapa não usa Leaflet ou API externa. `CityMap.jsx` desenha Nova Aurora com HTML/CSS e um plano cartesiano local de 1000 × 700. Suporta arrastar com mouse/dedo, pinch, roda do mouse, teclas, botões +/−, recentralização, filtros e popup acessível. O listener nativo de `wheel` é não passivo e bloqueia propagação somente dentro do viewport; `touch-action`/`overscroll-behavior` isolam pan e pinch sem bloquear o scroll fora do mapa.
+O mapa operacional utiliza **Leaflet** com tiles oficiais do **OpenStreetMap** (`https://tile.openstreetmap.org/{z}/{x}/{y}.png`), 100% livre, público e sem marca d'água.
 
-`cityMapData.js` relaciona IDs reais às coordenadas. Para mover um técnico ou estabelecimento, altere `{ x, y }` no mapa correspondente. Ocorrências recebem um pequeno deslocamento ao redor do estabelecimento. `buildCityRoute(start, end)` produz uma linha demonstrativa com dois pontos intermediários. Control e Operator usam exatamente essa base.
+`LeafletMap.jsx` renderiza a malha geográfica da Grande São Paulo com suporte nativo a tema claro e escuro (via filtro CSS invertido nos tiles), marcadores semânticos em SVG para cada categoria de cliente (Hospitais, Shoppings, Hotéis, Condomínios e Prédios Comerciais), status dots ao vivo para técnicos (Disponível, Em Deslocamento, Em Atendimento, Indisponível) e escudos de alerta com pulso de radar para ocorrências críticas.
 
-Para novo tipo de marcador, monte o objeto com `id`, `layer`, `x`, `y`, `label`, `symbol`, `detail` e `status`/`severity`, e entregue-o ao `CityMap`. Mantenha o fallback textual quando dados de rota estiverem ausentes.
+`geoCoordinates.js` centraliza as latitudes e longitudes reais dos estabelecimentos e técnicos pela cidade. `buildGeoRoute(start, end)` calcula a rota ao longo dos eixos viários. O Operator (`RouteMap.jsx`) enquadra a rota automaticamente (`map.fitBounds`) e oferece suporte a geolocalização real do navegador (`navigator.geolocation`).
 
 ## 12. Modelo 2D e diagnóstico
 
@@ -260,8 +260,8 @@ Passo a passo: crie o componente em `pages/<módulo>`, importe na página raiz, 
 | Status compartilhados/reset | `src/data/operationStore.js` |
 | Turno do João Carlos | `src/data/operationStore.js`, `src/pages/OperatorPage.jsx`, `src/components/operator/OperatorShiftClosed.jsx` |
 | Fluxo de atendimento do Operator | `src/utils/operatorWorkflow.js`, `src/pages/OperatorPage.jsx`, `src/pages/operator/OperatorServicePage.jsx` |
-| Cidade, pontos e rota | `src/data/cityMapData.js` |
-| Interação visual do mapa | `src/components/CityMap.jsx`, `src/styles/map.css` |
+| Cidade, pontos e rota | `src/data/geoCoordinates.js` |
+| Interação visual do mapa | `src/components/LeafletMap.jsx`, `src/styles/map.css` |
 | Modelo 2D | `src/components/operator/Elevator2DModel.jsx` |
 | Estrutura comum das sidebars | `src/components/ModuleSidebar.jsx`, `src/styles/components.css` |
 | Itens dos menus Operator/Control | respectivos `src/components/*/*Shell.jsx` |
@@ -284,7 +284,7 @@ O build gera `dist/`. Para deploy estático, publique o conteúdo dessa pasta e 
 - **Dependência ausente:** execute `npm install` na raiz.
 - **Porta ocupada:** o Vite informa outra URL; abra a URL exibida ou encerre o processo antigo.
 - **Dados antigos:** use “Restaurar dados de demonstração”.
-- **Mapa sem pontos:** confirme IDs iguais entre `mockData.js` e `cityMapData.js`; o fallback mantém o atendimento legível.
+- **Mapa sem pontos:** confirme IDs iguais entre `mockData.js` e `geoCoordinates.js`; o fallback mantém o atendimento legível.
 - **Logo ausente:** confirme nome e extensão exatos em `src/assets/logos`.
 - **Build falhando:** leia o primeiro erro de import/caminho, corrija e execute `npm run build` novamente.
 

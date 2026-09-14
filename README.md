@@ -41,7 +41,7 @@ Todos os módulos leem e atualizam a mesma base operacional no navegador. O cen�
 - priorização por contexto operacional, passageiros presos, risco, local crítico (ex.: hospitais), condição do elevador, tempo e reincidência;
 - recomendação e atribuição demonstrativa de técnico por proximidade e especialidade;
 - ciclo completo do chamado, da abertura à resolução, com três ações operacionais no Operator;
-- mapa local interativo de Nova Aurora, com pan, zoom, filtros e rota compartilhada;
+- mapa operacional interativo da Grande São Paulo com OpenStreetMap e Leaflet, rota em tempo real, filtros e marcadores semânticos;
 - diagnóstico preliminar/completo e representação 2D interativa detalhada do elevador;
 - dashboards, filas, histórico e sincronização em tempo real entre os três módulos;
 - turno e tema claro/escuro persistentes, com navegação lateral responsiva nos três módulos;
@@ -50,12 +50,13 @@ Todos os módulos leem e atualizam a mesma base operacional no navegador. O cen�
 ## Tecnologias
 
 - React 19 e JavaScript;
+- Leaflet e OpenStreetMap (geolocalização operacional sem custos);
 - HTML semântico e CSS responsivo;
 - Bootstrap 5;
 - Vite;
 - APIs nativas do navegador (`localStorage`, Geolocation, Web Audio e Pointer Events).
 
-O mapa é implementado localmente em React/CSS, sem API externa, chave ou serviço pago.
+O mapa utiliza Leaflet com tiles públicos e oficiais do OpenStreetMap, sem necessidade de chaves de API pagas ou cartão de crédito.
 
 ## Como executar
 

@@ -1,375 +1,529 @@
-.city-map {
+@import 'leaflet/dist/leaflet.css';
+
+/* ==========================================================================
+   HOP OPERATIONAL MAP — LEAFLET + OPENSTREETMAP STYLES
+   ========================================================================== */
+
+.leaflet-map-wrapper {
+  position: relative;
   min-width: 0;
 }
+
+.leaflet-map-container {
+  width: 100%;
+  height: 540px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background: var(--map-background);
+  z-index: 1;
+}
+
+/* Modo compacto para o módulo Operator (card de atendimento) */
+.leaflet-map-container--compact {
+  height: 380px;
+}
+
+/* Dark Mode nativo para os tiles do OpenStreetMap */
+:root[data-theme="dark"] .leaflet-map-container .leaflet-tile-pane {
+  filter: brightness(0.62) invert(1) contrast(2.4) hue-rotate(200deg) saturate(0.35) brightness(0.75);
+}
+
+/* Container de DivIcon transparente */
+.leaflet-div-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* ==========================================================================
+   FILTROS DO MAPA
+   ========================================================================== */
 .city-map__filters {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
   margin-bottom: var(--space-3);
 }
+
 .city-map__filters button {
-  min-height: 40px;
-  padding: 0.4rem 0.75rem;
+  min-height: 38px;
+  padding: 0.35rem 0.8rem;
   border: 1px solid var(--color-border);
   border-radius: 999px;
   color: var(--color-text-muted);
   background: var(--color-surface);
   font-size: 0.75rem;
   font-weight: 750;
+  transition: all 0.15s ease;
 }
+
+.city-map__filters button:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+}
+
 .city-map__filters button.is-active {
   border-color: var(--color-primary-action);
   color: var(--color-primary-action);
   background: var(--color-primary-soft);
 }
-.city-map__viewport {
+
+/* ==========================================================================
+   MARCADORES — ESTRUTURA BASE
+   ========================================================================== */
+.hop-leaflet-marker {
   position: relative;
-  min-height: 470px;
-  overflow: hidden;
-  overscroll-behavior: contain;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--map-background);
-  cursor: grab;
-  touch-action: none;
-  user-select: none;
-}
-.city-map__viewport:active {
-  cursor: grabbing;
-}
-.city-map__viewport:focus-visible {
-  box-shadow: inset var(--shadow-focus);
-}
-.city-map__world {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 1000px;
-  height: 700px;
-  margin: -350px 0 0 -500px;
-  transform-origin: center;
-  transition: transform 80ms linear;
-}
-.city-map__district {
-  position: absolute;
-  overflow: hidden;
-  border: 1px solid var(--map-district-border);
-  border-radius: 18px;
-  background: var(--map-district-background);
-}
-.city-map__district > span {
-  position: absolute;
-  top: 12px;
-  left: 14px;
-  color: var(--map-district-text);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-.city-map__block {
-  position: absolute;
-  z-index: 1;
-  border: 1px solid var(--map-block-border);
-  border-radius: 8px;
-  background: var(--map-block-background);
-  box-shadow: inset 0 -5px 0 var(--map-block-shadow);
-}
-.city-map__road {
-  position: absolute;
-  z-index: 2;
-  background: var(--map-road);
-  box-shadow:
-    inset 0 5px 0 var(--map-road-edge),
-    inset 0 -5px 0 var(--map-road-edge);
-}
-.city-map__road--vertical {
-  box-shadow:
-    inset 5px 0 0 var(--map-road-edge),
-    inset -5px 0 0 var(--map-road-edge);
-}
-.city-map__road--diagonal {
-  transform: rotate(-31deg);
-  transform-origin: left center;
-}
-.city-map__avenue-label {
-  position: absolute;
-  z-index: 3;
-  color: var(--map-label);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  pointer-events: none;
-  text-transform: uppercase;
-}
-.city-map__avenue-label--one {
-  top: 255px;
-  left: 370px;
-}
-.city-map__avenue-label--two {
-  top: 470px;
-  left: 680px;
-}
-.city-map__route {
-  position: absolute;
-  z-index: 5;
-  height: 7px;
-  border: 2px solid var(--color-surface);
-  border-radius: 999px;
-  background: var(--color-primary-action);
-  transform-origin: left center;
-  box-shadow: 0 1px 4px rgba(30, 41, 59, 0.28);
-  pointer-events: none;
-}
-.city-map__marker {
-  position: absolute;
-  z-index: 7;
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 44px;
-  min-height: 44px;
-  border: 0;
-  color: var(--color-text);
-  background: transparent;
+  justify-content: center;
+  cursor: pointer;
   transform: translate(-50%, -50%);
+  user-select: none;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.city-map__marker > span {
-  display: inline-flex;
+
+.hop-leaflet-marker:hover {
+  transform: translate(-50%, -50%) scale(1.16);
+  z-index: 9999 !important;
+}
+
+.hop-leaflet-marker:focus-visible {
+  outline: none;
+}
+
+/* ==========================================================================
+   1. ESTABELECIMENTOS (Prédios / Clientes)
+   ========================================================================== */
+.hop-marker-pin--establishment,
+.hop-marker-pin--destination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  color: #f8fafc;
+  border: 2px solid #ffffff;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.35);
+  transition: all 0.15s ease;
+}
+
+:root[data-theme="dark"] .hop-marker-pin--establishment,
+:root[data-theme="dark"] .hop-marker-pin--destination {
+  background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+  border-color: #94a3b8;
+}
+
+.hop-marker-pin--establishment svg,
+.hop-marker-pin--destination svg {
+  stroke-width: 2.2;
+}
+
+.hop-marker-pin--establishment.cat-hospital {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+}
+
+.hop-marker-pin--establishment.cat-shopping {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+}
+
+.hop-marker-pin--establishment.cat-hotel {
+  background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+}
+
+.hop-marker-pin--destination {
+  background: linear-gradient(135deg, #252d7a 0%, #3f5bd8 100%);
+  border-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(63, 91, 216, 0.35), 0 4px 14px rgba(15, 23, 42, 0.38);
+}
+
+/* ==========================================================================
+   2. TÉCNICOS EM CAMPO
+   ========================================================================== */
+.hop-marker-pin--technician {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.38);
+  font-size: 0.72rem;
+  font-weight: 850;
+  color: #1e293b;
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .hop-marker-pin--technician {
+  background: #1e293b;
+  border-color: #38bdf8;
+  color: #f8fafc;
+}
+
+.hop-tech-avatar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #1e293b;
+  font-weight: 850;
+  font-size: 0.72rem;
+  letter-spacing: -0.02em;
+}
+
+:root[data-theme="dark"] .hop-tech-avatar-inner {
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+/* Status Indicator Dot */
+.hop-tech-status-dot {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+:root[data-theme="dark"] .hop-tech-status-dot {
+  border-color: #1e293b;
+}
+
+.hop-tech-status-dot.dot-disponivel {
+  background-color: #10b981;
+}
+
+.hop-tech-status-dot.dot-em-deslocamento {
+  background-color: #f59e0b;
+}
+
+.hop-tech-status-dot.dot-em-atendimento {
+  background-color: #3b82f6;
+}
+
+.hop-tech-status-dot.dot-indisponivel {
+  background-color: #ef4444;
+}
+
+/* Animação para técnico em deslocamento prioritário */
+.hop-leaflet-marker.is-featured .hop-marker-pin--technician::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  right: -6px;
+  bottom: -6px;
+  border-radius: 50%;
+  border: 2px solid #3b82f6;
+  animation: techPulse 2s infinite ease-out;
+  pointer-events: none;
+}
+
+@keyframes techPulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.9;
+  }
+  70% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   3. OCORRÊNCIAS / CHAMADOS
+   ========================================================================== */
+.hop-marker-pin--occurrence {
+  position: relative;
+  display: flex;
   align-items: center;
   justify-content: center;
   width: 34px;
   height: 34px;
-  border: 3px solid var(--color-surface);
-  border-radius: 50%;
-  color: var(--color-on-primary);
-  background: var(--color-primary-action);
-  box-shadow: 0 3px 10px rgba(30, 41, 59, 0.24);
-  font-size: 0.68rem;
-  font-weight: 850;
+  border-radius: 8px;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.38);
+  transition: all 0.15s ease;
 }
-.city-map__marker > small {
-  max-width: 120px;
-  margin-top: 0.15rem;
-  padding: 0.12rem 0.35rem;
-  overflow: hidden;
-  border-radius: 0.25rem;
-  color: var(--color-text);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-subtle);
-  font-size: 0.61rem;
-  font-weight: 750;
-  opacity: 0;
-  pointer-events: none;
-  text-overflow: ellipsis;
-  transform: translateY(-3px);
-  transition:
-    opacity 0.12s ease,
-    transform 0.12s ease;
-  white-space: nowrap;
+
+.hop-marker-pin--occurrence.tone-critica {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
 }
-.city-map__marker:hover > small,
-.city-map__marker:focus-visible > small,
-.city-map__marker.is-selected > small,
-.city-map__marker.is-featured > small {
-  opacity: 1;
-  transform: translateY(0);
+
+.hop-marker-pin--occurrence.tone-alta {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
 }
-.city-map__marker--occurrence > span {
-  border-radius: var(--radius-sm);
+
+.hop-marker-pin--occurrence.tone-atencao {
+  background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
+  color: #422006;
 }
-.city-map__marker--establishment > span,
-.city-map__marker--destination > span {
-  border-radius: 30% 50% 50% 50%;
-  background: var(--color-neutral-strong);
-  transform: rotate(45deg);
+
+.hop-marker-pin--occurrence.tone-baixa {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
 }
-.city-map__marker--establishment > span > *,
-.city-map__marker--destination > span > * {
-  transform: rotate(-45deg);
-}
-.city-map__marker--destination > span {
-  background: var(--color-primary);
-}
-.city-map__marker.tone-disponivel > span,
-.city-map__marker.tone-baixa > span {
-  background: var(--color-severity-low-text);
-}
-.city-map__marker.tone-em-deslocamento > span,
-.city-map__marker.tone-atencao > span {
-  color: #493500;
-  background: var(--color-severity-attention);
-}
-.city-map__marker.tone-em-atendimento > span,
-.city-map__marker.tone-alta > span {
-  background: var(--color-severity-high);
-}
-.city-map__marker.tone-indisponivel > span,
-.city-map__marker.tone-critica > span {
-  background: var(--color-severity-critical);
-}
-.city-map__marker:hover > span,
-.city-map__marker:focus-visible > span,
-.city-map__marker.is-selected > span {
-  box-shadow:
-    0 0 0 5px var(--focus-ring),
-    0 3px 10px rgba(30, 41, 59, 0.2);
-}
-.city-map__controls {
+
+/* Radar pulsante para ocorrências críticas */
+.hop-marker-pin--occurrence.tone-critica::after {
+  content: '';
   position: absolute;
-  z-index: 20;
-  top: var(--space-3);
-  right: var(--space-3);
-  display: grid;
-  grid-template-columns: 42px 42px;
-  gap: 0.35rem;
+  top: -8px;
+  left: -8px;
+  right: -8px;
+  bottom: -8px;
+  border-radius: 12px;
+  border: 2.5px solid #ef4444;
+  animation: critPulse 1.8s infinite cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  pointer-events: none;
 }
-.city-map__controls button {
-  min-width: 42px;
-  min-height: 42px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  color: var(--color-text);
+
+@keyframes critPulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 1;
+  }
+  75% {
+    transform: scale(1.45);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.45);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   4. TOOLTIP FLUTUANTE (Zero poluição visual)
+   ========================================================================== */
+.hop-leaflet-marker-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 5px 9px;
   background: var(--color-surface);
-  font-size: 1.15rem;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.22);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s;
+  z-index: 1000;
+}
+
+.hop-leaflet-marker-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: var(--color-surface) transparent transparent transparent;
+}
+
+.hop-leaflet-marker:hover .hop-leaflet-marker-tooltip,
+.hop-leaflet-marker.is-selected .hop-leaflet-marker-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.show-all-labels .hop-leaflet-marker-tooltip {
+  opacity: 0.94 !important;
+  visibility: visible !important;
+  transform: translateX(-50%) translateY(0) !important;
+}
+
+.hop-tooltip-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.62rem;
   font-weight: 800;
-  box-shadow: var(--shadow-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
 }
-.city-map__controls .city-map__recenter {
-  grid-column: 1/-1;
-  padding: 0 0.5rem;
-  font-size: 0.7rem;
+
+.hop-tooltip-name {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--color-text);
+  line-height: 1.2;
 }
+
+/* ==========================================================================
+   5. POPUPS NATIVOS E ACESSÍVEIS DO MAPA
+   ========================================================================== */
 .city-map__popup {
   position: absolute;
-  z-index: 18;
+  z-index: 1000;
   top: var(--space-3);
   left: var(--space-3);
-  width: min(285px, calc(100% - 8rem));
+  width: min(290px, calc(100% - 7rem));
   padding: var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  color: var(--color-text);
   background: var(--color-surface);
-  box-shadow: var(--shadow-subtle);
-  cursor: default;
-  user-select: text;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.22);
 }
-.city-map__popup > button:first-child {
+
+.city-map__popup > button {
   position: absolute;
-  top: 0.35rem;
-  right: 0.35rem;
-  width: 34px;
-  height: 34px;
+  top: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
   border: 0;
   border-radius: 50%;
   color: var(--color-text-muted);
   background: transparent;
-  font-size: 1.2rem;
+  font-size: 1.15rem;
+  line-height: 1;
 }
-.city-map__popup > span,
-.city-map__popup > strong,
-.city-map__popup > em {
-  display: block;
-  padding-right: 2rem;
+
+.city-map__popup > button:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text);
 }
+
 .city-map__popup > span {
+  display: inline-block;
   color: var(--color-primary-action);
-  font-size: 0.66rem;
+  font-size: 0.68rem;
   font-weight: 800;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
+  margin-bottom: 0.25rem;
 }
-.city-map__popup > strong {
-  margin-top: 0.2rem;
-}
-.city-map__popup > em {
-  margin-top: 0.2rem;
-  color: var(--color-text-muted);
-  font-size: 0.72rem;
-  font-style: normal;
-}
+
 .city-map__popup-identity {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  margin-top: var(--space-2);
-  padding-right: 2rem;
+  margin-bottom: 0.5rem;
 }
-.city-map__popup-identity > div {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
+
+.city-map__popup-identity strong,
+.city-map__popup > strong {
+  display: block;
+  color: var(--color-text);
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1.25;
 }
-.city-map__popup-identity strong {
-  font-size: 0.88rem;
-}
-.city-map__popup-identity em {
-  color: var(--color-text-muted);
-  font-size: 0.72rem;
+
+.city-map__popup-identity em,
+.city-map__popup > em {
+  display: block;
   font-style: normal;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
 }
+
 .city-map__popup dl {
-  display: grid;
-  gap: 0.4rem;
-  margin: var(--space-3) 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0.5rem 0 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-border);
 }
-.city-map__popup dl div {
-  display: grid;
-  grid-template-columns: minmax(80px, 0.7fr) minmax(0, 1.3fr);
+
+.city-map__popup dl > div {
+  display: flex;
+  justify-content: space-between;
   gap: 0.5rem;
+  font-size: 0.75rem;
 }
+
 .city-map__popup dt {
   color: var(--color-text-muted);
-  font-size: 0.64rem;
-  font-weight: 750;
-  text-transform: uppercase;
+  font-weight: 600;
 }
+
 .city-map__popup dd {
   margin: 0;
-  font-size: 0.72rem;
-  font-weight: 650;
+  color: var(--color-text);
+  font-weight: 700;
+  text-align: right;
 }
+
+.city-map__popup .btn {
+  width: 100%;
+}
+
 .city-map__scale {
   position: absolute;
-  z-index: 10;
   right: var(--space-3);
-  bottom: var(--space-3);
-  padding: 0.3rem 0.5rem;
-  border-radius: 0.35rem;
+  bottom: var(--space-2);
+  z-index: 999;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-sm);
   color: var(--color-text-muted);
-  background: var(--color-surface);
-  font-size: 0.62rem;
+  background: rgba(var(--bs-body-bg), 0.85);
+  backdrop-filter: blur(4px);
+  border: 1px solid var(--color-border);
+  font-size: 0.65rem;
   font-weight: 700;
-}
-.city-map--compact .city-map__viewport {
-  min-height: 430px;
-}
-.city-map-fallback {
-  min-height: 320px;
-  padding: var(--space-5);
-  border: 1px dashed var(--color-border);
-  border-radius: var(--radius-md);
-  color: var(--color-text-muted);
-  background: var(--color-neutral-soft);
+  letter-spacing: 0.04em;
+  pointer-events: none;
 }
 
-@media (max-width: 575.98px) {
-  .city-map__viewport {
-    min-height: 420px;
-  }
-  .city-map__popup {
-    top: auto;
-    bottom: 3rem;
-    width: calc(100% - 1.5rem);
-  }
-  .city-map__scale {
-    display: none;
-  }
+/* ==========================================================================
+   6. CONTROLES E ATRIBUIÇÃO
+   ========================================================================== */
+.leaflet-bar {
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: var(--shadow-subtle) !important;
+  overflow: hidden;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .city-map__world {
-    transition: none;
-  }
+.leaflet-bar a {
+  background-color: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+}
+
+.leaflet-bar a:hover {
+  background-color: var(--color-surface-hover) !important;
+  color: var(--color-primary-action) !important;
+}
+
+.leaflet-control-attribution {
+  background: rgba(var(--bs-body-bg), 0.75) !important;
+  color: var(--color-text-muted) !important;
+  font-size: 0.62rem !important;
+  padding: 2px 6px !important;
+  border-radius: var(--radius-sm) 0 0 0;
+}
+
+.leaflet-control-attribution a {
+  color: var(--color-primary-action) !important;
 }
