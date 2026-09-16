@@ -9,7 +9,7 @@ export default function OperatorOccurrences({ occurrences, workflowStatuses, isL
           <p className="page-header__subtitle">Atendimentos de João Carlos</p>
           <h1 className="page-header__title">Ocorrências</h1>
         </div>
-        <span className="badge app-card text-secondary border px-3 py-2 fs-6 rounded-pill fw-bold">{occurrences.length} pendentes</span>
+        <span className="hop-badge px-3 py-2">{occurrences.length} pendentes</span>
       </header>
       {isLoading ? (
         <OperatorStateMessage type="loading" title="Carregando a fila">Estamos atualizando a ordem de prioridade das ocorrências.</OperatorStateMessage>

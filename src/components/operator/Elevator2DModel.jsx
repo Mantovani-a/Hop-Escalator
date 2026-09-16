@@ -21,12 +21,11 @@ export default function Elevator2DModel({ diagnosis, severity }) {
   const suspectedRegions = diagnosis?.suspectedRegions || [];
   const initialRegion = suspectedRegions[0] || 'doors';
   const [selectedRegion, setSelectedRegion] = useState(initialRegion);
-  const selectedInformation = elevatorRegions.find((region) => region.id === selectedRegion);
 
   return (
     <section className={`app-card elevator-model-card elevator-model-card--${severity}`} aria-labelledby="elevator-model-title">
       <div className="elevator-model-card__heading">
-        <div><p className="eyebrow eyebrow--dark">Representação esquemática</p><h2 id="elevator-model-title">Modelo 2D do elevador</h2></div>
+        <div><p className="page-header__subtitle">Representação esquemática</p><h2 className="fs-5" id="elevator-model-title">Modelo 2D do elevador</h2></div>
         <span><i aria-hidden="true" /> Área com possível falha</span>
       </div>
       <p className="elevator-model-card__intro">Selecione um componente para relacioná-lo aos dados do diagnóstico.</p>
@@ -51,18 +50,6 @@ export default function Elevator2DModel({ diagnosis, severity }) {
         </div>
       </div>
 
-      <div className="elevator-region-info" aria-live="polite">
-        <span>Componente selecionado</span>
-        <strong>{selectedInformation.label}</strong>
-        {suspectedRegions.includes(selectedRegion) ? (
-          <dl>
-            <div><dt>Relação</dt><dd>Relacionado à hipótese preliminar</dd></div>
-            <div><dt>Código demonstrativo</dt><dd>{diagnosis.demoCode}</dd></div>
-            <div><dt>Falha associada</dt><dd>{diagnosis.probableOrigin}</dd></div>
-            <div><dt>Confiança demonstrativa</dt><dd>{diagnosis.probability}%</dd></div>
-          </dl>
-        ) : <em>Sem relação direta indicada pelos dados recebidos.</em>}
-      </div>
     </section>
   );
 }

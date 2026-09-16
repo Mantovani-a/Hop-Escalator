@@ -10,7 +10,7 @@ export default function OperatorProfile({ technician, technicianStatus }) {
           <h1 className="page-header__title">Perfil</h1>
         </div>
       </header>
-      <section className="app-card border rounded shadow-sm p-4 p-md-5">
+      <section className="app-card p-4 p-md-5">
         <div className="d-flex flex-wrap align-items-center gap-4 pb-4 border-bottom"><ProfileAvatar name={technician.name} src={technician.avatar} size="lg" decorative /><div className="flex-grow-1"><h2 className="fs-4 mb-1" style={{ color: 'var(--color-text)' }}>{technician.name}</h2><p className="mb-3 text-secondary" style={{ fontSize: '0.9rem' }}>{technician.employeeId}</p><StatusBadge value={technicianStatus} /></div></div>
         <dl className="d-grid gap-4 mt-4 pt-2" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
           <div><dt className="text-secondary fw-bold text-uppercase mb-1" style={{ fontSize: '0.7rem' }}>Região</dt><dd className="fw-bold mb-0" style={{ color: 'var(--color-text)' }}>{technician.region}</dd></div>

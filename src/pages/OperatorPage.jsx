@@ -157,6 +157,7 @@ export default function OperatorPage({ route = '/operator' }) {
         technician={operatorTechnician}
         technicianStatus={technicianStatus}
         occurrences={pendingOccurrences}
+        activeOccurrence={activeOccurrence}
         workflowStatuses={workflowStatuses}
         onAdvance={advanceOccurrence}
         completedToday={completedToday}

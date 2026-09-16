@@ -3,13 +3,11 @@
 }
 
 html {
-  min-width: 320px;
   scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
-  min-width: 320px;
   min-height: 100vh;
   color: var(--color-text);
   background: var(--color-background);
@@ -29,7 +27,7 @@ body {
 }
 
 a {
-  color: var(--color-primary-action);
+  color: var(--color-primary-text);
 }
 
 h1,
@@ -86,7 +84,9 @@ h3 {
   min-height: 44px;
   padding: 0.65rem 1rem;
   border-radius: var(--radius-sm);
-  font-weight: 700;
+  gap: var(--space-2);
+  font-weight: 600;
+  line-height: 1.4;
 }
 
 .btn-lg {
@@ -106,10 +106,12 @@ h3 {
 }
 
 .btn-outline-primary {
-  --bs-btn-color: var(--color-primary-action);
-  --bs-btn-border-color: var(--color-primary-action);
+  --bs-btn-color: var(--color-primary-text);
+  --bs-btn-border-color: var(--color-primary-muted);
   --bs-btn-hover-bg: var(--color-primary-action);
   --bs-btn-hover-border-color: var(--color-primary-action);
+  --bs-btn-active-bg: var(--color-primary-action);
+  --bs-btn-active-border-color: var(--color-primary-action);
 }
 
 .btn:focus-visible,
@@ -150,6 +152,8 @@ button:focus-visible {
 .form-select:focus {
   color: var(--color-text);
   background: var(--color-surface);
+  border-color: var(--color-primary-action);
+  box-shadow: var(--shadow-focus);
 }
 
 .btn-outline-secondary {
@@ -226,26 +230,4 @@ textarea.form-control {
 
 :root[data-theme="dark"] .border-secondary-subtle {
   border-color: var(--color-border) !important;
-}
-
-:root[data-theme="dark"] .client-choice-label {
-  color: var(--color-text);
-  background: var(--color-surface);
-  border-color: var(--color-border);
-}
-
-:root[data-theme="dark"] .client-choice-label.is-selected {
-  border-color: var(--color-primary-action);
-  background: var(--color-primary-soft);
-}
-
-:root[data-theme="dark"] .client-choice-check {
-  border-color: var(--color-border);
-  color: #ffffff;
-}
-
-:root[data-theme="dark"] .client-choice-label.is-selected .client-choice-check {
-  border-color: var(--color-primary-action);
-  background: var(--color-primary-action);
-  color: #ffffff;
 }

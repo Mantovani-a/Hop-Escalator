@@ -1,11 +1,12 @@
 import { getTimeline } from '../../data/clientData';
+import { formatDateTime } from '../../utils/presentation';
 
 export default function ClientStatusTimeline({ call }) {
   const steps = getTimeline(call);
 
   return (
     <ol className="client-timeline" aria-label="Progresso do atendimento">
-      {steps.map((step) => (
+      {steps.map((step, index) => (
         <li
           key={step.label}
           className={`${step.reached ? 'is-reached' : ''}${step.current ? ' is-current' : ''}`}
@@ -13,7 +14,7 @@ export default function ClientStatusTimeline({ call }) {
           <span className="client-timeline__marker" aria-hidden="true">
             {step.reached && !step.current ? '✓' : step.current ? '●' : '○'}
           </span>
-          <span className="client-timeline__label">{step.label}</span>
+          <span className="client-timeline__label"><strong>{step.label}</strong>{index === 0 && call.time && <small>{formatDateTime(call.time)}</small>}{step.label === 'Resolvido' && call.completedAt && <small>{formatDateTime(call.completedAt)}</small>}</span>
         </li>
       ))}
     </ol>

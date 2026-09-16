@@ -96,11 +96,11 @@ export default function RouteMap({ occurrence }) {
   const eta = occurrence.metadata?.etaMinutes ?? 0;
 
   return (
-    <section className="app-card hop-route-card" aria-labelledby="route-map-title">
+    <section className="app-card hop-route-card h-100" aria-labelledby="route-map-title">
       <div className="hop-route-card__heading">
         <div>
-          <p className="eyebrow eyebrow--dark">Navegação integrada</p>
-          <h2 id="route-map-title">Rota até o atendimento</h2>
+          <p className="page-header__subtitle">Navegação integrada</p>
+          <h2 className="fs-5" id="route-map-title">Rota até o atendimento</h2>
         </div>
         <span className="hop-route-card__demo-label">Grande São Paulo · OpenStreetMap</span>
       </div>

@@ -4,11 +4,11 @@ import ModuleSidebar from '../ModuleSidebar';
 import ThemeToggle from '../ThemeToggle';
 
 const navItems = [
-  { href: '#/client', label: 'Início', icon: '⌂', route: '/client' },
-  { href: '#/client/support', label: 'Registrar Ocorrência', icon: '✚', route: '/client/support' },
-  { href: '#/client/elevators', label: 'Elevadores', icon: '↕', route: '/client/elevators' },
-  { href: '#/client/calls', label: 'Chamados', icon: '◎', route: '/client/calls' },
-  { href: '#/client/profile', label: 'Perfil', icon: '○', route: '/client/profile' },
+  { href: '#/client', label: 'Início', icon: 'home', route: '/client' },
+  { href: '#/client/support', label: 'Registrar Ocorrência', icon: 'plus', route: '/client/support' },
+  { href: '#/client/elevators', label: 'Elevadores', icon: 'elevator', route: '/client/elevators' },
+  { href: '#/client/calls', label: 'Chamados', icon: 'calls', route: '/client/calls' },
+  { href: '#/client/profile', label: 'Perfil', icon: 'user', route: '/client/profile' },
 ];
 
 const isRouteActive = (currentRoute, itemRoute) => {
@@ -49,11 +49,11 @@ export default function ClientShell({ route, user, establishment, children }) {
           >
             ☰
           </button>
-          <div className="client-utility-bar__title">
+          <div className="module-utility-bar__title">
             <strong>HOP Client</strong>
             <span>{establishment?.name || 'Hospital Santa Helena'}</span>
           </div>
-          <div className="client-utility-bar__actions">
+          <div className="module-utility-bar__actions">
             <DemoHomeLink />
             <ThemeToggle compact />
           </div>

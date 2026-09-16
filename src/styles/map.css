@@ -11,7 +11,7 @@
 
 .leaflet-map-container {
   width: 100%;
-  height: 540px;
+  height: clamp(360px, 52vh, 540px);
   border-radius: var(--radius-md);
   overflow: hidden;
   border: 1px solid var(--color-border);
@@ -39,22 +39,19 @@
    FILTROS DO MAPA
    ========================================================================== */
 .city-map__filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
   margin-bottom: var(--space-3);
 }
 
 .city-map__filters button {
-  min-height: 38px;
-  padding: 0.35rem 0.8rem;
+  min-height: 40px;
+  padding: 0.4rem 0.9rem;
   border: 1px solid var(--color-border);
   border-radius: 999px;
   color: var(--color-text-muted);
   background: var(--color-surface);
   font-size: 0.75rem;
-  font-weight: 750;
-  transition: all 0.15s ease;
+  font-weight: 600;
+  transition: border-color 150ms ease, background-color 150ms ease;
 }
 
 .city-map__filters button:hover {
@@ -63,9 +60,10 @@
 }
 
 .city-map__filters button.is-active {
-  border-color: var(--color-primary-action);
-  color: var(--color-primary-action);
+  border-color: var(--color-primary-text);
+  color: var(--color-primary-text);
   background: var(--color-primary-soft);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-primary-action) 12%, transparent);
 }
 
 /* ==========================================================================
@@ -413,7 +411,7 @@
 
 .city-map__popup > span {
   display: inline-block;
-  color: var(--color-primary-action);
+  color: var(--color-primary-text);
   font-size: 0.68rem;
   font-weight: 800;
   letter-spacing: 0.05em;
@@ -486,7 +484,7 @@
   padding: 0.2rem 0.6rem;
   border-radius: var(--radius-sm);
   color: var(--color-text-muted);
-  background: rgba(var(--bs-body-bg), 0.85);
+  background: var(--color-surface);
   backdrop-filter: blur(4px);
   border: 1px solid var(--color-border);
   font-size: 0.65rem;
@@ -517,7 +515,7 @@
 }
 
 .leaflet-control-attribution {
-  background: rgba(var(--bs-body-bg), 0.75) !important;
+  background: var(--color-surface) !important;
   color: var(--color-text-muted) !important;
   font-size: 0.62rem !important;
   padding: 2px 6px !important;

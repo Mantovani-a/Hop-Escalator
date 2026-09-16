@@ -1,24 +1,26 @@
 :root {
-  --color-primary: #252d7a;
-  --color-primary-action: #3f5bd8;
-  --color-background: #f8fafc;
+  --color-primary: #0c2453;
+  --color-primary-action: #3157ff;
+  --color-accent-violet: #7252ee;
+  --color-primary-text: #214be0;
+  --color-background: #f2f8fd;
   --color-surface: #ffffff;
   --color-surface-hover: #f1f5f9;
   --color-surface-soft: #f8fafc;
-  --color-card-border: #e2e8f0;
-  --color-border: #d8dee8;
-  --color-text: #1e293b;
-  --color-text-muted: #64748b;
+  --color-card-border: #dce6f4;
+  --color-border: #d3dff0;
+  --color-text: #0a153e;
+  --color-text-muted: #425c85;
   --color-on-primary: #ffffff;
   --color-primary-soft: #eef2ff;
   --color-primary-muted: #c7d2fe;
   --color-neutral-soft: #f1f5f9;
-  --color-neutral-strong: #475569;
+  --color-neutral-strong: #304d7b;
 
-  --color-severity-low: #2ec4b6;
+  --color-severity-low: #00bb8b;
   --color-severity-attention: #eab308;
   --color-severity-high: #f59e0b;
-  --color-severity-critical: #dc2626;
+  --color-severity-critical: #f33450;
   --color-severity-low-soft: #e6f9f7;
   --color-severity-attention-soft: #fef9c3;
   --color-severity-high-soft: #fff7e6;
@@ -31,7 +33,7 @@
   --focus-ring: rgba(63, 91, 216, 0.32);
   --primary-border-soft: rgba(255, 255, 255, 0.18);
   --primary-text-soft: rgba(255, 255, 255, 0.78);
-  --shadow-subtle: 0 8px 24px rgba(30, 41, 59, 0.06);
+  --shadow-subtle: 0 6px 20px rgba(24, 57, 102, 0.065);
   --shadow-focus: 0 0 0 0.25rem var(--focus-ring);
   --overlay-background: rgba(30, 41, 59, 0.58);
   --map-background: #dce5ed;
@@ -55,19 +57,24 @@
 
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
-  --radius-lg: 1rem;
+  --radius-lg: 0.875rem;
 
   --bs-primary: var(--color-primary-action);
-  --bs-primary-rgb: 63, 91, 216;
+  --bs-primary-rgb: 49, 87, 255;
   --bs-body-color: var(--color-text);
   --bs-body-bg: var(--color-background);
   --bs-border-color: var(--color-border);
   --bs-secondary-color: var(--color-text-muted);
   --bs-tertiary-bg: var(--color-neutral-soft);
+  --bs-link-color: var(--color-primary-text);
+  --bs-border-radius: var(--radius-sm);
+  --bs-border-radius-lg: var(--radius-lg);
 }
 
 :root[data-theme="dark"] {
   --color-primary-action: #4f6ef7;
+  --color-primary-text: #a6b8ff;
+  --bs-primary-rgb: 166, 184, 255;
   --color-background: #151d2e;
   --color-surface: #1e293b;
   --color-surface-hover: #273449;
@@ -91,7 +98,7 @@
   --focus-ring: rgba(125, 145, 255, 0.45);
   --primary-border-soft: rgba(255, 255, 255, 0.18);
   --primary-text-soft: rgba(248, 250, 252, 0.78);
-  --shadow-subtle: 0 8px 24px rgba(3, 7, 18, 0.22);
+  --shadow-subtle: 0 2px 8px rgba(3, 7, 18, 0.14);
   --overlay-background: rgba(3, 7, 18, 0.72);
   --map-background: #172235;
   --map-district-border: #34455c;

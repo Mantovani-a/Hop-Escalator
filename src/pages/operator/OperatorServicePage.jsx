@@ -39,9 +39,18 @@ export default function OperatorServicePage({ occurrence, workflowStatus, onAdva
         </div>
       </header>
 
-      <div className={`row g-4 align-items-start ${isMaintenance ? 'justify-content-center' : ''}`}>
+      <div className="row g-4 mb-4">
         {!isMaintenance && <div className="col-12 col-xl-8"><RouteMap occurrence={occurrence} /></div>}
-        <aside className={`${isMaintenance ? 'col-12 col-md-6 col-lg-5 col-xl-4' : 'col-12 col-lg-5 col-xl-4 d-flex flex-column gap-4 order-lg-last'} app-card p-4`} aria-labelledby="preliminary-diagnosis-title">
+        <div className={isMaintenance ? 'col-12' : 'col-12 col-xl-4'}>
+          <Elevator2DModel diagnosis={diagnosis} severity={occurrence.priority?.classification || 'baixa'} />
+        </div>
+      </div>
+      <div className="row g-4">
+        <div className="col-12 col-xl-8">
+          <TechnicalInfoPanel occurrence={occurrence} />
+        </div>
+        <aside className="col-12 col-xl-4" aria-labelledby="preliminary-diagnosis-title">
+          <div className="app-card p-3 p-sm-4 h-100">
           <p className="text-primary fw-bold text-uppercase mb-1" style={{ fontSize: '0.75rem', letterSpacing: '0.08em' }}>Dados recebidos do equipamento</p>
           <h2 className="fs-5 mb-4" id="preliminary-diagnosis-title">{isMaintenance ? 'Diagnóstico técnico completo' : 'Diagnóstico preliminar'}</h2>
           <dl className="d-grid gap-3 mb-4">
@@ -50,7 +59,7 @@ export default function OperatorServicePage({ occurrence, workflowStatus, onAdva
             <div><dt className="text-secondary fw-bold text-uppercase mb-1" style={{ fontSize: '0.72rem' }}>Sistema relacionado</dt><dd className="fw-bold mb-0">{diagnosis.system}</dd></div>
             <div><dt className="text-secondary fw-bold text-uppercase mb-1" style={{ fontSize: '0.72rem' }}>Componente provável</dt><dd className="fw-bold mb-0">{diagnosis.probableOrigin}</dd></div>
           </dl>
-          <div className="d-flex align-items-center justify-content-between p-3 rounded mb-3" style={{ background: 'var(--color-primary-soft)', color: 'var(--color-primary)' }}><span className="fw-bold" style={{ fontSize: '0.86rem' }}>Confiança demonstrativa</span><strong className="fs-5">{diagnosis.probability}%</strong></div>
+          <div className="d-flex align-items-center justify-content-between p-3 rounded mb-3" style={{ background: 'var(--color-primary-soft)', color: 'var(--color-primary-text)' }}><span className="fw-bold" style={{ fontSize: '0.86rem' }}>Confiança demonstrativa</span><strong className="fs-5">{diagnosis.probability}%</strong></div>
           <p className="text-secondary mb-3" style={{ fontSize: '0.88rem' }}>Hipótese baseada nos dados recebidos do equipamento e no histórico da ocorrência; requer verificação técnica.</p>
           <p className="text-secondary mb-4" style={{ fontSize: '0.88rem' }}>{diagnosis.summary}</p>
           {isMaintenance && (
@@ -60,11 +69,8 @@ export default function OperatorServicePage({ occurrence, workflowStatus, onAdva
             </div>
           )}
           {workflowStep.action && <button className="btn btn-primary btn-lg w-100 mt-auto" type="button" onClick={() => onAdvance(occurrence.id)}>{workflowStep.action}</button>}
+          </div>
         </aside>
-        <div className={isMaintenance ? 'col-12 col-md-6 col-lg-7 col-xl-8' : 'col-12 col-lg-7 col-xl-8'}>
-          <TechnicalInfoPanel occurrence={occurrence} />
-          <div className="mt-4"><Elevator2DModel diagnosis={diagnosis} severity={occurrence.priority?.classification || 'baixa'} /></div>
-        </div>
       </div>
     </>
   );

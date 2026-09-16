@@ -1,3 +1,4 @@
+import MetricCard from '../../components/MetricCard';
 import OperatorStateMessage from '../../components/operator/OperatorStateMessage';
 import OccurrenceQueueItem from '../../components/operator/OccurrenceQueueItem';
 import PriorityIndicator from '../../components/operator/PriorityIndicator';
@@ -5,17 +6,19 @@ import ProfileAvatar from '../../components/ProfileAvatar';
 import StatusBadge from '../../components/StatusBadge';
 import { getWorkflowStep } from '../../utils/operatorWorkflow';
 import { formatDateTime, formatElapsedMinutes } from '../../utils/presentation';
+import { OPERATION_STATUS } from '../../data/operationStore';
 
 export default function OperatorDashboard({
   technician,
   occurrences,
+  activeOccurrence,
   workflowStatuses,
   onAdvance,
   completedToday,
   isLoading,
   onSimulate,
 }) {
-  const nextOccurrence = occurrences[0];
+  const nextOccurrence = activeOccurrence || occurrences[0];
   const criticalCount = occurrences.filter((occurrence) => occurrence.priority?.classification === 'crítica').length;
 
   if (isLoading) {
@@ -36,17 +39,17 @@ export default function OperatorDashboard({
       </header>
 
       <section className="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3 mb-4" aria-label="Resumo operacional">
-        <div className="col"><article className="app-card p-3 d-flex flex-column justify-content-between h-100"><span className="text-secondary fw-semibold" style={{ fontSize: '0.78rem' }}>Próxima ocorrência</span><strong className="text-primary my-1" style={{ fontSize: 'clamp(1.45rem, 3.5vw, 1.95rem)', lineHeight: 1.1, fontWeight: 800 }}>{nextOccurrence ? `${nextOccurrence.priority?.score ?? 0}/100` : '—'}</strong><small className="text-secondary text-truncate" style={{ fontSize: '0.74rem' }}>{nextOccurrence?.client?.name || 'Fila livre'}</small></article></div>
-        <div className="col"><article className="app-card p-3 d-flex flex-column justify-content-between h-100"><span className="text-secondary fw-semibold" style={{ fontSize: '0.78rem' }}>Chamados pendentes</span><strong className="text-primary my-1" style={{ fontSize: 'clamp(1.45rem, 3.5vw, 1.95rem)', lineHeight: 1.1, fontWeight: 800 }}>{occurrences.length}</strong><small className="text-secondary text-truncate" style={{ fontSize: '0.74rem' }}>atribuídos a João Carlos</small></article></div>
-        <div className="col"><article className="app-card p-3 d-flex flex-column justify-content-between h-100"><span className="text-secondary fw-semibold" style={{ fontSize: '0.78rem' }}>Ocorrências críticas</span><strong className="text-primary my-1" style={{ fontSize: 'clamp(1.45rem, 3.5vw, 1.95rem)', lineHeight: 1.1, fontWeight: 800 }}>{criticalCount}</strong><small className="text-secondary text-truncate" style={{ fontSize: '0.74rem' }}>prioridade imediata</small></article></div>
-        <div className="col"><article className="app-card p-3 d-flex flex-column justify-content-between h-100"><span className="text-secondary fw-semibold" style={{ fontSize: '0.78rem' }}>Concluídos hoje</span><strong className="text-primary my-1" style={{ fontSize: 'clamp(1.45rem, 3.5vw, 1.95rem)', lineHeight: 1.1, fontWeight: 800 }}>{completedToday}</strong><small className="text-secondary text-truncate" style={{ fontSize: '0.74rem' }}>atendimentos finalizados</small></article></div>
+        <div className="col"><MetricCard icon="alert" label="Prioridade da próxima ocorrência" value={nextOccurrence ? `${nextOccurrence.priority?.score ?? 0}/100` : '—'} detail={nextOccurrence?.client?.name || 'Fila livre'} /></div>
+        <div className="col"><MetricCard label="Chamados pendentes" value={occurrences.length} detail="atribuídos a João Carlos" /></div>
+        <div className="col"><MetricCard label="Ocorrências críticas" value={criticalCount} detail="prioridade imediata" tone="critical" /></div>
+        <div className="col"><MetricCard icon="check" label="Concluídos hoje" value={completedToday} detail="atendimentos finalizados" tone="success" /></div>
       </section>
 
       {nextOccurrence ? (
         <section className="mt-4" aria-labelledby="next-occurrence-title">
           <div className="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom"><div><p className="page-header__subtitle mb-0">Atender primeiro</p><h2 className="fs-5 mb-0" id="next-occurrence-title">Próxima ocorrência</h2></div><a href={`#/operator/occurrence/${nextOccurrence.id}`} className="fw-bold text-decoration-none" style={{ fontSize: '0.82rem' }}>Ver detalhes</a></div>
-          <article className="app-card row g-0" style={{ borderLeft: `5px solid var(--color-severity-${borderTone})`, padding: '1.5rem', boxShadow: 'var(--shadow-subtle)' }}>
-            <div className="col-12 col-md-7 pe-md-4">
+          <article className="app-card row g-0 p-3 p-sm-4" style={{ borderLeft: `5px solid var(--color-severity-${borderTone})` }}>
+            <div className="col-12 col-lg-7 pe-lg-4">
               <PriorityIndicator priority={nextOccurrence.priority} />
               <span className="d-block mt-3 text-secondary fw-bold text-uppercase" style={{ fontSize: '0.78rem' }}>{nextOccurrence.client?.type || 'Estabelecimento'} · {nextOccurrence.protocol || nextOccurrence.metadata?.serviceNumber || 'HOP-1040'}</span>
               <h3 className="my-2" style={{ fontSize: 'clamp(1.55rem, 5vw, 2.15rem)' }}>{nextOccurrence.client?.name || 'Cliente'}</h3>
@@ -59,11 +62,14 @@ export default function OperatorDashboard({
                   : 'Nenhum passageiro preso informado'}
               </div>
             </div>
-            <div className="col-12 col-md-5 d-flex flex-column gap-3 mt-4 mt-md-0 border-start-md ps-md-4" style={{ backgroundColor: 'var(--color-surface-soft)', padding: '1.5rem', borderRadius: 'var(--radius-md)' }}>
+            <div className="col-12 col-lg-5 d-flex flex-column gap-3 mt-4 mt-lg-0 ps-lg-4" style={{ backgroundColor: 'var(--color-surface-soft)', padding: '1.5rem', borderRadius: 'var(--radius-md)' }}>
               <StatusBadge value={workflowStatuses[nextOccurrence.id]} />
               <button className="btn btn-primary btn-lg w-100" type="button" onClick={() => onAdvance(nextOccurrence.id)}>
                 {getWorkflowStep(workflowStatuses[nextOccurrence.id]).action}
               </button>
+              {workflowStatuses[nextOccurrence.id] === OPERATION_STATUS.TRAVELING && (
+                <a className="btn btn-outline-primary w-100" href={`#/operator/service/${nextOccurrence.id}`}>Ver rota</a>
+              )}
               <dl className="d-grid gap-2 mb-0 mt-2">
                 <div className="d-flex justify-content-between align-items-center pb-2 border-bottom"><dt className="text-secondary fw-normal mb-0" style={{ fontSize: '0.8rem' }}>Distância</dt><dd className="fw-bold mb-0 text-end" style={{ fontSize: '0.86rem' }}>{Number(nextOccurrence.metadata?.distanceKm ?? 0).toFixed(1).replace('.', ',')} km</dd></div>
                 <div className="d-flex justify-content-between align-items-center pb-2 border-bottom"><dt className="text-secondary fw-normal mb-0" style={{ fontSize: '0.8rem' }}>Ocorrência</dt><dd className="fw-bold mb-0 text-end" style={{ fontSize: '0.86rem' }}>{formatElapsedMinutes(nextOccurrence.priority?.elapsedMinutes ?? 0)}</dd></div>
@@ -81,7 +87,7 @@ export default function OperatorDashboard({
         <section className="mt-5" aria-labelledby="queue-preview-title">
           <div className="d-flex align-items-center justify-content-between mb-3"><div><p className="text-primary fw-bold text-uppercase mb-1" style={{ fontSize: '0.75rem', letterSpacing: '0.08em' }}>Depois desta</p><h2 className="fs-5 mb-0" id="queue-preview-title">Fila priorizada</h2></div><a href="#/operator/occurrences" className="fw-bold text-decoration-none">Ver toda a fila</a></div>
           <div className="d-grid gap-2">
-            {occurrences.slice(1, 4).map((occurrence) => <OccurrenceQueueItem key={occurrence.id} occurrence={occurrence} workflowStatus={workflowStatuses[occurrence.id]} />)}
+            {occurrences.filter((occurrence) => occurrence.id !== nextOccurrence.id).slice(0, 3).map((occurrence) => <OccurrenceQueueItem key={occurrence.id} occurrence={occurrence} workflowStatus={workflowStatuses[occurrence.id]} />)}
           </div>
         </section>
       )}

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { functioningLabels } from '../../data/clientData';
 
 const initialForm = {
   elevatorId: '',
@@ -8,7 +7,29 @@ const initialForm = {
   trappedCount: '1',
   risk: '',
   riskNote: '',
+  problemType: '',
+  otherProblem: '',
   observation: '',
+};
+
+const problemOptions = [
+  'Não está funcionando',
+  'Funciona com dificuldade',
+  'Porta com defeito',
+  'Parado em um andar',
+  'Barulho estranho',
+  'Painel/botão não responde',
+  'Outro problema',
+];
+
+const functioningByProblem = {
+  'Não está funcionando': 'Não está funcionando',
+  'Funciona com dificuldade': 'Sim, mas com dificuldade',
+  'Porta com defeito': 'Sim, mas com dificuldade',
+  'Parado em um andar': 'Não está funcionando',
+  'Barulho estranho': 'Sim, mas com dificuldade',
+  'Painel/botão não responde': 'Sim, mas com dificuldade',
+  'Outro problema': 'Sim, mas com dificuldade',
 };
 
 const ChoiceGroup = ({ legend, name, options, value, onChange }) => (
@@ -59,15 +80,17 @@ export default function ClientSupportFlow({
   };
 
   const update = (field, value) => setForm((current) => ({ ...current, [field]: value }));
+  const selectProblem = (value) => setForm((current) => ({
+    ...current,
+    problemType: value,
+    functioning: functioningByProblem[value],
+    otherProblem: value === 'Outro problema' ? current.otherProblem : '',
+  }));
 
   const continueFlow = () => {
     if (step === 1) {
       if (!form.elevatorId) {
         setValidation('Selecione qual elevador apresenta o problema.');
-        return;
-      }
-      if (!form.functioning) {
-        setValidation('Informe a condição de funcionamento do elevador.');
         return;
       }
     }
@@ -77,6 +100,18 @@ export default function ClientSupportFlow({
     }
     if (step === 3 && !form.risk) {
       setValidation('Informe se existe risco imediato.');
+      return;
+    }
+    if (step === 3 && form.risk === 'Sim' && !form.riskNote.trim()) {
+      setValidation('Descreva brevemente o tipo de risco imediato.');
+      return;
+    }
+    if (step === 3 && !form.problemType) {
+      setValidation('Selecione o problema observado no elevador.');
+      return;
+    }
+    if (step === 3 && form.problemType === 'Outro problema' && !form.otherProblem.trim()) {
+      setValidation('Descreva brevemente o outro problema observado.');
       return;
     }
 
@@ -102,8 +137,8 @@ export default function ClientSupportFlow({
       <div className="client-stepper mb-4" aria-label={`Etapa ${step} de 4`}>
         {[
           { num: 1, label: 'Equipamento' },
-          { num: 2, label: 'Passageiros' },
-          { num: 3, label: 'Gravidade' },
+          { num: 2, label: 'Situação crítica' },
+          { num: 3, label: 'Problema' },
           { num: 4, label: 'Revisão' },
         ].map((item) => (
           <div
@@ -116,7 +151,7 @@ export default function ClientSupportFlow({
         ))}
       </div>
 
-      <div className="app-card client-flow__card p-4 p-md-5 mt-2">
+      <div className="app-card client-flow__card p-3 p-sm-4 mt-2">
         {step === 1 && (
           <div className="d-flex flex-column gap-4">
             {elevators.length > 1 && (
@@ -136,7 +171,7 @@ export default function ClientSupportFlow({
                           }`}
                           onClick={() => update('elevatorId', elv.id)}
                         >
-                          <div className="d-flex justify-content-between align-items-center w-100 mb-1">
+                          <div className="d-flex flex-wrap gap-2 justify-content-between align-items-center w-100 mb-1">
                             <span className="fs-6 fw-bold">{elv.displayName}</span>
                             {isSelected && <span className="badge bg-primary">Selecionado</span>}
                           </div>
@@ -148,18 +183,6 @@ export default function ClientSupportFlow({
                 </div>
               </div>
             )}
-
-            <ChoiceGroup
-              legend="Como está o funcionamento do elevador no momento?"
-              name="functioning"
-              options={[
-                'Sim, normalmente',
-                'Sim, mas com dificuldade',
-                'Não está funcionando',
-              ]}
-              value={form.functioning}
-              onChange={(value) => update('functioning', value)}
-            />
           </div>
         )}
 
@@ -226,6 +249,21 @@ export default function ClientSupportFlow({
                 />
               </div>
             )}
+            <div className="mt-4 pt-4 border-top">
+              <ChoiceGroup
+                legend="O que está acontecendo com o elevador?"
+                name="problemType"
+                options={problemOptions}
+                value={form.problemType}
+                onChange={selectProblem}
+              />
+            </div>
+            {form.problemType === 'Outro problema' && (
+              <div className="mt-3">
+                <label className="form-label fw-bold" htmlFor="other-problem">Descreva o problema em poucas palavras</label>
+                <input id="other-problem" className="form-control" maxLength="120" value={form.otherProblem} onChange={(event) => update('otherProblem', event.target.value)} />
+              </div>
+            )}
             <div className="mt-4">
               <label className="form-label fw-bold" htmlFor="client-observation">
                 O que foi observado? <span className="text-secondary fw-normal">(opcional)</span>
@@ -256,10 +294,7 @@ export default function ClientSupportFlow({
                 <dt>Local</dt>
                 <dd>{establishment.name} · {establishment.type}</dd>
               </div>
-              <div>
-                <dt>Funcionamento</dt>
-                <dd>{functioningLabels[form.functioning] || form.functioning}</dd>
-              </div>
+              <div><dt>Problema</dt><dd>{form.problemType === 'Outro problema' ? form.otherProblem : form.problemType}</dd></div>
               <div>
                 <dt>Pessoas presas</dt>
                 <dd>

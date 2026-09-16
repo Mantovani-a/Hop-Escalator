@@ -1,3 +1,4 @@
+import { ModuleIcon } from './ModuleSidebar';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import L from 'leaflet';
 import '../styles/map.css';
@@ -50,6 +51,8 @@ export default function LeafletMap({
   route = [],
   showFilters = true,
   compact = false,
+  showMarkerDetails = true,
+  onMarkerSelect,
   ariaLabel = 'Mapa operacional em tempo real da Grande São Paulo',
 }) {
   const mapContainerRef = useRef(null);
@@ -193,12 +196,13 @@ export default function LeafletMap({
 
       leafletMarker.on('click', () => {
         setSelectedId(marker.id);
+        onMarkerSelect?.(marker);
         map.panTo([marker.lat, marker.lng], { animate: true, duration: 0.45 });
       });
 
       leafletMarker.addTo(markersGroup);
     });
-  }, [markers, visibleLayers]);
+  }, [markers, visibleLayers, onMarkerSelect]);
 
   // 3. Desenha a rota e ajusta o enquadramento se for modo compacto
   useEffect(() => {
@@ -244,7 +248,8 @@ export default function LeafletMap({
     if (!mapInstanceRef.current) return;
     mapInstanceRef.current.setView(center, zoom, { animate: true });
     setSelectedId(null);
-  }, [center, zoom]);
+    onMarkerSelect?.(null);
+  }, [center, zoom, onMarkerSelect]);
 
   const selectedMarker = useMemo(
     () => markers.find((m) => m.id === selectedId),
@@ -262,7 +267,7 @@ export default function LeafletMap({
           ].map(([type, label]) => (
             <button
               key={type}
-              className={visibleLayers[type] ? 'is-active' : ''}
+              className={`btn btn-sm ${visibleLayers[type] ? 'is-active' : ''}`}
               type="button"
               aria-pressed={visibleLayers[type]}
               onClick={() =>
@@ -278,8 +283,7 @@ export default function LeafletMap({
 
           <button
             type="button"
-            className={`btn btn-sm ${showAllLabels ? 'btn-primary' : 'btn-outline-secondary'}`}
-            style={{ borderRadius: '999px', fontSize: '0.75rem', fontWeight: 700 }}
+            className={`btn btn-sm ${showAllLabels ? 'is-active' : ''}`}
             onClick={() => setShowAllLabels((prev) => !prev)}
             title="Alternar exibição de todos os nomes"
           >
@@ -288,11 +292,10 @@ export default function LeafletMap({
 
           <button
             type="button"
-            className="btn btn-sm btn-outline-secondary ms-auto"
-            style={{ borderRadius: '999px', fontSize: '0.75rem', fontWeight: 700 }}
+            className="btn btn-sm btn-outline-secondary ms-auto text-primary"
             onClick={handleRecenter}
           >
-            Recentrar São Paulo
+            <ModuleIcon name="target" size={18} /> Recentrar São Paulo
           </button>
         </div>
       )}
@@ -305,7 +308,7 @@ export default function LeafletMap({
         tabIndex="0"
       />
 
-      {selectedMarker && (
+      {showMarkerDetails && selectedMarker && (
         <article className="city-map__popup" aria-live="polite">
           <button
             type="button"

@@ -2,6 +2,7 @@ import PriorityIndicator from './PriorityIndicator';
 import StatusBadge from '../StatusBadge';
 import { formatDateTime } from '../../utils/presentation';
 import { OPERATION_STATUS } from '../../data/operationStore';
+import { ModuleIcon } from '../ModuleSidebar';
 
 export default function OccurrenceQueueItem({ occurrence, workflowStatus }) {
   const resolved = workflowStatus === OPERATION_STATUS.RESOLVED;
@@ -12,31 +13,26 @@ export default function OccurrenceQueueItem({ occurrence, workflowStatus }) {
 
   return (
     <a
-      className={`d-block p-4 border rounded app-card text-decoration-none ${resolved ? 'opacity-75' : ''}`}
-      style={{ borderLeft: `5px solid var(--color-severity-${tone})`, transition: 'border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease' }}
+      className={`d-block p-3 app-card text-decoration-none ${resolved ? 'opacity-75' : ''}`}
+      style={{ borderLeft: `5px solid var(--color-severity-${tone})` }}
       href={`#/operator/occurrence/${occurrence.id}`}
       aria-label={`Abrir ocorrência ${occurrence.id} de ${occurrence.client?.name || 'Cliente'}`}
-      onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = 'var(--shadow-subtle)'; }}
-      onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
     >
       <div className="d-flex flex-wrap align-items-center justify-content-between gap-2">
         <PriorityIndicator priority={occurrence.priority} compact />
         <StatusBadge value={workflowStatus} />
       </div>
-      <div className="row g-4 mt-3">
-        <div className="col-12 col-md-7">
-          <span className="d-block text-secondary fw-bold text-uppercase mb-1" style={{ fontSize: '0.78rem' }}>{occurrence.client?.type || 'Estabelecimento'}</span>
-          <h3 className="fs-5 mb-1" style={{ color: 'var(--color-text)' }}>{occurrence.client?.name || 'Cliente'}</h3>
-          <p className="mb-0 text-secondary" style={{ fontSize: '0.9rem' }}>{occurrence.elevator?.identification || 'Elevador'} · {occurrence.description || 'Intercorrência reportada'}</p>
+      <div className="row g-3 align-items-end mt-0">
+        <div className="col-12 col-lg-6">
+          <h3 className="fs-5 mt-2 mb-1" style={{ color: 'var(--color-text)' }}>{occurrence.client?.name || 'Cliente'}</h3>
+          <p className="mb-0 text-secondary text-truncate" style={{ fontSize: '0.88rem' }}>{occurrence.elevator?.identification || 'Elevador'} · {occurrence.description || 'Intercorrência reportada'}</p>
         </div>
-        <div className="col-12 col-md-5">
-          <dl className="row g-3 mb-0">
-            <div className="col-6"><dt className="text-secondary fw-bold text-uppercase mb-1" style={{ fontSize: '0.72rem' }}>Distância</dt><dd className="fw-bold mb-0" style={{ color: 'var(--color-text)' }}>{distance} km</dd></div>
-            <div className="col-6"><dt className="text-secondary fw-bold text-uppercase mb-1" style={{ fontSize: '0.72rem' }}>Abertura</dt><dd className="fw-bold mb-0" style={{ color: 'var(--color-text)' }}>{formatDateTime(occurrence.time)}</dd></div>
-          </dl>
+        <div className="col-12 col-lg-6 d-flex flex-wrap align-items-center justify-content-lg-end gap-3 gap-xl-4">
+          <span className="d-inline-flex align-items-center gap-2 fw-bold" style={{ color: 'var(--color-text)', fontSize: '0.84rem' }}><ModuleIcon name="location" size={18} />{distance} km</span>
+          <span className="d-inline-flex align-items-center gap-2 fw-bold" style={{ color: 'var(--color-text)', fontSize: '0.84rem' }}><ModuleIcon name="clock" size={18} />{formatDateTime(occurrence.time)}</span>
+          <span className="text-primary fw-bold" style={{ fontSize: '0.86rem' }}>Ver detalhes <span aria-hidden="true">→</span></span>
         </div>
       </div>
-      <span className="d-block mt-3 text-primary fw-bold" style={{ fontSize: '0.86rem' }}>Ver detalhes <span aria-hidden="true">→</span></span>
     </a>
   );
 }

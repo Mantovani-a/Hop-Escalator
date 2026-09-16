@@ -25,15 +25,15 @@ export default function ControlOccurrences({ occurrences, onSelectOccurrence }) 
           <h1 className="page-header__title">Ocorrências</h1>
         </div>
         <div className="d-flex gap-3 align-items-center">
-          <span className="badge app-card text-secondary border px-3 py-2 fs-6 rounded-pill fw-bold">{active.length} ativas</span>
+          <span className="hop-badge px-3 py-2">{active.length} ativas</span>
         </div>
       </header>
       <div className="d-flex gap-2 my-3 pb-1 overflow-x-auto" role="group" aria-label="Filtrar ocorrências">
         {filters.map(([id, label]) => (
           <button
             key={id}
-            className={`btn rounded-pill fw-bold text-nowrap flex-shrink-0 ${filter === id ? 'btn-primary' : 'btn-outline-secondary text-secondary app-card'}`}
-            style={{ minHeight: '38px', fontSize: '0.8rem', padding: '0.4rem 1rem' }}
+            className={`btn btn-sm rounded-pill text-nowrap flex-shrink-0 ${filter === id ? 'btn-primary' : 'btn-outline-secondary'}`}
+            aria-pressed={filter === id}
             type="button"
             onClick={() => setFilter(id)}
           >

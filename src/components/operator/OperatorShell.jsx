@@ -4,10 +4,10 @@ import ModuleSidebar from '../ModuleSidebar';
 import ThemeToggle from '../ThemeToggle';
 
 const navigationItems = [
-  { href: '#/operator', route: '/operator', icon: '⌂', label: 'Início' },
-  { href: '#/operator/occurrences', route: '/operator/occurrences', icon: '!', label: 'Ocorrências' },
-  { href: '#/operator/history', route: '/operator/history', icon: '↺', label: 'Histórico' },
-  { href: '#/operator/profile', route: '/operator/profile', icon: '●', label: 'Perfil' },
+  { href: '#/operator', route: '/operator', icon: 'home', label: 'Início' },
+  { href: '#/operator/occurrences', route: '/operator/occurrences', icon: 'alert', label: 'Ocorrências' },
+  { href: '#/operator/history', route: '/operator/history', icon: 'history', label: 'Histórico' },
+  { href: '#/operator/profile', route: '/operator/profile', icon: 'user', label: 'Perfil' },
 ];
 
 const isRouteActive = (currentRoute, itemRoute) => {
@@ -28,8 +28,8 @@ export default function OperatorShell({ route, technician, onEndShift, onSimulat
           <button className="module-menu-button operator-menu-button" type="button" aria-expanded={drawerOpen} onClick={() => setDrawerOpen(true)}>
             <span aria-hidden="true">☰</span><span className="visually-hidden">Abrir menu</span>
           </button>
-          <div className="operator-utility-bar__title"><strong>HOP Operator</strong><span>Operação em campo</span></div>
-          <div className="operator-utility-bar__actions">
+          <div className="module-utility-bar__title d-none d-sm-flex"><strong>HOP Operator</strong><span>Operação em campo</span></div>
+          <div className="module-utility-bar__actions">
             <button className="btn btn-sm btn-outline-primary" type="button" onClick={onSimulate}>Simular nova ocorrência</button>
             <DemoHomeLink />
             <ThemeToggle compact />

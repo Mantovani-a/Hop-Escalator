@@ -36,14 +36,14 @@ export default function OperatorHistory({ historyItems }) {
       {filteredItems.length ? (
         <div className="d-grid gap-3">
           {filteredItems.map((item) => (
-            <article className="app-card p-4 border-start rounded border-start border-4" style={{ borderLeftColor: 'var(--color-severity-low) !important' }} key={item.id}>
-              <div className="mb-4">
+            <article className="app-card p-3" style={{ borderLeft: '3px solid var(--color-severity-low)' }} key={item.id}>
+              <div>
                 <StatusBadge value="Resolvido" />
                 <span className="ms-2 text-secondary fw-bold text-uppercase" style={{ fontSize: '0.72rem' }}>{item.occurrence?.protocol || 'HOP-1040'}</span>
-                <h2 className="fs-5 mt-3 mb-1" style={{ color: 'var(--color-text)' }}>{item.occurrence?.client?.name || 'Cliente'}</h2>
+                <h2 className="fs-5 mt-2 mb-1" style={{ color: 'var(--color-text)' }}>{item.occurrence?.client?.name || 'Cliente'}</h2>
                 <p className="mb-0 text-secondary" style={{ fontSize: '0.88rem' }}>{item.occurrence?.elevator?.identification || 'Elevador'} · {item.occurrence?.description || 'Atendimento concluído'}</p>
               </div>
-              <dl className="row g-3 mb-0">
+              <dl className="row g-3 mb-0 mt-2 pt-2 border-top">
                 <div className="col-12 col-md-4"><dt className="text-secondary fw-bold text-uppercase mb-1" style={{ fontSize: '0.72rem' }}>Concluído</dt><dd className="fw-bold mb-0" style={{ color: 'var(--color-text)' }}>{formatDateTime(item.completedAt)}</dd></div>
                 <div className="col-12 col-md-4"><dt className="text-secondary fw-bold text-uppercase mb-1" style={{ fontSize: '0.72rem' }}>Duração</dt><dd className="fw-bold mb-0" style={{ color: 'var(--color-text)' }}>{item.duration}</dd></div>
                 <div className="col-12 col-md-4"><dt className="text-secondary fw-bold text-uppercase mb-1" style={{ fontSize: '0.72rem' }}>Responsável</dt><dd className="fw-bold mb-0" style={{ color: 'var(--color-text)' }}><span className="d-inline-flex align-items-center gap-2"><ProfileAvatar name={operatorTechnician.name} src={operatorTechnician.avatar} size="sm" decorative />{operatorTechnician.name}</span></dd></div>

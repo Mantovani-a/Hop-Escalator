@@ -1,3 +1,5 @@
+import MetricCard from '../components/MetricCard';
+import { ModuleIcon } from '../components/ModuleSidebar';
 import { useEffect, useMemo, useState } from 'react';
 import ClientElevatorCard from '../components/client/ClientElevatorCard';
 import ClientShell from '../components/client/ClientShell';
@@ -24,14 +26,14 @@ const CallCard = ({ call }) => {
   const elevator = getDisplayElevator(call.elevatorId);
   const status = getClientStatus(call);
   return (
-    <a className="app-card client-call-item" href={`#/client/call/${call.id}`}>
+    <a className={`app-card client-call-item${call.workflowStatus === OPERATION_STATUS.RESOLVED ? ' is-resolved' : ' is-active'}`} href={`#/client/call/${call.id}`}>
       <div className="client-call-item__head">
         <strong className="text-primary">{call.protocol || 'Chamado'}</strong>
         <StatusBadge value={status} />
       </div>
-      <h3 className="fs-5 my-2">{elevator?.displayName || call.elevatorId}</h3>
-      <p className="text-secondary mb-3">{call.detectedFailure || call.description}</p>
-      <small className="text-secondary">{formatDateTime(call.time)}</small>
+      <h3 className="fs-5 mt-2 mb-1">{elevator?.displayName || call.elevatorId}</h3>
+      <p className="text-secondary mb-3 text-truncate">{call.detectedFailure || call.description}</p>
+      <small className="d-inline-flex align-items-center gap-2 text-secondary"><ModuleIcon name="clock" size={16} />{formatDateTime(call.time)}</small>
     </a>
   );
 };
@@ -94,7 +96,7 @@ export default function ClientPage({ route = '/client' }) {
         clientId: clientEstablishment.id,
         address: elevator.address || clientEstablishment.address,
         time: now.toISOString(),
-        description: form.observation || (form.trappedPeople === 'Sim'
+        description: form.observation || form.otherProblem || form.problemType || (form.trappedPeople === 'Sim'
           ? `Passageiro(s) preso(s) na cabine (${trappedCountNum} pessoa${trappedCountNum > 1 ? 's' : ''}).`
           : `Intercorrência relatada pelo cliente no ${elevator.displayName}.`),
         status: 'aberta',
@@ -109,7 +111,7 @@ export default function ClientPage({ route = '/client' }) {
         elevatorStopped: form.functioning === 'Não está funcionando',
         partialFailure: form.functioning === 'Sim, mas com dificuldade',
         serviceNumber: protocol,
-        clientNotes: [form.riskNote, form.observation].filter(Boolean).join(' — '),
+        clientNotes: [form.problemType, form.otherProblem, form.riskNote, form.observation].filter(Boolean).join(' — '),
         distanceKm: 2.4,
         etaMinutes: 7,
         latitude: -23.5688,
@@ -122,7 +124,7 @@ export default function ClientPage({ route = '/client' }) {
           probableOrigin: form.trappedPeople === 'Sim' ? 'Resgate prioritário / Portas' : 'Sistema do elevador',
           probability: 90,
           suspectedRegions: ['doors', 'controller', 'cabin'],
-          summary: form.observation || 'Ocorrência aberta pelo cliente responsável com validação de passageiros presos e risco.',
+          summary: form.observation || form.otherProblem || form.problemType || 'Ocorrência aberta pelo cliente responsável com validação de passageiros presos e risco.',
         },
       };
 
@@ -138,7 +140,7 @@ export default function ClientPage({ route = '/client' }) {
       const call = {
         ...occurrence,
         protocol,
-        detectedFailure: form.observation || `Relato de intercorrência no ${elevator.displayName}`,
+        detectedFailure: form.observation || form.otherProblem || form.problemType || `Relato de intercorrência no ${elevator.displayName}`,
         system: elevator.system || 'Cabine / Portas',
         functioning: form.functioning,
         trappedPeopleAnswer: form.trappedPeople,
@@ -190,41 +192,17 @@ export default function ClientPage({ route = '/client' }) {
         </section>
 
         <section className="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3 mb-4" aria-label="Resumo dos equipamentos">
-          <div className="col">
-            <article className="app-card p-3 d-flex flex-column justify-content-between h-100">
-              <span className="text-secondary fw-semibold" style={{ fontSize: '0.78rem' }}>Total cadastrado</span>
-              <strong className="text-primary my-1" style={{ fontSize: 'clamp(1.45rem, 3.5vw, 1.95rem)', lineHeight: 1.1, fontWeight: 800 }}>{displayedElevators.length}</strong>
-              <small className="text-secondary">elevadores monitorados</small>
-            </article>
-          </div>
-          <div className="col">
-            <article className="app-card p-3 d-flex flex-column justify-content-between h-100">
-              <span className="text-secondary fw-semibold" style={{ fontSize: '0.78rem' }}>Operando normal</span>
-              <strong className="text-success my-1" style={{ fontSize: 'clamp(1.45rem, 3.5vw, 1.95rem)', lineHeight: 1.1, fontWeight: 800 }}>{operatingCount}</strong>
-              <small className="text-secondary">sem intercorrências</small>
-            </article>
-          </div>
-          <div className="col">
-            <article className="app-card p-3 d-flex flex-column justify-content-between h-100">
-              <span className="text-secondary fw-semibold" style={{ fontSize: '0.78rem' }}>Em atendimento</span>
-              <strong className="text-primary my-1" style={{ fontSize: 'clamp(1.45rem, 3.5vw, 1.95rem)', lineHeight: 1.1, fontWeight: 800 }}>{attentionCount}</strong>
-              <small className="text-secondary">equipe técnica alocada</small>
-            </article>
-          </div>
-          <div className="col">
-            <article className="app-card p-3 d-flex flex-column justify-content-between h-100">
-              <span className="text-secondary fw-semibold" style={{ fontSize: '0.78rem' }}>Chamados ativos</span>
-              <strong className="text-primary my-1" style={{ fontSize: 'clamp(1.45rem, 3.5vw, 1.95rem)', lineHeight: 1.1, fontWeight: 800 }}>{activeCalls.length}</strong>
-              <small className="text-secondary">na Central HOP</small>
-            </article>
-          </div>
+          <div className="col"><MetricCard icon="elevator" label="Total cadastrado" value={displayedElevators.length} detail="elevadores monitorados" /></div>
+          <div className="col"><MetricCard icon="check" label="Operando normal" value={operatingCount} detail="sem intercorrências" tone="success" /></div>
+          <div className="col"><MetricCard tone="violet" label="Em atendimento" value={attentionCount} detail="equipe técnica alocada" /></div>
+          <div className="col"><MetricCard label="Chamados ativos" value={activeCalls.length} detail="na Central HOP" /></div>
         </section>
 
         {/* Seção Nobre e Dedicada de Registro de Ocorrência */}
-        <section className="app-card client-register-card p-4 p-md-5 mb-5" aria-labelledby="register-title">
+        <section className="app-card client-register-card p-3 p-sm-4 mb-4" aria-labelledby="register-title">
           <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-4">
             <div className="client-register-card__content">
-              <div className="d-flex align-items-center gap-2 mb-2">
+              <div className="d-flex flex-wrap align-items-center gap-2 mb-2">
                 <span className="client-register-badge">ABERTURA DE CHAMADO</span>
                 <span className="text-secondary small">· Registro pelo Cliente</span>
               </div>
@@ -251,12 +229,12 @@ export default function ClientPage({ route = '/client' }) {
 
             <div className="d-flex flex-column align-items-stretch align-items-lg-end gap-2 flex-shrink-0">
               <button
-                className="btn btn-primary btn-lg px-4 py-3 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm"
+                className="btn btn-primary btn-lg px-4"
                 type="button"
                 onClick={() => { window.location.hash = '/client/support'; }}
               >
                 <span>✚</span>
-                <span>REGISTRAR OCORRÊNCIA</span>
+                <span>Registrar ocorrência</span>
               </button>
               <small className="text-secondary text-center text-lg-end">
                 Priorização assistida com cálculo de gravidade
@@ -402,12 +380,12 @@ export default function ClientPage({ route = '/client' }) {
             <p className="text-secondary mb-0">{clientUser.role}</p>
           </div>
         </div>
-        <dl className="client-review-list mt-4">
-          <div><dt>Estabelecimento</dt><dd>{clientEstablishment.name}</dd></div>
-          <div><dt>Tipo do local</dt><dd>{clientEstablishment.type}</dd></div>
-          <div><dt>Endereço</dt><dd>{clientEstablishment.address}</dd></div>
-          <div><dt>Equipamentos</dt><dd>{clientElevators.length} elevadores cadastrados</dd></div>
-        </dl>
+        <div className="client-profile-grid mt-4">
+          <div><span><ModuleIcon name="building" /></span><div><small>Estabelecimento</small><strong>{clientEstablishment.name}</strong></div></div>
+          <div><span><ModuleIcon name="building" /></span><div><small>Tipo do local</small><strong>{clientEstablishment.type}</strong></div></div>
+          <div><span><ModuleIcon name="location" /></span><div><small>Endereço</small><strong>{clientEstablishment.address}</strong></div></div>
+          <div><span><ModuleIcon name="elevator" /></span><div><small>Equipamentos</small><strong>{clientElevators.length} elevadores cadastrados</strong></div></div>
+        </div>
         <div className="mt-4">
           <FeedbackMessage title="Dados do local aplicados automaticamente">
             O tipo <strong>Hospital</strong> é ponderado com maior peso no algoritmo HOP Priority. Você não precisa redigitar esse contexto a cada solicitação.
@@ -453,20 +431,16 @@ export default function ClientPage({ route = '/client' }) {
 
           <div className="client-confirmation-grid my-4">
             <div>
-              <span>Protocolo</span>
-              <strong>{call.protocol}</strong>
+              <i><ModuleIcon name="document" /></i><div><span>Protocolo</span><strong>{call.protocol}</strong></div>
             </div>
             <div>
-              <span>Horário</span>
-              <strong>{formatDateTime(call.time)}</strong>
+              <i><ModuleIcon name="clock" /></i><div><span>Horário</span><strong>{formatDateTime(call.time)}</strong></div>
             </div>
             <div>
-              <span>Prioridade</span>
-              <strong>{call.priority?.classification || 'Normal'} ({call.priority?.score || 0} pts)</strong>
+              <i><ModuleIcon name="alert" /></i><div><span>Prioridade</span><strong>{call.priority?.classification || 'Normal'} ({call.priority?.score || 0} pts)</strong></div>
             </div>
             <div>
-              <span>Status atual</span>
-              <strong>{status}</strong>
+              <i><ModuleIcon name="check" /></i><div><span>Status atual</span><strong>{status}</strong></div>
             </div>
           </div>
 

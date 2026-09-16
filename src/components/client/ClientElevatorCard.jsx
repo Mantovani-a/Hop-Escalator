@@ -14,9 +14,9 @@ export default function ClientElevatorCard({ elevator, onSupport, onViewCall, ac
   const hasActiveCall = Boolean(activeCall && activeCall.workflowStatus !== 'Resolvido');
 
   return (
-    <article className="app-card client-elevator-card d-flex flex-column justify-content-between h-100 p-4">
+    <article className="app-card client-elevator-card d-flex flex-column justify-content-between h-100 p-3">
       <div>
-        <div className="client-elevator-card__head d-flex align-items-center justify-content-between mb-3">
+        <div className="client-elevator-card__head d-flex align-items-start justify-content-between mb-2">
           <div className="d-flex align-items-center gap-2">
             <span className="client-elevator-icon" aria-hidden="true">↕</span>
             <div>
@@ -30,7 +30,7 @@ export default function ClientElevatorCard({ elevator, onSupport, onViewCall, ac
           />
         </div>
 
-        <div className="client-elevator-card__info my-3">
+        <div className="client-elevator-card__info my-2">
           <p className="client-elevator-card__status mb-1">
             <span className="text-secondary">Condição:</span>{' '}
             <strong>{elevator.clientStatus || 'Operação normal'}</strong>
@@ -47,10 +47,8 @@ export default function ClientElevatorCard({ elevator, onSupport, onViewCall, ac
         </div>
       </div>
 
-      <div className="client-elevator-card__footer pt-3 border-top mt-auto">
-        <div className="d-flex align-items-center justify-content-between mb-2">
-          <small className="text-secondary">Última checagem: {elevator.lastCheck || 'Hoje'}</small>
-        </div>
+      <div className="client-elevator-card__footer pt-2 border-top mt-auto">
+        <small className="text-secondary mb-1">Última checagem: {elevator.lastCheck || 'Hoje'}</small>
         {hasActiveCall ? (
           <button
             className="btn btn-sm btn-primary w-100 fw-bold"

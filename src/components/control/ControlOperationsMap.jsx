@@ -16,6 +16,7 @@ export default function ControlOperationsMap({
   occurrences,
   onSelectTechnician,
   onSelectOccurrence,
+  onMarkerSelect,
 }) {
   const activeOccurrences = occurrences.slice(0, 16);
 
@@ -133,6 +134,8 @@ export default function ControlOperationsMap({
       <LeafletMap
         markers={[...establishmentMarkers, ...occurrenceMarkers, ...technicianMarkers]}
         route={joaoRoute}
+        showMarkerDetails={false}
+        onMarkerSelect={onMarkerSelect}
       />
 
       <div className="control-map-statuses">
