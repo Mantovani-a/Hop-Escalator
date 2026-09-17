@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import OperatorShell from '../components/operator/OperatorShell';
 import OperatorStateMessage from '../components/operator/OperatorStateMessage';
 import NewOccurrenceAlert from '../components/operator/NewOccurrenceAlert';
@@ -42,7 +42,7 @@ const playNewOccurrenceTone = () => {
 
 export default function OperatorPage({ route = '/operator' }) {
   const operationState = useOperationState();
-  const simulatedOccurrence = useMemo(() => createSimulatedOccurrence(), []);
+  const [simulatedOccurrence, setSimulatedOccurrence] = useState(() => createSimulatedOccurrence());
   const [alertOpen, setAlertOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -115,10 +115,11 @@ export default function OperatorPage({ route = '/operator' }) {
     }
   };
 
-  const openSimulation = () => {
+  const openSimulation = useCallback(() => {
+    setSimulatedOccurrence(createSimulatedOccurrence());
     playNewOccurrenceTone();
     setAlertOpen(true);
-  };
+  }, []);
 
   const addSimulatedOccurrence = (workflowStatus) => {
     addOperationOccurrence({

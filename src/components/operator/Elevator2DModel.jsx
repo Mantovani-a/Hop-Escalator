@@ -1,22 +1,9 @@
 import { useState } from 'react';
 import Elevator3DViewer from './Elevator3DViewer';
+import { elevatorRegions } from '../../data/elevatorRegions';
 
-export const elevatorRegions = [
-  { id: 'machine', label: 'Máquina de tração' },
-  { id: 'pulleys', label: 'Polias' },
-  { id: 'belts', label: 'Cintas / cabos' },
-  { id: 'governor', label: 'Governador de velocidade' },
-  { id: 'control', label: 'Quadro de controle' },
-  { id: 'rails', label: 'Trilhos / guias' },
-  { id: 'counterweight', label: 'Contrapeso' },
-  { id: 'cabin', label: 'Cabine' },
-  { id: 'doorOperator', label: 'Operador de portas' },
-  { id: 'doors', label: 'Portas' },
-  { id: 'sensors', label: 'Sensores' },
-  { id: 'limits', label: 'Fins de curso' },
-  { id: 'buffers', label: 'Amortecedores' },
-  { id: 'base', label: 'Poço / pit' },
-];
+// Re-export for consumers that already import from this file
+export { elevatorRegions };
 
 export default function Elevator2DModel({ diagnosis, severity }) {
   const suspectedRegions = diagnosis?.suspectedRegions || [];

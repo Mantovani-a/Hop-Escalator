@@ -123,7 +123,7 @@ export default function ClientPage({ route = '/client' }) {
           source: 'Registro direto pelo cliente do estabelecimento',
           probableOrigin: form.trappedPeople === 'Sim' ? 'Resgate prioritário / Portas' : 'Sistema do elevador',
           probability: 90,
-          suspectedRegions: ['doors', 'controller', 'cabin'],
+          suspectedRegions: ['doors', 'control', 'cabin'],
           summary: form.observation || form.otherProblem || form.problemType || 'Ocorrência aberta pelo cliente responsável com validação de passageiros presos e risco.',
         },
       };

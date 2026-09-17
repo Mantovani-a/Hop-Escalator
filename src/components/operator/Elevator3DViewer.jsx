@@ -2,50 +2,52 @@ import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import elevatorModelUrl from '../../assets/logos/elevator_sytem3.glb?url';
+import elevatorModelUrl from '../../assets/logos/sistema_de_elevador.glb?url';
+import { elevatorRegions } from '../../data/elevatorRegions';
 
 /**
- * Placeholder problem mapping — maps GLB object names to simulated diagnostics.
- * In production this would come from a database query.
- *
- * Problems are assigned per-occurrence based on the `suspectedRegions` from diagnosis.
- * Each region maps to specific 3D object names in the GLB file.
+ * Derives the region→3D-object mapping from the shared `elevatorRegions`
+ * definition so that the 2D panel and the 3D viewer stay in sync automatically.
  */
-const REGION_TO_3D_OBJECTS = {
-  machine: ['Apoio_Traction', 'Bridget_Traction', 'Rodela_Traction', 'Rodela_Traction.001', 'Traction Pull'],
-  pulleys: ['Rodela_Traction', 'Rodela_Traction.001', 'Rodela_Counterweight'],
-  belts: ['Corda', 'Corda.001', 'Corda_Counterweight'],
-  governor: ['EmergencyBrake1', 'EmergencyBrake2'],
-  control: ['Electrical Control System'],
-  rails: ['Elevator_guiderails1', 'Elevator_guiderails2', 'Elevator_guiderails3'],
-  counterweight: ['Counterweight', 'Counterweight_guiderails1', 'Counterweight_guiderails2', 'Counterweight_guiderails3', 'Apoio_Counterweight'],
-  cabin: ['Elevator'],
-  doorOperator: ['Elevator'],
-  doors: ['Elevator'],
-  sensors: ['Electrical Control System', 'Elevator'],
-  limits: ['EmergencyBrake1', 'EmergencyBrake2'],
-  buffers: ['Car buffer', 'Counterweight Buffer'],
-  base: ['Car buffer', 'Counterweight Buffer'],
-};
+const REGION_TO_3D_OBJECTS = Object.fromEntries(
+  elevatorRegions.map((region) => [region.id, region.meshNames]),
+);
 
+/**
+ * Placeholder problem mapping — maps GLB node names (from sistema_de_elevador.glb)
+ * to simulated diagnostics. In production this would come from a database query.
+ */
 const PLACEHOLDER_PROBLEMS = {
-  'Corda': { description: 'Desgaste detectado no cabo direito — risco de ruptura parcial', severity: 'crítica' },
-  'Corda.001': { description: 'Cabo esquerdo com tensão irregular — requer ajuste imediato', severity: 'crítica' },
-  'Corda_Counterweight': { description: 'Cabo do contrapeso com deformação visível — inspeção urgente', severity: 'alta' },
-  'Traction Pull': { description: 'Superaquecimento no motor de tração — requer inspeção imediata', severity: 'alta' },
-  'Apoio_Traction': { description: 'Suporte de tração com fixação comprometida — risco estrutural', severity: 'alta' },
-  'Bridget_Traction': { description: 'Ponte de tração desalinhada — vibração anormal detectada', severity: 'atenção' },
-  'Rodela_Traction': { description: 'Polia de tração com desgaste nas ranhuras — substituição recomendada', severity: 'atenção' },
-  'Rodela_Traction.001': { description: 'Polia secundária de tração com folga excessiva', severity: 'atenção' },
-  'Rodela_Counterweight': { description: 'Polia do contrapeso com ruído anormal — lubrificação necessária', severity: 'baixa' },
-  'Electrical Control System': { description: 'Painel de controle com leitura intermitente — possível curto', severity: 'alta' },
-  'Elevator': { description: 'Sensor da cabine com falha de comunicação — travamento parcial', severity: 'atenção' },
-  'EmergencyBrake1': { description: 'Freio de emergência #1 com resposta lenta — calibração necessária', severity: 'alta' },
-  'EmergencyBrake2': { description: 'Freio de emergência #2 com desgaste detectado', severity: 'atenção' },
-  'Car buffer': { description: 'Amortecedor da cabine com compressão irregular', severity: 'baixa' },
-  'Counterweight Buffer': { description: 'Amortecedor do contrapeso requer inspeção visual', severity: 'baixa' },
-  'Counterweight': { description: 'Contrapeso com fixação de guia comprometida', severity: 'atenção' },
-  'Elevator_guiderails1': { description: 'Trilho-guia #1 com desgaste superficial — monitorar', severity: 'baixa' },
+  'Maquinario_Elevador': { description: 'Superaquecimento no conjunto de tração — requer inspeção imediata', severity: 'alta' },
+  'Apoio_Tração': { description: 'Suporte de tração com fixação comprometida — risco estrutural', severity: 'alta' },
+  'Ponte_Tração1': { description: 'Ponte de tração desalinhada — vibração anormal detectada', severity: 'atenção' },
+  'Polia_Tração': { description: 'Polia de tração com desgaste nas ranhuras — substituição recomendada', severity: 'atenção' },
+  'Polia_Tração2': { description: 'Polia secundária de tração com folga excessiva', severity: 'atenção' },
+  'Polia_Contrapeso': { description: 'Polia do contrapeso com ruído anormal — lubrificação necessária', severity: 'baixa' },
+  'Corda': { description: 'Desgaste detectado no cabo principal — risco de ruptura parcial', severity: 'crítica' },
+  'Corda2': { description: 'Cabo secundário com tensão irregular — requer ajuste imediato', severity: 'crítica' },
+  'Cabo_Contrapeso': { description: 'Cabo do contrapeso com deformação visível — inspeção urgente', severity: 'alta' },
+  'FreioDeEmergencia1': { description: 'Freio de emergência #1 com resposta lenta — calibração necessária', severity: 'alta' },
+  'FreioDeEmergencia2': { description: 'Freio de emergência #2 com desgaste detectado', severity: 'atenção' },
+  'Sistema de Controle': { description: 'Sistema de controle com leitura intermitente — possível curto', severity: 'alta' },
+  'Maquina_Controle': { description: 'Módulo de controle com aquecimento acima do padrão', severity: 'atenção' },
+  'Painel de Controle_Superior': { description: 'Painel de controle superior com sinal intermitente', severity: 'atenção' },
+  'Painel de Controle_Inferior': { description: 'Painel de controle inferior com conexão instável', severity: 'baixa' },
+  'Trilhos_Guias1': { description: 'Guia #1 do elevador com desgaste superficial — monitorar', severity: 'baixa' },
+  'Trilhos_Guias2': { description: 'Guia #2 do elevador com folga detectada', severity: 'atenção' },
+  'Trilhos_Guias3': { description: 'Guia #3 do elevador dentro dos parâmetros', severity: 'baixa' },
+  'Contrapeso': { description: 'Contrapeso com fixação de guia comprometida', severity: 'atenção' },
+  'Apoio_Contrapeso': { description: 'Base de apoio do contrapeso com corrosão superficial', severity: 'baixa' },
+  'Trilhos_Guia_Contrapeso1': { description: 'Guia #1 do contrapeso com desgaste leve', severity: 'baixa' },
+  'Elevador': { description: 'Sensor da cabine com falha de comunicação — travamento parcial', severity: 'atenção' },
+  'Operador_Portas': { description: 'Operador de portas com ruído mecânico anormal', severity: 'atenção' },
+  'Porta1': { description: 'Porta #1 com fechamento incompleto — sensor obstruído', severity: 'alta' },
+  'Porta2': { description: 'Porta #2 com atraso no ciclo de abertura', severity: 'atenção' },
+  'Letreiro1': { description: 'Indicador de pavimento #1 com falha intermitente', severity: 'baixa' },
+  'Letreiro2': { description: 'Indicador de pavimento #2 com sinal fraco', severity: 'baixa' },
+  'Amortecedor_Elevador': { description: 'Amortecedor da cabine com compressão irregular', severity: 'baixa' },
+  'Amortecedor_Contrapeso': { description: 'Amortecedor do contrapeso requer inspeção visual', severity: 'baixa' },
+  'Poço_Pit': { description: 'Poço do elevador com acúmulo de resíduos — limpeza necessária', severity: 'baixa' },
 };
 
 const SEVERITY_COLORS = {
@@ -53,6 +55,45 @@ const SEVERITY_COLORS = {
   'alta': 0xff6d00,
   'atenção': 0xffc400,
   'baixa': 0x00e676,
+};
+
+/**
+ * Human-readable display names for each GLB mesh node.
+ * Used in the info panel when the operator clicks on a 3D component.
+ */
+const MESH_DISPLAY_NAMES = {
+  'Maquinario_Elevador': 'Máquina de Tração',
+  'Apoio_Tração': 'Apoio de Tração',
+  'Ponte_Tração1': 'Ponte de Tração',
+  'Polia_Tração': 'Polia de Tração',
+  'Polia_Tração2': 'Polia de Tração Secundária',
+  'Polia_Contrapeso': 'Polia do Contrapeso',
+  'Corda': 'Cabo Principal',
+  'Corda2': 'Cabo Secundário',
+  'Cabo_Contrapeso': 'Cabo do Contrapeso',
+  'FreioDeEmergencia1': 'Freio de Emergência #1',
+  'FreioDeEmergencia2': 'Freio de Emergência #2',
+  'Sistema de Controle': 'Sistema de Controle',
+  'Maquina_Controle': 'Módulo de Controle',
+  'Painel de Controle_Superior': 'Painel de Controle Superior',
+  'Painel de Controle_Inferior': 'Painel de Controle Inferior',
+  'Trilhos_Guias1': 'Guia do Elevador #1',
+  'Trilhos_Guias2': 'Guia do Elevador #2',
+  'Trilhos_Guias3': 'Guia do Elevador #3',
+  'Contrapeso': 'Contrapeso',
+  'Apoio_Contrapeso': 'Apoio do Contrapeso',
+  'Trilhos_Guia_Contrapeso1': 'Guia do Contrapeso #1',
+  'Trilhos_Guia_Contrapeso2': 'Guia do Contrapeso #2',
+  'Trilhos_Guia_Contrapeso3': 'Guia do Contrapeso #3',
+  'Elevador': 'Cabine do Elevador',
+  'Operador_Portas': 'Operador de Portas',
+  'Porta1': 'Porta da Cabine',
+  'Porta2': 'Porta do Pavimento',
+  'Letreiro1': 'Indicador de Pavimento (Cabine)',
+  'Letreiro2': 'Indicador de Pavimento (Hall)',
+  'Amortecedor_Elevador': 'Amortecedor da Cabine',
+  'Amortecedor_Contrapeso': 'Amortecedor do Contrapeso',
+  'Poço_Pit': 'Poço do Elevador',
 };
 
 const SEVERITY_CSS_COLORS = {
@@ -460,7 +501,7 @@ export default function Elevator3DViewer({ diagnosis, severity }) {
               className="elevator-3d-problem-panel__severity"
               style={{ background: SEVERITY_CSS_COLORS[selectedProblem.severity] || '#ff1744' }}
             />
-            <strong>{selectedProblem.name.replace(/_/g, ' ').replace(/\.\d+$/, '')}</strong>
+            <strong>{MESH_DISPLAY_NAMES[selectedProblem.name] || selectedProblem.name.replace(/_/g, ' ')}</strong>
             <button
               className="elevator-3d-problem-panel__close"
               type="button"

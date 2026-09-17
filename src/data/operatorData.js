@@ -16,22 +16,22 @@ export const operatorOccurrenceMetadata = {
     serviceNumber: 'HOP-1047', distanceKm: 2.4, etaMinutes: 7, latitude: -23.5888, longitude: -46.6345,
     riskToLife: true, criticalFacility: true, elevatorStopped: true, recurrence: true,
     clientNotes: 'Equipe clínica informa três pessoas na cabine e solicita atendimento prioritário.',
-    diagnosis: { demoCode: 'MVP-SN-017', system: 'Sensores e nivelamento', source: 'Detecção automática simulada do equipamento', probableOrigin: 'Sensor de nivelamento', probability: 86, suspectedRegions: ['sensors', 'base'], summary: 'Possível inconsistência na leitura de posição da cabine. Verificar presencialmente antes de qualquer conclusão.' },
+    diagnosis: { demoCode: 'MVP-SN-017', system: 'Sensores e nivelamento', source: 'Detecção automática simulada do equipamento', probableOrigin: 'Sensor de nivelamento', probability: 86, suspectedRegions: ['sensors', 'base', 'cabin'], summary: 'Possível inconsistência na leitura de posição da cabine. Verificar presencialmente antes de qualquer conclusão.' },
   },
   'OCC-2026-002': {
     serviceNumber: 'HOP-1049', distanceKm: 5.8, etaMinutes: 16, latitude: -23.5951, longitude: -46.6842,
     elevatorStopped: true, recurrence: true, clientNotes: 'Cabine isolada no térreo pela equipe predial.',
-    diagnosis: { demoCode: 'MVP-TR-004', system: 'Tração', source: 'Telemetria simulada do equipamento', probableOrigin: 'Conjunto de tração', probability: 71, suspectedRegions: ['machine'], summary: 'Possível indisponibilidade no conjunto superior. Confirmar as condições no local.' },
+    diagnosis: { demoCode: 'MVP-TR-004', system: 'Tração', source: 'Telemetria simulada do equipamento', probableOrigin: 'Conjunto de tração', probability: 71, suspectedRegions: ['machine', 'pulleys', 'belts'], summary: 'Possível indisponibilidade no conjunto superior. Confirmar cabos, polias e máquina de tração no local.' },
   },
   'OCC-2026-003': {
     serviceNumber: 'HOP-1050', distanceKm: 7.1, etaMinutes: 19, latitude: -23.6016, longitude: -46.7193,
     partialFailure: true, recurrence: true, clientNotes: 'Moradores foram orientados a utilizar o elevador do bloco ao lado.',
-    diagnosis: { demoCode: 'MVP-PT-021', system: 'Portas', source: 'Detecção automática simulada do equipamento', probableOrigin: 'Sistema de portas', probability: 82, suspectedRegions: ['doors', 'sensors'], summary: 'Possível falha no ciclo de fechamento ou na leitura do sensor da porta.' },
+    diagnosis: { demoCode: 'MVP-PT-021', system: 'Portas', source: 'Detecção automática simulada do equipamento', probableOrigin: 'Sistema de portas', probability: 82, suspectedRegions: ['doors', 'doorOperator', 'sensors'], summary: 'Possível falha no ciclo de fechamento ou na leitura do sensor da porta.' },
   },
   'OCC-2026-005': {
     serviceNumber: 'HOP-1051', distanceKm: 9.6, etaMinutes: 24, latitude: -23.5055, longitude: -46.6258,
     partialFailure: true, clientNotes: 'Falha concentrada na chamada do piso G1.',
-    diagnosis: { demoCode: 'MVP-EL-012', system: 'Painel de controle', source: 'Telemetria simulada do equipamento', probableOrigin: 'Painel de controle', probability: 68, suspectedRegions: ['control'], summary: 'Possível interrupção no processamento da chamada do pavimento. Necessária verificação local.' },
+    diagnosis: { demoCode: 'MVP-EL-012', system: 'Painel de controle', source: 'Telemetria simulada do equipamento', probableOrigin: 'Painel de controle', probability: 68, suspectedRegions: ['control', 'sensors'], summary: 'Possível interrupção no processamento da chamada do pavimento. Necessária verificação local.' },
   },
   'OCC-2026-007': {
     serviceNumber: 'HOP-1052', distanceKm: 4.3, etaMinutes: 12, latitude: -23.5434, longitude: -46.6422,
@@ -42,7 +42,25 @@ export const operatorOccurrenceMetadata = {
     serviceNumber: 'HOP-1053', distanceKm: 1.8, etaMinutes: 6, latitude: -23.5644, longitude: -46.6542,
     riskToLife: true, criticalFacility: true, elevatorStopped: true, recurrence: true,
     clientNotes: 'Responsável local manteve contato com o passageiro e isolou o equipamento.',
-    diagnosis: { demoCode: 'MVP-PT-028', system: 'Portas', source: 'Detecção automática simulada do equipamento', probableOrigin: 'Sistema de portas', probability: 84, suspectedRegions: ['doors', 'sensors'], summary: 'Possível falha no travamento ou na leitura do conjunto de portas.' },
+    diagnosis: { demoCode: 'MVP-PT-028', system: 'Portas', source: 'Detecção automática simulada do equipamento', probableOrigin: 'Sistema de portas', probability: 84, suspectedRegions: ['doors', 'doorOperator', 'sensors'], summary: 'Possível falha no travamento ou na leitura do conjunto de portas.' },
+  },
+  'OCC-SIM-002': {
+    serviceNumber: 'HOP-1054', distanceKm: 3.2, etaMinutes: 9, latitude: -23.5780, longitude: -46.6490,
+    riskToLife: false, criticalFacility: false, elevatorStopped: false, recurrence: false,
+    clientNotes: 'Moradores relataram vibração excessiva e ruído metálico nos andares superiores.',
+    diagnosis: { demoCode: 'MVP-CB-011', system: 'Cabos e polias', source: 'Telemetria simulada do equipamento', probableOrigin: 'Conjunto de cabos de tração', probability: 76, suspectedRegions: ['belts', 'pulleys', 'machine'], summary: 'Possível desgaste ou desalinhamento nos cabos e polias de tração. Verificar tensão e alinhamento no local.' },
+  },
+  'OCC-SIM-003': {
+    serviceNumber: 'HOP-1055', distanceKm: 5.1, etaMinutes: 14, latitude: -23.5620, longitude: -46.6710,
+    riskToLife: false, criticalFacility: true, elevatorStopped: true, recurrence: true,
+    clientNotes: 'Cabine parou entre andares. Equipe predial desligou o quadro de força por precaução.',
+    diagnosis: { demoCode: 'MVP-EL-033', system: 'Cabine e contrapeso', source: 'Detecção automática simulada do equipamento', probableOrigin: 'Sistema de frenagem e contrapeso', probability: 69, suspectedRegions: ['cabin', 'counterweight', 'governor', 'rails'], summary: 'Possível falha na frenagem ou desbalanceamento do contrapeso. Cabine necessita inspeção de segurança.' },
+  },
+  'OCC-SIM-004': {
+    serviceNumber: 'HOP-1056', distanceKm: 4.0, etaMinutes: 11, latitude: -23.5530, longitude: -46.6380,
+    riskToLife: false, criticalFacility: false, elevatorStopped: false, recurrence: true,
+    clientNotes: 'Painel interno da cabine apresenta falhas intermitentes. Indicador de andar apaga sozinho.',
+    diagnosis: { demoCode: 'MVP-QC-015', system: 'Quadro de controle', source: 'Telemetria simulada do equipamento', probableOrigin: 'Painel de controle e sensores', probability: 72, suspectedRegions: ['control', 'sensors', 'buffers'], summary: 'Possível falha de comunicação entre painel de controle e sensores. Verificar conexões e módulos no local.' },
   },
 };
 
@@ -103,17 +121,60 @@ export const buildOperatorOccurrence = (occurrence, now = new Date()) => {
   return { ...occurrence, client, elevator, metadata, priority };
 };
 
-export const createSimulatedOccurrence = (now = new Date()) =>
-  buildOperatorOccurrence({
+/**
+ * Simulation scenario templates — each targets different elevator subsystems
+ * to demonstrate the full range of diagnostic capabilities.
+ */
+const simulationTemplates = [
+  {
     id: 'OCC-SIM-001',
     elevatorId: 'ELV-002',
     clientId: 'CLI-001',
     address: 'Av. Paulista, 1450 — Bloco A',
-    time: now.toISOString(),
     description: 'Passageiro preso e cabine parada entre pavimentos.',
     severity: 'crítica',
-    status: 'aberta',
-    technicianId: operatorTechnician.id,
     trappedPeople: 1,
     locationContext: 'Hospital com circulação assistencial contínua.',
+  },
+  {
+    id: 'OCC-SIM-002',
+    elevatorId: 'ELV-007',
+    clientId: 'CLI-003',
+    address: 'R. das Acácias, 88 — Bloco Cedro',
+    description: 'Vibração excessiva e ruído metálico nos cabos de tração.',
+    severity: 'alta',
+    trappedPeople: 0,
+    locationContext: 'Condomínio residencial com segundo elevador disponível.',
+  },
+  {
+    id: 'OCC-SIM-003',
+    elevatorId: 'ELV-014',
+    clientId: 'CLI-007',
+    address: 'Av. Rebouças, 2850 — Torre A',
+    description: 'Cabine parou entre andares após ruído no sistema de frenagem.',
+    severity: 'crítica',
+    trappedPeople: 0,
+    locationContext: 'Edifício comercial com expediente em andamento.',
+  },
+  {
+    id: 'OCC-SIM-004',
+    elevatorId: 'ELV-018',
+    clientId: 'CLI-009',
+    address: 'R. dos Timbiras, 540 — Recepção',
+    description: 'Painel interno da cabine com falhas intermitentes e indicador apagando.',
+    severity: 'atenção',
+    trappedPeople: 0,
+    locationContext: 'Hotel com equipe local orientada sobre o problema.',
+  },
+];
+
+export const createSimulatedOccurrence = (now = new Date()) => {
+  const template = simulationTemplates[Math.floor(Math.random() * simulationTemplates.length)];
+  return buildOperatorOccurrence({
+    ...template,
+    time: now.toISOString(),
+    status: 'aberta',
+    technicianId: operatorTechnician.id,
   }, now);
+};
+

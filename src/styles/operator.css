@@ -254,12 +254,6 @@
   width: 20%;
   height: 60px;
 }
-.elevator-region--limits {
-  top: 70%;
-  right: 2%;
-  width: 21%;
-  height: 58px;
-}
 .elevator-region--buffers {
   bottom: 11%;
   left: 25%;
