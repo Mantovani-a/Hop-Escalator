@@ -2,6 +2,7 @@ import { useState } from 'react';
 import DemoHomeLink from '../DemoHomeLink';
 import ModuleSidebar from '../ModuleSidebar';
 import ThemeToggle from '../ThemeToggle';
+import NotificationCenter from '../NotificationCenter';
 
 const navigationItems = [
   { href: '#/control', route: '/control', icon: 'home', label: 'Visão Geral' },
@@ -21,6 +22,7 @@ export default function ControlShell({ route, user, children }) {
           <button className="module-menu-button control-menu-button" type="button" aria-label="Abrir menu" aria-expanded={drawerOpen} onClick={() => setDrawerOpen(true)}>☰</button>
           <div className="module-utility-bar__title"><strong>HOP Control</strong><span>Central de Operações</span></div>
           <span className="control-live-status"><span aria-hidden="true">●</span> Atualizado em tempo real</span>
+          <NotificationCenter module="control" />
           <DemoHomeLink />
           <ThemeToggle compact />
         </header>

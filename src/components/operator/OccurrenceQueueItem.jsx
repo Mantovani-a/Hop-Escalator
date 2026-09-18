@@ -33,6 +33,7 @@ export default function OccurrenceQueueItem({ occurrence, workflowStatus }) {
           <span className="text-primary fw-bold" style={{ fontSize: '0.86rem' }}>Ver detalhes <span aria-hidden="true">→</span></span>
         </div>
       </div>
+      {occurrence.partRequest && <p className="mt-3 mb-0 p-2 rounded fw-bold" style={{ background: 'var(--color-primary-soft)', color: 'var(--color-primary-text)', fontSize: '0.8rem' }}>Retomada · retirar {occurrence.partRequest.part} ×{occurrence.partRequest.quantity} em {occurrence.partRequest.pickupLocation || 'local definido pela Central'}</p>}
     </a>
   );
 }

@@ -19,16 +19,20 @@ export const calculatePriority = ({ occurrence, client, elevator, metadata = {},
   let score = 5;
   const reasons = [];
   const openedAt = new Date(occurrence.time);
-  const elapsedMinutes = Math.max(0, Math.floor((now.getTime() - openedAt.getTime()) / 60000));
+  const closedAt = occurrence.completedAt ? new Date(occurrence.completedAt) : null;
+  const referenceTime = closedAt && !Number.isNaN(closedAt.getTime()) ? closedAt : now;
+  const elapsedMinutes = Math.max(0, Math.floor((referenceTime.getTime() - openedAt.getTime()) / 60000));
 
   if (occurrence.trappedPeople > 0) {
-    score += 40;
-    reasons.push(`${occurrence.trappedPeople} ${occurrence.trappedPeople === 1 ? 'passageiro preso' : 'passageiros presos'}`);
+    score = 100;
+    reasons.push(`${occurrence.trappedPeople} ${occurrence.trappedPeople === 1 ? 'passageiro preso — emergência demonstrativa' : 'passageiros presos — emergência demonstrativa'}`);
   }
 
-  if (metadata.riskToLife) {
+  if (metadata.riskToLife === true) {
     score += 20;
     reasons.push('Risco à vida informado');
+  } else if (metadata.riskUnknown) {
+    reasons.push('Risco imediato não confirmado — requer verificação');
   }
 
   if (client?.type === 'Hospital' || metadata.criticalFacility) {

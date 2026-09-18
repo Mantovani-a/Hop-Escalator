@@ -24,7 +24,7 @@ export default function ControlTechnicianDetail({ technician, onClose }) {
               {technician.currentOccurrence.metadata?.distanceKm != null
                 ? Number(technician.currentOccurrence.metadata.distanceKm).toFixed(1).replace('.', ',')
                 : '0,0'}{' '}
-              km · ETA {technician.currentOccurrence.metadata?.etaMinutes ?? 0} min
+              km · ETA demonstrativo {technician.currentOccurrence.metadata?.etaMinutes ?? 0} min
             </small>
           </section>
         )}

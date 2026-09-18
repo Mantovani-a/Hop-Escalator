@@ -8,6 +8,7 @@ const initialForm = {
   risk: '',
   riskNote: '',
   problemType: '',
+  problemTypes: [],
   otherProblem: '',
   observation: '',
 };
@@ -58,6 +59,24 @@ const ChoiceGroup = ({ legend, name, options, value, onChange }) => (
   </fieldset>
 );
 
+const MultipleChoiceGroup = ({ legend, options, values, onChange }) => (
+  <fieldset className="client-choice-group">
+    <legend className="client-choice-legend">{legend}</legend>
+    <div className="client-choice-grid">
+      {options.map((option) => {
+        const isSelected = values.includes(option);
+        return (
+          <label key={option} className={`client-choice-label${isSelected ? ' is-selected' : ''}`}>
+            <input type="checkbox" value={option} checked={isSelected} onChange={() => onChange(option)} />
+            <span className="client-choice-check" aria-hidden="true">{isSelected ? '✓' : ''}</span>
+            <span className="client-choice-text">{option}</span>
+          </label>
+        );
+      })}
+    </div>
+  </fieldset>
+);
+
 export default function ClientSupportFlow({
   elevator,
   elevators = [],
@@ -72,20 +91,31 @@ export default function ClientSupportFlow({
     elevatorId: elevator?.id || elevators[0]?.id || 'ELV-003',
   }));
   const [validation, setValidation] = useState('');
+  const [emergencyConfirmationOpen, setEmergencyConfirmationOpen] = useState(false);
 
-  const currentElevator = elevator || elevators.find((e) => e.id === form.elevatorId) || elevators[0] || {
+  const currentElevator = elevators.find((e) => e.id === form.elevatorId) || elevator || elevators[0] || {
     id: 'ELV-003',
     displayName: 'Elevador 03',
     identification: 'Torre B • Elevador de serviço',
   };
 
   const update = (field, value) => setForm((current) => ({ ...current, [field]: value }));
-  const selectProblem = (value) => setForm((current) => ({
-    ...current,
-    problemType: value,
-    functioning: functioningByProblem[value],
-    otherProblem: value === 'Outro problema' ? current.otherProblem : '',
-  }));
+  const selectProblem = (value) => setForm((current) => {
+    const problemTypes = current.problemTypes.includes(value)
+      ? current.problemTypes.filter((item) => item !== value)
+      : [...current.problemTypes, value];
+    const primaryProblem = problemTypes[0] || '';
+    return {
+      ...current,
+      problemTypes,
+      // Mantém o campo legado para consumidores que esperam um único sintoma.
+      problemType: primaryProblem,
+      functioning: problemTypes.some((item) => functioningByProblem[item] === 'Não está funcionando')
+        ? 'Não está funcionando'
+        : (primaryProblem ? 'Sim, mas com dificuldade' : ''),
+      otherProblem: problemTypes.includes('Outro problema') ? current.otherProblem : '',
+    };
+  });
 
   const continueFlow = () => {
     if (step === 1) {
@@ -106,16 +136,20 @@ export default function ClientSupportFlow({
       setValidation('Descreva brevemente o tipo de risco imediato.');
       return;
     }
-    if (step === 3 && !form.problemType) {
+    if (step === 3 && !form.problemTypes.length) {
       setValidation('Selecione o problema observado no elevador.');
       return;
     }
-    if (step === 3 && form.problemType === 'Outro problema' && !form.otherProblem.trim()) {
+    if (step === 3 && form.problemTypes.includes('Outro problema') && !form.otherProblem.trim()) {
       setValidation('Descreva brevemente o outro problema observado.');
       return;
     }
 
     setValidation('');
+    if (step === 3 && form.risk === 'Sim') {
+      setEmergencyConfirmationOpen(true);
+      return;
+    }
     setStep((current) => Math.min(4, current + 1));
   };
 
@@ -250,15 +284,14 @@ export default function ClientSupportFlow({
               </div>
             )}
             <div className="mt-4 pt-4 border-top">
-              <ChoiceGroup
+              <MultipleChoiceGroup
                 legend="O que está acontecendo com o elevador?"
-                name="problemType"
                 options={problemOptions}
-                value={form.problemType}
+                values={form.problemTypes}
                 onChange={selectProblem}
               />
             </div>
-            {form.problemType === 'Outro problema' && (
+            {form.problemTypes.includes('Outro problema') && (
               <div className="mt-3">
                 <label className="form-label fw-bold" htmlFor="other-problem">Descreva o problema em poucas palavras</label>
                 <input id="other-problem" className="form-control" maxLength="120" value={form.otherProblem} onChange={(event) => update('otherProblem', event.target.value)} />
@@ -294,7 +327,7 @@ export default function ClientSupportFlow({
                 <dt>Local</dt>
                 <dd>{establishment.name} · {establishment.type}</dd>
               </div>
-              <div><dt>Problema</dt><dd>{form.problemType === 'Outro problema' ? form.otherProblem : form.problemType}</dd></div>
+              <div><dt>Problemas</dt><dd>{form.problemTypes.map((problem) => problem === 'Outro problema' ? form.otherProblem : problem).filter(Boolean).join(' · ')}</dd></div>
               <div>
                 <dt>Pessoas presas</dt>
                 <dd>
@@ -367,6 +400,21 @@ export default function ClientSupportFlow({
           )}
         </div>
       </div>
+      {emergencyConfirmationOpen && (
+        <div className="client-emergency-layer" role="dialog" aria-modal="true" aria-labelledby="emergency-confirmation-title">
+          <div className="client-emergency-modal">
+            <p className="client-emergency-modal__eyebrow">Ambiente demonstrativo · acionamento simulado</p>
+            <h2 id="emergency-confirmation-title">ATENÇÃO — Situação de emergência</h2>
+            <p>Você informou que existe risco imediato à saúde ou segurança de alguém.</p>
+            <p>Esta ocorrência será classificada como emergência crítica e iniciará o fluxo de acionamento dos Bombeiros.</p>
+            <p className="client-emergency-modal__note">Confirme apenas se a situação realmente apresentar risco imediato.</p>
+            <div className="d-flex flex-column flex-sm-row-reverse gap-2 mt-4">
+              <button className="btn btn-danger flex-fill" type="button" onClick={() => { setEmergencyConfirmationOpen(false); setStep(4); }}>Confirmar emergência</button>
+              <button className="btn btn-outline-secondary flex-fill" type="button" onClick={() => setEmergencyConfirmationOpen(false)}>Voltar e revisar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

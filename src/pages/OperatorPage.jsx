@@ -22,22 +22,16 @@ import OperatorOccurrenceDetail from './operator/OperatorOccurrenceDetail';
 import OperatorOccurrences from './operator/OperatorOccurrences';
 import OperatorProfile from './operator/OperatorProfile';
 import OperatorServicePage from './operator/OperatorServicePage';
+import { playNotificationSound } from '../utils/notificationSound';
 
-const playNewOccurrenceTone = () => {
-  const AudioContext = window.AudioContext || window.webkitAudioContext;
-  if (!AudioContext) return;
-  const audioContext = new AudioContext();
-  const oscillator = audioContext.createOscillator();
-  const gain = audioContext.createGain();
-  oscillator.type = 'sine';
-  oscillator.frequency.setValueAtTime(720, audioContext.currentTime);
-  gain.gain.setValueAtTime(0.08, audioContext.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.18);
-  oscillator.connect(gain);
-  gain.connect(audioContext.destination);
-  oscillator.start();
-  oscillator.stop(audioContext.currentTime + 0.18);
-  oscillator.addEventListener('ended', () => audioContext.close());
+const formatDuration = (startedAt, completedAt) => {
+  const start = new Date(startedAt).getTime();
+  const end = new Date(completedAt).getTime();
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end < start) return null;
+  const minutes = Math.max(1, Math.round((end - start) / 60000));
+  const hours = Math.floor(minutes / 60);
+  const remaining = minutes % 60;
+  return hours ? `${hours}h${remaining ? ` ${remaining}min` : ''}` : `${minutes} min`;
 };
 
 export default function OperatorPage({ route = '/operator' }) {
@@ -45,6 +39,8 @@ export default function OperatorPage({ route = '/operator' }) {
   const [simulatedOccurrence, setSimulatedOccurrence] = useState(() => createSimulatedOccurrence());
   const [alertOpen, setAlertOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [shiftTransition, setShiftTransition] = useState('');
+  const [endShiftConfirmationOpen, setEndShiftConfirmationOpen] = useState(false);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setIsLoading(false), 350);
@@ -63,7 +59,7 @@ export default function OperatorPage({ route = '/operator' }) {
         return {
           ...operatorOccurrence,
           ...occurrence,
-          priority: occurrence.priority || operatorOccurrence.priority,
+          priority: operatorOccurrence.priority,
           metadata: { ...operatorOccurrence.metadata, ...occurrence.metadata },
         };
       }),
@@ -76,11 +72,14 @@ export default function OperatorPage({ route = '/operator' }) {
     .filter((occurrence) => statusFor(occurrence.id) !== OPERATION_STATUS.RESOLVED)
     .sort((first, second) => (second.priority?.score ?? 0) - (first.priority?.score ?? 0));
   const activeOccurrence = pendingOccurrences.find((occurrence) => [
+    OPERATION_STATUS.ACCEPTED,
     OPERATION_STATUS.TRAVELING,
+    OPERATION_STATUS.TRAVELING_TO_PICKUP,
+    OPERATION_STATUS.RETURNING_TO_CLIENT,
     OPERATION_STATUS.ON_SITE,
     OPERATION_STATUS.MAINTENANCE,
   ].includes(occurrence.workflowStatus));
-  const technicianStatus = activeOccurrence?.workflowStatus === OPERATION_STATUS.TRAVELING
+  const technicianStatus = [OPERATION_STATUS.TRAVELING, OPERATION_STATUS.TRAVELING_TO_PICKUP, OPERATION_STATUS.RETURNING_TO_CLIENT].includes(activeOccurrence?.workflowStatus)
     ? 'em deslocamento'
     : activeOccurrence
       ? 'em atendimento'
@@ -90,41 +89,114 @@ export default function OperatorPage({ route = '/operator' }) {
     const currentStatus = statusFor(occurrenceId);
     const nextStatus = getWorkflowStep(currentStatus).nextStatus;
     if (!nextStatus) return;
-    const occurrence = allOccurrences.find((item) => item.id === occurrenceId);
-    const probableOrigin = occurrence?.metadata?.diagnosis?.probableOrigin;
-    const completion = nextStatus === OPERATION_STATUS.RESOLVED
-      ? {
-          completedAt: new Date().toISOString(),
-          duration: '1h 06min',
-          finalDiagnosis: probableOrigin
-            ? `Hipótese confirmada após verificação: ${probableOrigin}.`
-            : 'Falha verificada durante o atendimento em campo.',
-          solution: 'Sistema verificado e operação restabelecida em segurança.',
-          status: 'resolvida',
-        }
-      : {};
-    updateOperationOccurrence(occurrenceId, {
+    if (nextStatus === OPERATION_STATUS.TRAVELING
+      && activeOccurrence
+      && activeOccurrence.id !== occurrenceId) return;
+    if (nextStatus === OPERATION_STATUS.RESOLVED) {
+      window.location.hash = `/operator/service/${occurrenceId}`;
+      return;
+    }
+    const transitionAt = new Date().toISOString();
+    const transitionTimestamps = nextStatus === OPERATION_STATUS.TRAVELING
+      ? { acceptedAt: transitionAt, travelingAt: transitionAt }
+      : nextStatus === OPERATION_STATUS.TRAVELING_TO_PICKUP
+        ? { pickupTravelStartedAt: transitionAt }
+        : nextStatus === OPERATION_STATUS.RETURNING_TO_CLIENT
+          ? { partPickedUpAt: transitionAt }
+      : nextStatus === OPERATION_STATUS.MAINTENANCE
+        ? { arrivedAt: transitionAt, maintenanceStartedAt: transitionAt, resumedAt: currentStatus === OPERATION_STATUS.RETURNING_TO_CLIENT ? transitionAt : undefined }
+        : {};
+    const eventLabel = nextStatus === OPERATION_STATUS.TRAVELING_TO_PICKUP ? 'Técnico iniciou deslocamento para retirada da peça'
+      : nextStatus === OPERATION_STATUS.RETURNING_TO_CLIENT ? 'Peça retirada; técnico retornando ao cliente'
+        : nextStatus === OPERATION_STATUS.MAINTENANCE && currentStatus === OPERATION_STATUS.RETURNING_TO_CLIENT ? 'Técnico retornou ao cliente; manutenção retomada'
+          : nextStatus === OPERATION_STATUS.MAINTENANCE ? 'Técnico chegou ao cliente; manutenção iniciada'
+            : 'Técnico iniciou deslocamento';
+    updateOperationOccurrence(occurrenceId, (current) => ({
       workflowStatus: nextStatus,
       technicianId: operatorTechnician.id,
-      ...completion,
-    });
-    if ([OPERATION_STATUS.TRAVELING, OPERATION_STATUS.MAINTENANCE].includes(nextStatus)) {
+      ...transitionTimestamps,
+      partRequest: current.partRequest ? {
+        ...current.partRequest,
+        state: nextStatus === OPERATION_STATUS.TRAVELING_TO_PICKUP ? 'Em retirada'
+          : nextStatus === OPERATION_STATUS.RETURNING_TO_CLIENT ? 'Peça retirada'
+            : nextStatus === OPERATION_STATUS.MAINTENANCE ? 'Aplicação em andamento' : current.partRequest.state,
+      } : current.partRequest,
+      workflowHistory: [...(current.workflowHistory || []), { status: nextStatus, label: eventLabel, at: transitionAt, technicianId: operatorTechnician.id, technicianName: operatorTechnician.name }],
+    }));
+    if ([OPERATION_STATUS.TRAVELING, OPERATION_STATUS.TRAVELING_TO_PICKUP, OPERATION_STATUS.RETURNING_TO_CLIENT, OPERATION_STATUS.MAINTENANCE].includes(nextStatus)) {
       window.location.hash = `/operator/service/${occurrenceId}`;
-    } else if (nextStatus === OPERATION_STATUS.RESOLVED) {
-      window.location.hash = '/operator';
     }
+  };
+
+  const completeOccurrence = (occurrenceId, details) => {
+    const occurrence = allOccurrences.find((item) => item.id === occurrenceId);
+    if (!occurrence) return;
+    const completedAt = new Date().toISOString();
+    if (details.outcome === 'part') {
+      updateOperationOccurrence(occurrenceId, (current) => ({
+        workflowStatus: OPERATION_STATUS.WAITING_PART,
+        technicianId: null,
+        assignedTechnicianId: null,
+        status: 'pendente',
+        partRequest: {
+          part: details.part,
+          quantity: Number(details.quantity) || 1,
+          urgency: details.urgency,
+          diagnosis: details.diagnosis,
+          observation: details.observation,
+          requestedAt: completedAt,
+          state: 'Aguardando peça',
+          diagnosedBy: { id: operatorTechnician.id, name: operatorTechnician.name },
+        },
+        workflowHistory: [...(current.workflowHistory || []),
+          { status: OPERATION_STATUS.MAINTENANCE, label: 'Primeira visita e diagnóstico técnico', at: current.maintenanceStartedAt || completedAt, technicianId: operatorTechnician.id, technicianName: operatorTechnician.name },
+          { status: OPERATION_STATUS.WAITING_PART, label: `Peça solicitada: ${details.part} ×${Number(details.quantity) || 1}; técnico liberado`, at: completedAt, technicianId: operatorTechnician.id, technicianName: operatorTechnician.name },
+        ],
+      }));
+      window.location.hash = '/operator';
+      return;
+    }
+    if (details.outcome === 'support') {
+      updateOperationOccurrence(occurrenceId, (current) => ({
+        workflowStatus: OPERATION_STATUS.WAITING_SUPPORT,
+        technicianId: null,
+        assignedTechnicianId: null,
+        status: 'pendente',
+        supportRequest: { reason: details.diagnosis, observation: details.observation, requestedAt: completedAt, requestedBy: { id: operatorTechnician.id, name: operatorTechnician.name }, state: 'Aguardando central' },
+        workflowHistory: [...(current.workflowHistory || []), { status: OPERATION_STATUS.WAITING_SUPPORT, label: 'Suporte da central solicitado; técnico liberado', at: completedAt, technicianId: operatorTechnician.id, technicianName: operatorTechnician.name }],
+      }));
+      window.location.hash = '/operator';
+      return;
+    }
+    const finalCondition = details.condition;
+    updateOperationOccurrence(occurrenceId, (current) => ({
+      workflowStatus: OPERATION_STATUS.RESOLVED,
+      completedAt,
+      duration: formatDuration(occurrence.assignedAt || occurrence.travelingAt || occurrence.time, completedAt),
+      finalDiagnosis: details.result,
+      solution: details.action,
+      finalCondition,
+      status: 'resolvida',
+      metadata: {
+        ...occurrence.metadata,
+        elevatorStopped: finalCondition === 'Equipamento permanece indisponível',
+        partialFailure: finalCondition === 'Funcionamento parcial',
+      },
+      workflowHistory: [...(current.workflowHistory || []), { status: OPERATION_STATUS.RESOLVED, label: 'Atendimento concluído', at: completedAt, technicianId: operatorTechnician.id, technicianName: operatorTechnician.name }],
+    }));
+    window.location.hash = '/operator';
   };
 
   const openSimulation = useCallback(() => {
     setSimulatedOccurrence(createSimulatedOccurrence());
-    playNewOccurrenceTone();
+    playNotificationSound();
     setAlertOpen(true);
   }, []);
 
   const addSimulatedOccurrence = (workflowStatus) => {
     addOperationOccurrence({
       ...simulatedOccurrence,
-      protocol: simulatedOccurrence.metadata?.serviceNumber || simulatedOccurrence.protocol || 'HOP-1048',
+      protocol: simulatedOccurrence.metadata?.serviceNumber || simulatedOccurrence.protocol || 'HOP-DEMO',
       workflowStatus,
       technicianId: operatorTechnician.id,
       origin: 'simulação',
@@ -150,6 +222,31 @@ export default function OperatorPage({ route = '/operator' }) {
     return !Number.isNaN(itemDate.getTime()) && itemDate.toDateString() === new Date().toDateString();
   }).length;
   const workflowStatuses = Object.fromEntries(allOccurrences.map((occurrence) => [occurrence.id, statusFor(occurrence.id)]));
+  const endShift = (force = false) => {
+    if (pendingOccurrences.length && !force) {
+      setEndShiftConfirmationOpen(true);
+      return;
+    }
+    if (force) {
+      pendingOccurrences.forEach((occurrence) => updateOperationOccurrence(occurrence.id, {
+        metadata: { ...occurrence.metadata, assignedTechnicianUnavailable: true, requiresReassignment: true },
+      }));
+    }
+    setEndShiftConfirmationOpen(false);
+    setShiftTransition('ending');
+    window.setTimeout(() => {
+      updateOperatorShift(false);
+      window.location.hash = '/operator';
+      setShiftTransition('');
+    }, 320);
+  };
+  const startShift = () => {
+    setShiftTransition('starting');
+    window.setTimeout(() => {
+      updateOperatorShift(true);
+      setShiftTransition('');
+    }, 320);
+  };
 
   let pageContent;
   if (route === '/operator') {
@@ -175,7 +272,7 @@ export default function OperatorPage({ route = '/operator' }) {
   } else if (route.startsWith('/operator/service/')) {
     const occurrenceId = route.split('/').pop();
     const selectedOccurrence = allOccurrences.find((occurrence) => occurrence.id === occurrenceId);
-    pageContent = <OperatorServicePage occurrence={selectedOccurrence} workflowStatus={statusFor(occurrenceId)} onAdvance={advanceOccurrence} />;
+    pageContent = <OperatorServicePage occurrence={selectedOccurrence} workflowStatus={statusFor(occurrenceId)} onAdvance={advanceOccurrence} onComplete={completeOccurrence} />;
   } else if (route.startsWith('/operator/occurrence/')) {
     const occurrenceId = route.split('/').pop();
     const selectedOccurrence = allOccurrences.find((occurrence) => occurrence.id === occurrenceId);
@@ -184,18 +281,15 @@ export default function OperatorPage({ route = '/operator' }) {
     pageContent = <OperatorStateMessage type="error" title="Página do HOP Operator não encontrada">Use o menu lateral para voltar a uma seção disponível.</OperatorStateMessage>;
   }
 
-  if (operationState.operatorShiftActive === false) {
-    return <OperatorShiftClosed onStartShift={() => updateOperatorShift(true)} />;
+  if (operationState.operatorShiftActive === false || shiftTransition === 'starting') {
+    return <OperatorShiftClosed technician={operatorTechnician} isStarting={shiftTransition === 'starting'} onStartShift={startShift} />;
   }
 
   return (
     <OperatorShell
       route={route}
       technician={operatorTechnician}
-      onEndShift={() => {
-        updateOperatorShift(false);
-        window.location.hash = '/operator';
-      }}
+      onEndShift={() => endShift()}
       onSimulate={openSimulation}
     >
       {pageContent}
@@ -206,6 +300,19 @@ export default function OperatorPage({ route = '/operator' }) {
         onAccept={() => addSimulatedOccurrence(OPERATION_STATUS.TRAVELING)}
         onView={() => addSimulatedOccurrence(OPERATION_STATUS.TECHNICIAN_ASSIGNED)}
       />
+      {shiftTransition === 'ending' && <div className="operator-shift-transition" role="status">Encerrando turno…</div>}
+      {endShiftConfirmationOpen && (
+        <div className="operator-end-shift-layer" role="dialog" aria-modal="true" aria-labelledby="end-shift-title">
+          <div className="operator-end-shift-modal">
+            <h2 id="end-shift-title">Você ainda possui demandas abertas</h2>
+            <p>Existem atendimentos vinculados ao seu turno que ainda não foram concluídos. Ao encerrar o turno, essas demandas continuarão registradas e poderão exigir acompanhamento da operação.</p>
+            <div className="d-flex flex-column flex-sm-row-reverse gap-2 mt-4">
+              <button className="btn btn-danger flex-fill" type="button" onClick={() => endShift(true)}>Encerrar turno mesmo assim</button>
+              <button className="btn btn-outline-secondary flex-fill" type="button" onClick={() => setEndShiftConfirmationOpen(false)}>Voltar ao trabalho</button>
+            </div>
+          </div>
+        </div>
+      )}
     </OperatorShell>
   );
 }

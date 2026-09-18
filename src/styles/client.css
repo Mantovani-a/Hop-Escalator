@@ -509,6 +509,40 @@
   font-size: 0.88rem;
 }
 
+.client-emergency-layer {
+  position: fixed;
+  z-index: 1100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  background: rgba(15, 23, 42, 0.68);
+}
+
+.client-emergency-modal {
+  width: min(100%, 560px);
+  padding: clamp(1.4rem, 4vw, 2rem);
+  border: 1px solid color-mix(in srgb, var(--color-severity-critical) 60%, var(--color-border));
+  border-top: 5px solid var(--color-severity-critical);
+  border-radius: var(--radius-lg);
+  color: var(--color-text);
+  background: var(--color-surface);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+}
+
+.client-emergency-modal__eyebrow {
+  margin-bottom: var(--space-2);
+  color: var(--color-severity-critical-text);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.client-emergency-modal h2 { margin-bottom: var(--space-3); font-size: clamp(1.25rem, 4vw, 1.65rem); }
+.client-emergency-modal p { color: var(--color-text-muted); line-height: 1.55; }
+.client-emergency-modal__note { margin-bottom: 0; color: var(--color-text) !important; font-weight: 700; }
+
 /* Lista de Revisão */
 .client-review-list {
   display: grid;

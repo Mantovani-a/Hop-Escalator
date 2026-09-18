@@ -7,50 +7,76 @@ import {
   technicianGeoPositions,
 } from '../../data/geoCoordinates';
 import { operatorTechnician } from '../../data/operatorData';
+import { getTechnicianById } from '../../data/mockData';
+import { OPERATION_STATUS } from '../../data/operationStore';
 import { normalizeToken } from '../../utils/presentation';
 
 export default function RouteMap({ occurrence }) {
   const [locationState, setLocationState] = useState('demo');
   const [liveOrigin, setLiveOrigin] = useState(null);
 
+  const assignedTechnician = getTechnicianById(occurrence.technicianId) || operatorTechnician;
+  const technicianPosition = technicianGeoPositions[assignedTechnician.id] || technicianGeoPositions['TEC-010'];
   const defaultOrigin = [
-    technicianGeoPositions['TEC-010'].lat,
-    technicianGeoPositions['TEC-010'].lng,
+    technicianPosition.lat,
+    technicianPosition.lng,
   ];
 
   const origin = liveOrigin || defaultOrigin;
   const destination = getEstablishmentGeoPoint(occurrence.clientId);
+  const pickupPoint = [-23.5489, -46.6388];
+  const hasPartMission = Boolean(occurrence.partRequest);
+  const returningToClient = [OPERATION_STATUS.RETURNING_TO_CLIENT, OPERATION_STATUS.MAINTENANCE, OPERATION_STATUS.RESOLVED].includes(occurrence.workflowStatus);
 
   const route = useMemo(
-    () => buildGeoRoute(origin, destination),
-    [origin[0], origin[1], destination[0], destination[1]]
+    () => hasPartMission && !returningToClient
+      ? [...buildGeoRoute(origin, pickupPoint), ...buildGeoRoute(pickupPoint, destination).slice(1)]
+      : buildGeoRoute(origin, destination),
+    [origin[0], origin[1], destination[0], destination[1], hasPartMission, returningToClient]
   );
 
   const markers = useMemo(
     () => [
       {
-        id: 'operator-joao-carlos',
+        id: `operator-${assignedTechnician.id}`,
         type: 'technician',
         typeLabel: 'Técnico',
         lat: origin[0],
         lng: origin[1],
-        symbol: 'JC',
-        label: operatorTechnician.name,
-        shortLabel: operatorTechnician.name,
+        symbol: assignedTechnician.name.split(' ').map((part) => part[0]).slice(0, 2).join(''),
+        label: assignedTechnician.name,
+        shortLabel: assignedTechnician.name,
         status: 'Em deslocamento',
         tone: 'em-deslocamento',
         featured: true,
-        avatar: operatorTechnician.avatar,
-        avatarName: operatorTechnician.name,
+        avatar: assignedTechnician.avatar,
+        avatarName: assignedTechnician.name,
         details: [
           { label: 'Ocorrência', value: occurrence.protocol || occurrence.metadata?.serviceNumber || 'HOP-1040' },
           { label: 'Destino', value: occurrence.client?.name || 'Cliente' },
         ],
       },
+      ...(hasPartMission ? [{
+        id: `part-pickup-${occurrence.id}`,
+        type: 'destination',
+        typeLabel: returningToClient ? 'Peça retirada' : 'Parada 1 · Retirada',
+        lat: pickupPoint[0],
+        lng: pickupPoint[1],
+        symbol: '1',
+        label: occurrence.partRequest.pickupLocation || 'Central / Estoque OTIS',
+        shortLabel: 'Retirada de peça',
+        status: returningToClient ? 'Concluída' : 'Próxima parada',
+        tone: returningToClient ? 'baixa' : 'atencao',
+        featured: true,
+        details: [
+          { label: 'Peça', value: `${occurrence.partRequest.part} ×${occurrence.partRequest.quantity}` },
+          { label: 'Situação', value: occurrence.partRequest.state },
+        ],
+      }] : []),
       {
         id: `operator-destination-${occurrence.clientId}`,
         type: 'destination',
-        typeLabel: 'Próximo destino',
+        typeLabel: hasPartMission ? 'Parada 2 · Cliente' : 'Próximo destino',
         lat: destination[0],
         lng: destination[1],
         symbol: '◆',
@@ -62,11 +88,11 @@ export default function RouteMap({ occurrence }) {
         details: [
           { label: 'Elevador', value: occurrence.elevator?.identification || 'Elevador' },
           { label: 'Endereço', value: occurrence.address || 'Endereço não informado' },
-          { label: 'ETA', value: `${occurrence.metadata?.etaMinutes ?? 10} min` },
+          { label: 'ETA demonstrativo', value: `${occurrence.metadata?.etaMinutes ?? 10} min` },
         ],
       },
     ],
-    [origin[0], origin[1], destination[0], destination[1], occurrence]
+    [origin[0], origin[1], destination[0], destination[1], occurrence, hasPartMission, returningToClient, assignedTechnician]
   );
 
   const requestLocation = () => {
@@ -86,9 +112,9 @@ export default function RouteMap({ occurrence }) {
   };
 
   const locationMessages = {
-    demo: 'Localização em rota estratégica ativa',
+    demo: 'Rota e ETA estimados para demonstração.',
     requesting: 'Solicitando localização GPS do dispositivo…',
-    live: 'Localização GPS do dispositivo confirmada; rota recalculada em tempo real',
+    live: 'Origem atualizada pelo dispositivo; trajeto e ETA continuam demonstrativos.',
     fallback: 'GPS não disponível. A rota demonstrativa continua ativa.',
   };
 
@@ -100,7 +126,7 @@ export default function RouteMap({ occurrence }) {
       <div className="hop-route-card__heading">
         <div>
           <p className="page-header__subtitle">Navegação integrada</p>
-          <h2 className="fs-5" id="route-map-title">Rota até o atendimento</h2>
+          <h2 className="fs-5" id="route-map-title">{hasPartMission ? 'Retirada de peça e retorno' : 'Rota até o atendimento'}</h2>
         </div>
         <span className="hop-route-card__demo-label">Grande São Paulo · OpenStreetMap</span>
       </div>
@@ -113,17 +139,19 @@ export default function RouteMap({ occurrence }) {
           zoom={13}
           markers={markers}
           route={route}
-          ariaLabel={`Rota de navegação de ${operatorTechnician.name} até ${occurrence.client?.name || 'Cliente'}`}
+          ariaLabel={`Rota demonstrativa de ${assignedTechnician.name} até ${occurrence.client?.name || 'Cliente'}`}
         />
 
         <article className="operator-route-summary">
           <span>Próximo destino</span>
-          <strong>{occurrence.client?.name || 'Cliente'}</strong>
-          <small>{occurrence.elevator?.identification || 'Elevador'}</small>
-          <p>{distance} km · {eta} min</p>
+          <strong>{hasPartMission && !returningToClient ? occurrence.partRequest.pickupLocation || 'Central / Estoque OTIS' : occurrence.client?.name || 'Cliente'}</strong>
+          <small>{hasPartMission && !returningToClient ? `${occurrence.partRequest.part} ×${occurrence.partRequest.quantity}` : occurrence.elevator?.identification || 'Elevador'}</small>
+          <p>{distance} km · ETA demonstrativo: {eta} min</p>
           <StatusBadge value={occurrence.priority?.classification || 'baixa'} type="severity" />
         </article>
       </div>
+
+      {hasPartMission && <div className="operator-route-stops" aria-label="Etapas da retomada"><article className={returningToClient ? 'is-complete' : 'is-current'}><span>Parada 1</span><strong>Retirada de peça</strong><small>{occurrence.partRequest.pickupLocation || 'Central / Estoque OTIS'} · {occurrence.partRequest.part} ×{occurrence.partRequest.quantity}</small></article><article className={returningToClient ? 'is-current' : ''}><span>Parada 2</span><strong>Retorno ao atendimento</strong><small>{occurrence.client?.name || 'Cliente'} · {occurrence.elevator?.identification || 'Elevador'}</small></article></div>}
 
       <div className="hop-route-footer">
         <div>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import DemoHomeLink from '../DemoHomeLink';
 import ModuleSidebar from '../ModuleSidebar';
 import ThemeToggle from '../ThemeToggle';
+import NotificationCenter from '../NotificationCenter';
 
 const navigationItems = [
   { href: '#/operator', route: '/operator', icon: 'home', label: 'Início' },
@@ -31,6 +32,7 @@ export default function OperatorShell({ route, technician, onEndShift, onSimulat
           <div className="module-utility-bar__title d-none d-sm-flex"><strong>HOP Operator</strong><span>Operação em campo</span></div>
           <div className="module-utility-bar__actions">
             <button className="btn btn-sm btn-outline-primary" type="button" onClick={onSimulate}>Simular nova ocorrência</button>
+            <NotificationCenter module="operator" recipientId={technician.id} />
             <DemoHomeLink />
             <ThemeToggle compact />
             <button className="btn btn-sm btn-outline-primary operator-end-shift" type="button" onClick={onEndShift}>Encerrar turno</button>

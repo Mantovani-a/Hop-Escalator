@@ -4,18 +4,21 @@ import { formatElapsedMinutes } from '../../utils/presentation';
 import { OPERATION_STATUS } from '../../data/operationStore';
 
 const filters = [
-  ['all', 'Todas'], ['critical', 'Críticas'], ['unassigned', 'Sem técnico'], ['traveling', 'Em deslocamento'], ['attending', 'Em atendimento'],
+  ['all', 'Todas'], ['parts', 'Peças'], ['support', 'Suporte'], ['critical', 'Críticas'], ['unassigned', 'Sem técnico'], ['traveling', 'Em deslocamento'], ['attending', 'Em atendimento'],
 ];
 
 export default function ControlOccurrences({ occurrences, onSelectOccurrence }) {
   const [filter, setFilter] = useState('all');
   const active = occurrences.filter((occurrence) => occurrence.operationalStatus !== OPERATION_STATUS.RESOLVED);
-  const filtered = active.filter((occurrence) => {
+  const partOccurrences = active.filter((occurrence) => occurrence.partRequest);
+  const filtered = (filter === 'all' ? occurrences : active).filter((occurrence) => {
     if (filter === 'critical') return occurrence.priority?.classification === 'crítica';
+    if (filter === 'parts') return Boolean(occurrence.partRequest);
+    if (filter === 'support') return occurrence.operationalStatus === OPERATION_STATUS.WAITING_SUPPORT;
     if (filter === 'unassigned') return !occurrence.technicianId;
     if (filter === 'traveling') return occurrence.operationalStatus === OPERATION_STATUS.TRAVELING;
     if (filter === 'attending') return [OPERATION_STATUS.ON_SITE, OPERATION_STATUS.MAINTENANCE].includes(occurrence.operationalStatus);
-    return true;
+    return filter === 'all';
   });
   return (
     <>
@@ -41,11 +44,12 @@ export default function ControlOccurrences({ occurrences, onSelectOccurrence }) 
           </button>
         ))}
       </div>
+      {partOccurrences.length > 0 && <section className="control-part-panel mb-4" aria-labelledby="part-pending-title"><div className="control-part-panel__head"><div><p className="page-header__subtitle mb-1">Pendências operacionais</p><h2 className="fs-5 mb-0" id="part-pending-title">Peças e retomadas</h2></div><span className="hop-badge">{partOccurrences.length} ocorrência(s)</span></div><div className="control-part-grid">{partOccurrences.map((occurrence) => { const waitingMinutes = Math.max(0, Math.floor((Date.now() - new Date(occurrence.partRequest.requestedAt || occurrence.time).getTime()) / 60000)); return <button type="button" key={occurrence.id} onClick={() => onSelectOccurrence(occurrence.id)}><header><strong>{occurrence.protocol}</strong><StatusBadge value={occurrence.operationalStatus} /></header><h3>{occurrence.client?.name} · {occurrence.elevator?.identification}</h3><p><strong>{occurrence.partRequest.part} ×{occurrence.partRequest.quantity}</strong> · {occurrence.partRequest.state}</p><footer><span>Diagnóstico: {occurrence.partRequest.diagnosedBy?.name}</span><span>{occurrence.priority?.classification} · {formatElapsedMinutes(waitingMinutes)}</span></footer></button>; })}</div></section>}
       <section className="app-card overflow-hidden" aria-label="Fila de ocorrências">
         <div className="w-100 overflow-x-auto">
           <table className="w-100 table table-hover mb-0" style={{ minWidth: '1020px', fontSize: '0.8rem' }}>
             <thead className="text-secondary text-uppercase" style={{ backgroundColor: 'var(--color-surface-hover)', fontSize: '0.68rem', letterSpacing: '0.04em' }}>
-              <tr><th className="p-3 fw-bold border-0">Protocolo</th><th className="p-3 fw-bold border-0">Prioridade</th><th className="p-3 fw-bold border-0">Estabelecimento</th><th className="p-3 fw-bold border-0">Elevador / problema</th><th className="p-3 fw-bold border-0">Técnico</th><th className="p-3 fw-bold border-0">Status</th><th className="p-3 fw-bold border-0">Tempo aberto</th></tr>
+              <tr><th className="p-3 fw-bold border-0">Protocolo</th><th className="p-3 fw-bold border-0">Prioridade</th><th className="p-3 fw-bold border-0">Estabelecimento</th><th className="p-3 fw-bold border-0">Elevador / problema</th><th className="p-3 fw-bold border-0">Técnico</th><th className="p-3 fw-bold border-0">Status</th><th className="p-3 fw-bold border-0">Tempo</th></tr>
             </thead>
             <tbody className="border-top">
               {filtered.map((occurrence) => (
@@ -53,10 +57,10 @@ export default function ControlOccurrences({ occurrences, onSelectOccurrence }) 
                   <td className="p-3 align-middle"><button className="btn btn-link p-0 text-primary fw-bold text-decoration-none" type="button" onClick={() => onSelectOccurrence(occurrence.id)}>{occurrence.protocol}</button></td>
                   <td className="p-3 align-middle"><div className="d-flex align-items-center"><StatusBadge value={occurrence.priority?.classification || 'baixa'} type="severity" /><strong className="ms-2 fs-6">{occurrence.priority?.score ?? 0}</strong></div></td>
                   <td className="p-3 align-middle"><strong className="d-block" style={{ color: 'var(--color-text)' }}>{occurrence.client?.name || 'Cliente'}</strong><small className="d-block text-secondary mt-1 text-truncate" style={{ maxWidth: '270px' }}>{occurrence.client?.type || 'Estabelecimento'}</small></td>
-                  <td className="p-3 align-middle"><strong className="d-block" style={{ color: 'var(--color-text)' }}>{occurrence.elevator?.identification || 'Elevador'}</strong><small className="d-block text-secondary mt-1 text-truncate" style={{ maxWidth: '270px' }}>{occurrence.description || 'Intercorrência reportada'}</small></td>
-                  <td className="p-3 align-middle">{occurrence.technician?.name || <span className="text-danger fw-bold">Sem técnico</span>}</td>
+                  <td className="p-3 align-middle"><strong className="d-block" style={{ color: 'var(--color-text)' }}>{occurrence.elevator?.identification || 'Elevador'}</strong><small className="d-block text-secondary mt-1 text-truncate" style={{ maxWidth: '270px' }}>{occurrence.partRequest ? `${occurrence.partRequest.part} ×${occurrence.partRequest.quantity} · ${occurrence.partRequest.state}` : occurrence.description || 'Intercorrência reportada'}</small></td>
+                  <td className="p-3 align-middle">{occurrence.technician?.name || <span className="text-danger fw-bold">Sem técnico</span>}{occurrence.metadata?.requiresReassignment && <small className="d-block text-danger fw-bold mt-1">Técnico indisponível · reatribuir</small>}</td>
                   <td className="p-3 align-middle"><StatusBadge value={occurrence.operationalStatus} /></td>
-                  <td className="p-3 align-middle fw-bold">{formatElapsedMinutes(occurrence.priority?.elapsedMinutes ?? 0)}</td>
+                  <td className="p-3 align-middle fw-bold">{occurrence.operationalStatus === OPERATION_STATUS.RESOLVED && occurrence.duration ? occurrence.duration : formatElapsedMinutes(occurrence.priority?.elapsedMinutes ?? 0)}</td>
                 </tr>
               ))}
             </tbody>

@@ -9,13 +9,13 @@ export default function Elevator2DModel({ diagnosis, severity }) {
   const suspectedRegions = diagnosis?.suspectedRegions || [];
   const initialRegion = suspectedRegions[0] || 'doors';
   const [selectedRegion, setSelectedRegion] = useState(initialRegion);
-  const [viewMode, setViewMode] = useState('2d');
+  const [viewMode, setViewMode] = useState('3d');
 
   return (
     <section className={`app-card elevator-model-card elevator-model-card--${severity}`} aria-labelledby="elevator-model-title">
       <div className="elevator-model-card__heading">
         <div><p className="page-header__subtitle">Representação esquemática</p><h2 className="fs-5" id="elevator-model-title">{viewMode === '2d' ? 'Modelo 2D do elevador' : 'Modelo 3D Wireframe'}</h2></div>
-        <span><i aria-hidden="true" /> Área com possível falha</span>
+        <span><i aria-hidden="true" /> Região suspeita pela triagem</span>
       </div>
 
       <div className="elevator-model-tabs" role="tablist" aria-label="Alternar entre modelo 2D e 3D">
@@ -43,7 +43,7 @@ export default function Elevator2DModel({ diagnosis, severity }) {
 
       {viewMode === '2d' ? (
         <>
-          <p className="elevator-model-card__intro">Selecione um componente para relacioná-lo aos dados do diagnóstico.</p>
+          <p className="elevator-model-card__intro">Selecione uma região para relacioná-la à hipótese inicial da triagem.</p>
 
           <div className="elevator-model-stage">
             <div className="elevator-schematic" aria-label="Elevador esquemático com regiões interativas">
@@ -67,7 +67,7 @@ export default function Elevator2DModel({ diagnosis, severity }) {
         </>
       ) : (
         <>
-          <p className="elevator-model-card__intro">Interaja com o modelo 3D. Clique nos componentes em destaque para ver detalhes do problema.</p>
+          <p className="elevator-model-card__intro">Interaja com o modelo 3D. Os destaques indicam regiões suspeitas que necessitam de verificação técnica.</p>
           <Elevator3DViewer diagnosis={diagnosis} severity={severity} />
         </>
       )}

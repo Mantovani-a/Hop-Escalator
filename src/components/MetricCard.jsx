@@ -1,6 +1,6 @@
 import { ModuleIcon } from './ModuleSidebar';
 
-export default function MetricCard({ label, value, detail, tone = 'default', icon }) {
+export default function MetricCard({ label, value, detail, tone = 'default', icon, showDetail = false }) {
   const accents = {
     critical: ['var(--color-severity-critical)', 'alert'],
     success: ['var(--color-severity-low)', 'users'],
@@ -19,6 +19,7 @@ export default function MetricCard({ label, value, detail, tone = 'default', ico
       <div className="metric-card__content">
         <span>{label}</span>
         <strong>{value}</strong>
+        {showDetail && detail && <small className="metric-card__detail">{detail}</small>}
       </div>
     </article>
   );

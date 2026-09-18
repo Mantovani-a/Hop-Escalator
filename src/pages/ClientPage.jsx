@@ -61,10 +61,11 @@ export default function ClientPage({ route = '/client' }) {
 
   const displayedElevators = clientElevators.map((elevator) => {
     const trackedCall = activeCalls.find((call) => call.elevatorId === elevator.id);
+    const latestCall = allCalls.find((call) => call.elevatorId === elevator.id);
     if (!trackedCall) {
       return {
         ...elevator,
-        clientStatus: 'Operação normal',
+        clientStatus: latestCall?.finalCondition || 'Operação normal',
         activeCall: null,
       };
     }
@@ -85,18 +86,23 @@ export default function ClientPage({ route = '/client' }) {
       const now = new Date();
       const elevator = form.elevator || getDisplayElevator(form.elevatorId) || displayedElevators[0];
       const id = `OCC-CLIENT-${now.getTime()}`;
-      const protocol = operationState.occurrences.some((item) => item.protocol === 'HOP-1048')
-        ? `HOP-${String(now.getTime()).slice(-4)}`
-        : 'HOP-1048';
+      const protocol = `HOP-${String(now.getTime()).slice(-6)}`;
 
       const trappedCountNum = form.trappedPeople === 'Sim' ? (Number(form.trappedCount) || 1) : 0;
+      const reportedProblems = Array.isArray(form.problemTypes) && form.problemTypes.length
+        ? form.problemTypes
+        : [form.problemType].filter(Boolean);
+      const problemDescription = reportedProblems
+        .map((problem) => problem === 'Outro problema' ? form.otherProblem : problem)
+        .filter(Boolean)
+        .join(' · ');
       const occurrence = {
         id,
         elevatorId: elevator.id,
         clientId: clientEstablishment.id,
         address: elevator.address || clientEstablishment.address,
         time: now.toISOString(),
-        description: form.observation || form.otherProblem || form.problemType || (form.trappedPeople === 'Sim'
+        description: form.observation || problemDescription || (form.trappedPeople === 'Sim'
           ? `Passageiro(s) preso(s) na cabine (${trappedCountNum} pessoa${trappedCountNum > 1 ? 's' : ''}).`
           : `Intercorrência relatada pelo cliente no ${elevator.displayName}.`),
         status: 'aberta',
@@ -106,12 +112,15 @@ export default function ClientPage({ route = '/client' }) {
       };
 
       const metadata = {
-        riskToLife: form.risk === 'Sim',
+        riskToLife: form.risk === 'Sim' ? true : form.risk === 'Não' ? false : null,
+        riskUnknown: form.risk === 'Não sei',
         criticalFacility: clientEstablishment.type === 'Hospital',
         elevatorStopped: form.functioning === 'Não está funcionando',
         partialFailure: form.functioning === 'Sim, mas com dificuldade',
         serviceNumber: protocol,
-        clientNotes: [form.problemType, form.otherProblem, form.riskNote, form.observation].filter(Boolean).join(' — '),
+        clientNotes: [...reportedProblems.map((problem) => problem === 'Outro problema' ? form.otherProblem : problem), form.riskNote, form.observation].filter(Boolean).join(' — '),
+        reportedProblems,
+        emergencyDispatchSimulation: form.risk === 'Sim',
         distanceKm: 2.4,
         etaMinutes: 7,
         latitude: -23.5688,
@@ -120,11 +129,26 @@ export default function ClientPage({ route = '/client' }) {
         diagnosis: {
           demoCode: 'MVP-CLIENT-REPORT',
           system: elevator.system || 'Geral',
-          source: 'Registro direto pelo cliente do estabelecimento',
-          probableOrigin: form.trappedPeople === 'Sim' ? 'Resgate prioritário / Portas' : 'Sistema do elevador',
-          probability: 90,
-          suspectedRegions: ['doors', 'control', 'cabin'],
-          summary: form.observation || form.otherProblem || form.problemType || 'Ocorrência aberta pelo cliente responsável com validação de passageiros presos e risco.',
+          source: 'Indicação baseada na triagem do cliente',
+          probableOrigin: reportedProblems.includes('Porta com defeito')
+            ? 'Conjunto de portas'
+            : reportedProblems.includes('Painel/botão não responde')
+              ? 'Painel de controle'
+              : reportedProblems.includes('Barulho estranho')
+                ? 'Tração e componentes mecânicos'
+                : form.trappedPeople === 'Sim'
+                  ? 'Cabine e conjunto de portas'
+                  : 'Região relacionada ao relato',
+          suspectedRegions: reportedProblems.includes('Porta com defeito')
+            ? ['doors', 'doorOperator']
+            : reportedProblems.includes('Painel/botão não responde')
+              ? ['control', 'sensors']
+              : reportedProblems.includes('Barulho estranho')
+                ? ['machine', 'pulleys', 'belts']
+                : form.trappedPeople === 'Sim'
+                  ? ['cabin', 'doors']
+                  : ['cabin'],
+          summary: form.observation || problemDescription || 'Ocorrência aberta pelo cliente responsável com validação de passageiros presos e risco.',
         },
       };
 
@@ -140,7 +164,7 @@ export default function ClientPage({ route = '/client' }) {
       const call = {
         ...occurrence,
         protocol,
-        detectedFailure: form.observation || form.otherProblem || form.problemType || `Relato de intercorrência no ${elevator.displayName}`,
+        detectedFailure: form.observation || problemDescription || `Relato de intercorrência no ${elevator.displayName}`,
         system: elevator.system || 'Cabine / Portas',
         functioning: form.functioning,
         trappedPeopleAnswer: form.trappedPeople,
@@ -148,6 +172,7 @@ export default function ClientPage({ route = '/client' }) {
         riskAnswer: form.risk,
         observation: form.observation,
         riskNote: form.riskNote,
+        reportedProblems,
         priority,
         severity: priority.classification,
         workflowStatus: OPERATION_STATUS.WAITING_ASSIGNMENT,
@@ -499,7 +524,9 @@ export default function ClientPage({ route = '/client' }) {
               {isResolved && call.completedAt && (
                 <div className="client-completed-note mt-3 p-3 rounded" style={{ backgroundColor: 'var(--color-severity-low-soft)', color: 'var(--color-severity-low-text)' }}>
                   <strong>Atendimento concluído em {formatDateTime(call.completedAt)}.</strong>
+                  {call.finalDiagnosis && <p className="mb-0 mt-1">Resultado: {call.finalDiagnosis}</p>}
                   {call.solution && <p className="mb-0 mt-1">Solução: {call.solution}</p>}
+                  {call.finalCondition && <p className="mb-0 mt-1">Condição final: {call.finalCondition}</p>}
                 </div>
               )}
             </div>

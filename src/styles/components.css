@@ -494,6 +494,256 @@
   font-size: 1rem;
 }
 
+.hop-notification-center {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.hop-notification-button {
+  position: relative;
+  display: inline-grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  color: var(--color-neutral-strong);
+  background: var(--color-surface);
+}
+
+.hop-notification-button:hover,
+.hop-notification-button[aria-expanded="true"] {
+  color: var(--color-primary-text);
+  background: var(--color-primary-soft);
+}
+
+.hop-notification-button > span {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  display: grid;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 4px;
+  place-items: center;
+  border: 2px solid var(--color-surface);
+  border-radius: 999px;
+  color: #fff;
+  background: var(--color-severity-critical-text);
+  font-size: 0.62rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.hop-notification-panel {
+  position: absolute;
+  z-index: 1080;
+  top: calc(100% + 10px);
+  right: 0;
+  width: min(390px, calc(100vw - 24px));
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text);
+  background: var(--color-surface);
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.2);
+}
+
+.hop-notification-panel > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.hop-notification-panel > header div {
+  display: grid;
+}
+
+.hop-notification-panel > header small {
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+}
+
+.hop-notification-panel > header button {
+  border: 0;
+  color: var(--color-primary-text);
+  background: transparent;
+  font-size: 0.7rem;
+  font-weight: 750;
+}
+
+.hop-notification-list {
+  max-height: min(460px, 65vh);
+  overflow-y: auto;
+}
+
+.hop-notification-list > button {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 8px minmax(0, 1fr);
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: 0;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+  background: var(--color-surface);
+  text-align: left;
+}
+
+.hop-notification-list > button:hover,
+.hop-notification-list > button.is-unread {
+  background: var(--color-primary-soft);
+}
+
+.hop-notification-list__marker {
+  width: 7px;
+  height: 7px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.hop-notification-list > button.is-unread .hop-notification-list__marker {
+  background: var(--color-primary-action);
+}
+
+.hop-notification-list > button > span:last-child {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.hop-notification-list strong {
+  font-size: 0.82rem;
+}
+
+.hop-notification-list small {
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-size: 0.73rem;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hop-notification-list time {
+  color: var(--color-primary-text);
+  font-size: 0.66rem;
+  font-weight: 700;
+}
+
+.hop-notification-empty {
+  margin: 0;
+  padding: var(--space-5);
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  text-align: center;
+}
+
+.hop-toast-stack {
+  position: fixed;
+  z-index: 1090;
+  right: clamp(12px, 2vw, 28px);
+  bottom: clamp(12px, 2vw, 28px);
+  display: grid;
+  width: min(370px, calc(100vw - 24px));
+  gap: var(--space-2);
+  pointer-events: none;
+}
+
+.hop-toast {
+  position: relative;
+  overflow: hidden;
+  padding: var(--space-4);
+  border: 1px solid var(--color-primary-muted);
+  border-radius: var(--radius-lg);
+  color: var(--color-text);
+  background: var(--color-surface);
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.24);
+  cursor: pointer;
+  pointer-events: auto;
+  animation: hop-toast-enter 180ms ease-out both;
+}
+
+.hop-toast__content {
+  display: block;
+  width: 100%;
+  padding: 0 30px 0 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  text-align: left;
+}
+
+.hop-toast__content strong {
+  color: var(--color-text);
+  font-size: 0.9rem;
+}
+
+.hop-toast__close {
+  position: absolute;
+  z-index: 1;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  color: var(--color-text-muted);
+  background: transparent;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.hop-toast__close:hover {
+  color: var(--color-text);
+  background: var(--color-neutral-soft);
+}
+
+.hop-toast p {
+  margin: var(--space-2) 0;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.hop-toast__action {
+  color: var(--color-primary-text);
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.hop-toast__timer {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: var(--color-primary-action);
+  transform-origin: left;
+  animation: hop-toast-timer 5.2s linear both;
+}
+
+@keyframes hop-toast-enter {
+  from { opacity: 0; transform: translate3d(24px, 10px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes hop-toast-timer {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hop-toast,
+  .hop-toast__timer { animation: none; }
+}
+
 .home-selector {
   position: relative;
   display: grid;

@@ -13,43 +13,6 @@ const REGION_TO_3D_OBJECTS = Object.fromEntries(
   elevatorRegions.map((region) => [region.id, region.meshNames]),
 );
 
-/**
- * Placeholder problem mapping — maps GLB node names (from sistema_de_elevador.glb)
- * to simulated diagnostics. In production this would come from a database query.
- */
-const PLACEHOLDER_PROBLEMS = {
-  'Maquinario_Elevador': { description: 'Superaquecimento no conjunto de tração — requer inspeção imediata', severity: 'alta' },
-  'Apoio_Tração': { description: 'Suporte de tração com fixação comprometida — risco estrutural', severity: 'alta' },
-  'Ponte_Tração1': { description: 'Ponte de tração desalinhada — vibração anormal detectada', severity: 'atenção' },
-  'Polia_Tração': { description: 'Polia de tração com desgaste nas ranhuras — substituição recomendada', severity: 'atenção' },
-  'Polia_Tração2': { description: 'Polia secundária de tração com folga excessiva', severity: 'atenção' },
-  'Polia_Contrapeso': { description: 'Polia do contrapeso com ruído anormal — lubrificação necessária', severity: 'baixa' },
-  'Corda': { description: 'Desgaste detectado no cabo principal — risco de ruptura parcial', severity: 'crítica' },
-  'Corda2': { description: 'Cabo secundário com tensão irregular — requer ajuste imediato', severity: 'crítica' },
-  'Cabo_Contrapeso': { description: 'Cabo do contrapeso com deformação visível — inspeção urgente', severity: 'alta' },
-  'FreioDeEmergencia1': { description: 'Freio de emergência #1 com resposta lenta — calibração necessária', severity: 'alta' },
-  'FreioDeEmergencia2': { description: 'Freio de emergência #2 com desgaste detectado', severity: 'atenção' },
-  'Sistema de Controle': { description: 'Sistema de controle com leitura intermitente — possível curto', severity: 'alta' },
-  'Maquina_Controle': { description: 'Módulo de controle com aquecimento acima do padrão', severity: 'atenção' },
-  'Painel de Controle_Superior': { description: 'Painel de controle superior com sinal intermitente', severity: 'atenção' },
-  'Painel de Controle_Inferior': { description: 'Painel de controle inferior com conexão instável', severity: 'baixa' },
-  'Trilhos_Guias1': { description: 'Guia #1 do elevador com desgaste superficial — monitorar', severity: 'baixa' },
-  'Trilhos_Guias2': { description: 'Guia #2 do elevador com folga detectada', severity: 'atenção' },
-  'Trilhos_Guias3': { description: 'Guia #3 do elevador dentro dos parâmetros', severity: 'baixa' },
-  'Contrapeso': { description: 'Contrapeso com fixação de guia comprometida', severity: 'atenção' },
-  'Apoio_Contrapeso': { description: 'Base de apoio do contrapeso com corrosão superficial', severity: 'baixa' },
-  'Trilhos_Guia_Contrapeso1': { description: 'Guia #1 do contrapeso com desgaste leve', severity: 'baixa' },
-  'Elevador': { description: 'Sensor da cabine com falha de comunicação — travamento parcial', severity: 'atenção' },
-  'Operador_Portas': { description: 'Operador de portas com ruído mecânico anormal', severity: 'atenção' },
-  'Porta1': { description: 'Porta #1 com fechamento incompleto — sensor obstruído', severity: 'alta' },
-  'Porta2': { description: 'Porta #2 com atraso no ciclo de abertura', severity: 'atenção' },
-  'Letreiro1': { description: 'Indicador de pavimento #1 com falha intermitente', severity: 'baixa' },
-  'Letreiro2': { description: 'Indicador de pavimento #2 com sinal fraco', severity: 'baixa' },
-  'Amortecedor_Elevador': { description: 'Amortecedor da cabine com compressão irregular', severity: 'baixa' },
-  'Amortecedor_Contrapeso': { description: 'Amortecedor do contrapeso requer inspeção visual', severity: 'baixa' },
-  'Poço_Pit': { description: 'Poço do elevador com acúmulo de resíduos — limpeza necessária', severity: 'baixa' },
-};
-
 const SEVERITY_COLORS = {
   'crítica': 0xff1744,
   'alta': 0xff6d00,
@@ -120,9 +83,15 @@ function buildProblemMap(diagnosis) {
   }
 
   const problemMap = {};
-  for (const name of problemObjectNames) {
-    if (PLACEHOLDER_PROBLEMS[name]) {
-      problemMap[name] = PLACEHOLDER_PROBLEMS[name];
+  for (const regionId of suspectedRegions) {
+    const region = elevatorRegions.find((item) => item.id === regionId);
+    const objectNames = REGION_TO_3D_OBJECTS[regionId] || [];
+    for (const name of objectNames) {
+      if (!problemObjectNames.has(name)) continue;
+      problemMap[name] = {
+        description: `Região relacionada à hipótese inicial: ${region?.label || 'componente do elevador'}. Necessita verificação técnica no local.`,
+        severity: 'atenção',
+      };
     }
   }
 
@@ -515,7 +484,7 @@ export default function Elevator3DViewer({ diagnosis, severity }) {
             {selectedProblem.description}
           </p>
           <span className="elevator-3d-problem-panel__badge" style={{ color: SEVERITY_CSS_COLORS[selectedProblem.severity] }}>
-            {selectedProblem.severity.charAt(0).toUpperCase() + selectedProblem.severity.slice(1)}
+            Região suspeita
           </span>
         </div>
       )}

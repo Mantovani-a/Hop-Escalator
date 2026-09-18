@@ -42,7 +42,7 @@ export default function ControlOperationsMap({
         { label: 'Região', value: technician.region || '—' },
         { label: 'Ocorrência', value: current?.protocol || 'Sem chamado ativo' },
         { label: 'Destino', value: current?.client?.name || 'Aguardando despacho' },
-        { label: 'ETA', value: current?.metadata?.etaMinutes != null ? `${current.metadata.etaMinutes} min` : '—' },
+        { label: 'ETA demonstrativo', value: current?.metadata?.etaMinutes != null ? `${current.metadata.etaMinutes} min` : '—' },
       ],
       onOpen: () => onSelectTechnician(technician.id),
     };
@@ -121,14 +121,12 @@ export default function ControlOperationsMap({
 
   return (
     <section className="app-card control-map-card" aria-labelledby="operations-map-title">
-      <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3 pb-2 border-bottom">
+      <div className="control-map-card__header">
         <div>
           <p className="page-header__subtitle mb-0">Situação em campo</p>
           <h2 className="fs-5 mb-0" id="operations-map-title">Mapa operacional</h2>
         </div>
-        <span className="text-secondary" style={{ fontSize: '0.78rem' }}>
-          Grande São Paulo · Monitoramento em Tempo Real
-        </span>
+        <span className="control-map-card__scope">Grande São Paulo · Visão demonstrativa</span>
       </div>
 
       <LeafletMap
@@ -139,6 +137,7 @@ export default function ControlOperationsMap({
       />
 
       <div className="control-map-statuses">
+        <span className="control-map-statuses__label">Equipes</span>
         <StatusBadge value="disponível" />
         <StatusBadge value="em deslocamento" />
         <StatusBadge value="em atendimento" />

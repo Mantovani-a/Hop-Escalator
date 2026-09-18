@@ -48,6 +48,14 @@ export default function OperatorHistory({ historyItems }) {
                 <div className="col-12 col-md-4"><dt className="text-secondary fw-bold text-uppercase mb-1" style={{ fontSize: '0.72rem' }}>Duração</dt><dd className="fw-bold mb-0" style={{ color: 'var(--color-text)' }}>{item.duration}</dd></div>
                 <div className="col-12 col-md-4"><dt className="text-secondary fw-bold text-uppercase mb-1" style={{ fontSize: '0.72rem' }}>Responsável</dt><dd className="fw-bold mb-0" style={{ color: 'var(--color-text)' }}><span className="d-inline-flex align-items-center gap-2"><ProfileAvatar name={operatorTechnician.name} src={operatorTechnician.avatar} size="sm" decorative />{operatorTechnician.name}</span></dd></div>
               </dl>
+              {item.occurrence?.finalDiagnosis && (
+                <div className="mt-3 pt-3 border-top">
+                  <p className="mb-1"><strong>Resultado:</strong> {item.occurrence.finalDiagnosis}</p>
+                  <p className="mb-1"><strong>Ação realizada:</strong> {item.occurrence.solution}</p>
+                  <p className="mb-0"><strong>Condição final:</strong> {item.occurrence.finalCondition}</p>
+                </div>
+              )}
+              {item.occurrence?.workflowHistory?.length > 0 && <div className="mt-3 pt-3 border-top"><p className="fw-bold mb-2">Etapas do atendimento</p><ol className="mb-0 ps-3 text-secondary">{item.occurrence.workflowHistory.map((event, index) => <li className="mb-1" key={`${event.at}-${index}`}>{event.label} · {formatDateTime(event.at)}</li>)}</ol></div>}
             </article>
           ))}
         </div>

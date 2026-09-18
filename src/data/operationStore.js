@@ -1,8 +1,10 @@
 import { operatorOccurrenceMetadata } from './operatorData.js';
-import { clients, elevators, createMockOccurrences } from './mockData.js';
+import { clients, elevators, createMockOccurrences, technicians } from './mockData.js';
 import { calculatePriority } from '../utils/priorityScore.js';
+import { getTechnicianRecommendation } from '../utils/dispatchRecommendation.js';
+import { publishOperationNotifications, resetNotifications } from './notificationStore.js';
 
-const OPERATION_STORAGE_KEY = 'hop-shared-operation-v2';
+const OPERATION_STORAGE_KEY = 'hop-shared-operation-v3';
 const OPERATION_UPDATED_EVENT = 'hop-operation-updated';
 
 let cachedRawState = null;
@@ -15,6 +17,11 @@ export const OPERATION_STATUS = {
   TRAVELING: 'Em deslocamento',
   ON_SITE: 'No local',
   MAINTENANCE: 'Em manutenção',
+  WAITING_PART: 'Aguardando peça',
+  WAITING_SUPPORT: 'Aguardando suporte da central',
+  PART_AVAILABLE: 'Peça disponível',
+  TRAVELING_TO_PICKUP: 'A caminho da retirada',
+  RETURNING_TO_CLIENT: 'Retornando ao cliente',
   RESOLVED: 'Resolvido',
 };
 
@@ -52,9 +59,9 @@ const createSeedOccurrence = (occurrence, index, now) => {
 export const createInitialOperationState = (now = new Date()) => {
   const seedOccurrences = createMockOccurrences(now);
   return {
-    version: 2,
+    version: 3,
     updatedAt: now.toISOString(),
-    operatorShiftActive: true,
+    operatorShiftActive: false,
     occurrences: seedOccurrences.map((occurrence, index) => createSeedOccurrence(occurrence, index, now)),
   };
 };
@@ -74,14 +81,7 @@ export const validateAndSanitizeOccurrence = (occ, index = 0, now = new Date()) 
     ...(occ.metadata || {}),
   };
 
-  const validPriority = occ.priority
-    && typeof occ.priority.score === 'number'
-    && typeof occ.priority.classification === 'string'
-    && Array.isArray(occ.priority.reasons);
-
-  const priority = validPriority
-    ? occ.priority
-    : calculatePriority({ occurrence: { ...occ, clientId, elevatorId }, client, elevator, metadata, now });
+  const priority = calculatePriority({ occurrence: { ...occ, clientId, elevatorId }, client, elevator, metadata, now });
 
   const workflowStatus = occ.workflowStatus || initialWorkflowStatus(occ);
 
@@ -113,9 +113,9 @@ const normalizeState = (state, now = new Date()) => {
     .filter(Boolean);
 
   return {
-    version: 2,
+    version: 3,
     updatedAt: state?.updatedAt || now.toISOString(),
-    operatorShiftActive: state?.operatorShiftActive !== false,
+    operatorShiftActive: state?.operatorShiftActive === true,
     occurrences: occurrences.length ? occurrences : createInitialOperationState(now).occurrences,
   };
 };
@@ -146,7 +146,7 @@ const readOperationState = () => {
         if (!isStale) {
           const sanitizedState = normalizeState(parsed);
           cachedOperationState = sanitizedState;
-          cachedRawState = JSON.stringify(sanitizedState);
+          cachedRawState = stored;
           return cachedOperationState;
         }
 
@@ -199,13 +199,81 @@ const writeOperationState = (state, { force = false } = {}) => {
   } catch {
     // O estado em memória mantém o MVP funcional quando o armazenamento do navegador está indisponível.
   }
+  if (!force) publishOperationNotifications(currentState, cachedNextState);
   window.dispatchEvent(new CustomEvent(OPERATION_UPDATED_EVENT));
   return cachedNextState;
 };
 
 export const addOperationOccurrence = (occurrence) => {
   const state = readOperationState();
-  return writeOperationState({ ...state, occurrences: [occurrence, ...state.occurrences.filter((item) => item.id !== occurrence.id)] });
+  const sanitizedOccurrence = validateAndSanitizeOccurrence(occurrence, 0);
+  if (!sanitizedOccurrence) return state;
+
+  let preparedOccurrence = sanitizedOccurrence;
+  const shouldDispatch = !sanitizedOccurrence.technicianId
+    && sanitizedOccurrence.workflowStatus === OPERATION_STATUS.WAITING_ASSIGNMENT;
+
+  if (shouldDispatch) {
+    const attemptedAt = new Date().toISOString();
+    const dispatchTechnicians = technicians.map((technician) => technician.id === 'TEC-010' && !state.operatorShiftActive
+      ? { ...technician, status: 'indisponível' }
+      : technician);
+    const recommendation = getTechnicianRecommendation(sanitizedOccurrence, dispatchTechnicians, state.occurrences);
+
+    if (recommendation) {
+      const { technician, reasons, score, distanceKm, load } = recommendation;
+      preparedOccurrence = {
+        ...sanitizedOccurrence,
+        technicianId: technician.id,
+        assignedTechnicianId: technician.id,
+        assignedAt: attemptedAt,
+        workflowStatus: OPERATION_STATUS.TECHNICIAN_ASSIGNED,
+        metadata: {
+          ...sanitizedOccurrence.metadata,
+          distanceKm,
+          etaMinutes: Math.max(5, Math.round(distanceKm * 3)),
+          assignedTechnicianUnavailable: false,
+          requiresReassignment: false,
+          automaticDispatch: { status: 'assigned', attemptedAt },
+          automaticAssignment: {
+            mode: 'automatic',
+            technicianId: technician.id,
+            assignedAt: attemptedAt,
+            score,
+            activeLoadAtAssignment: load,
+            reasons,
+          },
+        },
+        workflowHistory: [
+          ...(sanitizedOccurrence.workflowHistory || []),
+          {
+            status: OPERATION_STATUS.TECHNICIAN_ASSIGNED,
+            label: `${technician.name} atribuído automaticamente`,
+            at: attemptedAt,
+            technicianId: technician.id,
+            technicianName: technician.name,
+          },
+        ],
+      };
+    } else {
+      preparedOccurrence = {
+        ...sanitizedOccurrence,
+        metadata: {
+          ...sanitizedOccurrence.metadata,
+          automaticDispatch: {
+            status: 'no-technician',
+            attemptedAt,
+            reason: 'Nenhum técnico disponível atende aos critérios de despacho neste momento.',
+          },
+        },
+      };
+    }
+  }
+
+  return writeOperationState({
+    ...state,
+    occurrences: [preparedOccurrence, ...state.occurrences.filter((item) => item.id !== preparedOccurrence.id)],
+  });
 };
 
 export const updateOperationOccurrence = (occurrenceId, changes) => {
@@ -232,13 +300,14 @@ export const resetOperationState = () => {
   const obsoleteKeys = [
     'hop-client-calls', 'hop-client-created-occurrences', 'hop-operator-occurrence-statuses',
     'hop-operator-technician-status', 'hop-operator-completed-items', 'hop-control-occurrence-assignments',
-    'hop-shared-operation-v1', 'hop-shared-operation-v2',
+    'hop-shared-operation-v1', 'hop-shared-operation-v2', 'hop-shared-operation-v3',
   ];
   try {
     obsoleteKeys.forEach((key) => window.localStorage.removeItem(key));
   } catch {
     // A restauração ainda atualiza a fonte em memória.
   }
+  resetNotifications();
   return writeOperationState(initialState, { force: true });
 };
 
@@ -258,7 +327,18 @@ export const subscribeOperationState = (callback) => {
     callback();
   };
   // Atualiza a cada 60s para manter tempos relativos sincronizados com precisão
-  const intervalId = window.setInterval(callback, 60000);
+  const intervalId = window.setInterval(() => {
+    if (cachedOperationState) {
+      const now = new Date();
+      cachedOperationState = {
+        ...cachedOperationState,
+        occurrences: cachedOperationState.occurrences
+          .map((occurrence, index) => validateAndSanitizeOccurrence(occurrence, index, now))
+          .filter(Boolean),
+      };
+    }
+    callback();
+  }, 60000);
 
   window.addEventListener(OPERATION_UPDATED_EVENT, handleCustomUpdate);
   window.addEventListener('storage', handleStorageUpdate);

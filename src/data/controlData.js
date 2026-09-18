@@ -42,12 +42,14 @@ const buildMetadata = (occurrence, index, elevator) => {
   const existing = occurrence.metadata || operatorOccurrenceMetadata[occurrence.id] || {};
   const [latitude, longitude] = mapCoordinates[index % mapCoordinates.length];
   return {
+    ...existing,
     serviceNumber: occurrence.protocol || existing.serviceNumber || `HOP-${1040 + index}`,
     distanceKm: existing.distanceKm ?? (2.1 + (index % 8) * 1.3),
     etaMinutes: existing.etaMinutes ?? (6 + (index % 7) * 3),
     latitude: existing.latitude ?? latitude,
     longitude: existing.longitude ?? longitude,
-    riskToLife: existing.riskToLife ?? occurrence.trappedPeople > 0,
+    riskToLife: existing.riskToLife ?? null,
+    riskUnknown: existing.riskUnknown ?? false,
     criticalFacility: existing.criticalFacility ?? getClientById(occurrence.clientId)?.type === 'Hospital',
     elevatorStopped: existing.elevatorStopped ?? elevator?.status === 'parado',
     partialFailure: existing.partialFailure ?? ['atenção', 'baixa'].includes(occurrence.severity),
@@ -78,9 +80,7 @@ export const buildControlOccurrences = (operationState, now = new Date()) => {
     const workflowStatus = workflowFromStatus(occurrence);
     const technicianId = occurrence.technicianId || occurrence.assignedTechnicianId || null;
     const technician = technicianId ? getTechnicianById(technicianId) : null;
-    const priority = (occurrence.priority && typeof occurrence.priority.score === 'number')
-      ? occurrence.priority
-      : calculatePriority({ occurrence, client, elevator, metadata, now });
+    const priority = calculatePriority({ occurrence, client, elevator, metadata, now });
     return {
       ...occurrence,
       client,
@@ -97,18 +97,27 @@ export const buildControlOccurrences = (operationState, now = new Date()) => {
 };
 
 export const buildControlTechnicians = (controlOccurrences, operatorShiftActive = true) => technicians.map((technician, index) => {
-  const currentOccurrence = controlOccurrences.find((occurrence) =>
+  const technicianOccurrences = controlOccurrences.filter((occurrence) =>
     occurrence.technicianId === technician.id && occurrence.operationalStatus !== OPERATION_STATUS.RESOLVED);
+  const executionOccurrence = technicianOccurrences.find((occurrence) => [
+    OPERATION_STATUS.ACCEPTED,
+    OPERATION_STATUS.TRAVELING,
+    OPERATION_STATUS.TRAVELING_TO_PICKUP,
+    OPERATION_STATUS.RETURNING_TO_CLIENT,
+    OPERATION_STATUS.ON_SITE,
+    OPERATION_STATUS.MAINTENANCE,
+  ].includes(occurrence.operationalStatus));
+  const currentOccurrence = executionOccurrence || technicianOccurrences[0] || null;
   let status = technician.status;
-  if (technician.id === 'TEC-010' && !currentOccurrence) status = 'disponível';
-  if (currentOccurrence?.operationalStatus === OPERATION_STATUS.ACCEPTED) status = 'em atendimento';
-  if (currentOccurrence?.operationalStatus === OPERATION_STATUS.TRAVELING) status = 'em deslocamento';
-  if ([OPERATION_STATUS.ON_SITE, OPERATION_STATUS.MAINTENANCE].includes(currentOccurrence?.operationalStatus)) status = 'em atendimento';
+  if (technician.id === 'TEC-010' && !executionOccurrence) status = 'disponível';
+  if ([OPERATION_STATUS.TRAVELING, OPERATION_STATUS.TRAVELING_TO_PICKUP, OPERATION_STATUS.RETURNING_TO_CLIENT].includes(executionOccurrence?.operationalStatus)) status = 'em deslocamento';
+  if (executionOccurrence && ![OPERATION_STATUS.TRAVELING, OPERATION_STATUS.TRAVELING_TO_PICKUP, OPERATION_STATUS.RETURNING_TO_CLIENT].includes(executionOccurrence.operationalStatus)) status = 'em atendimento';
   if (technician.id === 'TEC-010' && !operatorShiftActive) status = 'indisponível';
   return {
     ...technician,
     status,
     currentOccurrence,
+    executionOccurrence,
     completedToday: 1 + (index % 4),
     recentHistory: [
       `${10 + (index % 4)}:${index % 2 ? '35' : '10'} — Atendimento concluído`,
@@ -119,9 +128,12 @@ export const buildControlTechnicians = (controlOccurrences, operatorShiftActive 
 });
 
 export const buildElevatorOverview = (controlOccurrences = []) => elevators.map((elevator) => {
-  const related = controlOccurrences.filter((occurrence) => occurrence.elevatorId === elevator.id);
+  const related = controlOccurrences
+    .filter((occurrence) => occurrence.elevatorId === elevator.id)
+    .sort((first, second) => new Date(second.time || 0) - new Date(first.time || 0));
   const lastOccurrence = [...related].sort((first, second) => new Date(second.time) - new Date(first.time))[0];
   const activeOccurrence = related.find((occurrence) => occurrence.operationalStatus !== OPERATION_STATUS.RESOLVED);
+  const finalCondition = !activeOccurrence ? lastOccurrence?.finalCondition : null;
   const client = getClientById(elevator.clientId) || {
     id: elevator.clientId || 'CLI-001',
     name: 'Cliente Corporativo',
@@ -129,10 +141,15 @@ export const buildElevatorOverview = (controlOccurrences = []) => elevators.map(
   };
   return {
     ...elevator,
-    status: activeOccurrence?.elevator?.status || elevator.status,
+    status: activeOccurrence?.elevator?.status
+      || (finalCondition === 'Equipamento permanece indisponível' ? 'parado'
+        : finalCondition === 'Funcionamento parcial' ? 'atenção'
+          : finalCondition === 'Operação restabelecida' ? 'operando' : elevator.status),
     client,
+    activeOccurrence,
     lastOccurrence,
-    recentOccurrenceCount: related.length + (elevator.id === 'ELV-007' ? 2 : 0),
-    recurrent: related.length >= 2 || elevator.id === 'ELV-007',
+    maintenanceHistory: related,
+    recentOccurrenceCount: related.length,
+    recurrent: related.length >= 2,
   };
 });

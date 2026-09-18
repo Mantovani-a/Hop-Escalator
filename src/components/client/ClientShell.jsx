@@ -2,6 +2,7 @@ import { useState } from 'react';
 import DemoHomeLink from '../DemoHomeLink';
 import ModuleSidebar from '../ModuleSidebar';
 import ThemeToggle from '../ThemeToggle';
+import NotificationCenter from '../NotificationCenter';
 
 const navItems = [
   { href: '#/client', label: 'Início', icon: 'home', route: '/client' },
@@ -54,6 +55,7 @@ export default function ClientShell({ route, user, establishment, children }) {
             <span>{establishment?.name || 'Hospital Santa Helena'}</span>
           </div>
           <div className="module-utility-bar__actions">
+            <NotificationCenter module="client" recipientId={user.clientId} />
             <DemoHomeLink />
             <ThemeToggle compact />
           </div>
