@@ -4,6 +4,16 @@ import { calculatePriority } from '../utils/priorityScore.js';
 import { getTechnicianRecommendation } from '../utils/dispatchRecommendation.js';
 import { publishOperationNotifications, resetNotifications } from './notificationStore.js';
 
+const computeDuration = (startIso, endIso) => {
+  const start = new Date(startIso).getTime();
+  const end = new Date(endIso).getTime();
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end < start) return null;
+  const minutes = Math.max(1, Math.round((end - start) / 60000));
+  const hours = Math.floor(minutes / 60);
+  const remaining = minutes % 60;
+  return hours ? `${hours}h${remaining ? ` ${remaining}min` : ''}` : `${minutes} min`;
+};
+
 const OPERATION_STORAGE_KEY = 'hop-shared-operation-v3';
 const OPERATION_UPDATED_EVENT = 'hop-operation-updated';
 
@@ -52,7 +62,7 @@ const createSeedOccurrence = (occurrence, index, now) => {
     workflowStatus,
     origin: 'mock',
     completedAt: workflowStatus === OPERATION_STATUS.RESOLVED ? (occurrence.completedAt || occurrence.time) : null,
-    duration: workflowStatus === OPERATION_STATUS.RESOLVED ? (occurrence.duration || 'Atendimento demonstrativo') : null,
+    duration: workflowStatus === OPERATION_STATUS.RESOLVED ? (occurrence.duration || computeDuration(occurrence.time, occurrence.completedAt || occurrence.time)) : null,
   };
 };
 
@@ -102,7 +112,7 @@ export const validateAndSanitizeOccurrence = (occ, index = 0, now = new Date()) 
     priority,
     workflowStatus,
     completedAt: workflowStatus === OPERATION_STATUS.RESOLVED ? (occ.completedAt || occ.time || now.toISOString()) : null,
-    duration: workflowStatus === OPERATION_STATUS.RESOLVED ? (occ.duration || 'Atendimento demonstrativo') : null,
+    duration: workflowStatus === OPERATION_STATUS.RESOLVED ? (occ.duration || computeDuration(occ.time, occ.completedAt || occ.time)) : null,
   };
 };
 

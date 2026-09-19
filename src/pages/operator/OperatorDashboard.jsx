@@ -8,6 +8,13 @@ import { getWorkflowStep } from '../../utils/operatorWorkflow';
 import { formatDateTime, formatElapsedMinutes } from '../../utils/presentation';
 import { OPERATION_STATUS } from '../../data/operationStore';
 
+function getGreeting() {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) return 'Bom dia';
+  if (hour >= 12 && hour < 18) return 'Boa tarde';
+  return 'Boa noite';
+}
+
 export default function OperatorDashboard({
   technician,
   occurrences,
@@ -33,7 +40,7 @@ export default function OperatorDashboard({
       <header className="page-header">
         <div>
           <p className="page-header__subtitle">Visão operacional</p>
-          <h1 className="page-header__title">Bom dia, João Carlos</h1>
+          <h1 className="page-header__title">{getGreeting()}, João Carlos</h1>
         </div>
         <button className="btn btn-sm btn-outline-primary d-md-none" type="button" onClick={onSimulate}>Simular nova ocorrência</button>
       </header>

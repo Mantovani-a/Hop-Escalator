@@ -214,7 +214,7 @@ export default function OperatorPage({ route = '/operator' }) {
       occurrenceId: occurrence.id,
       occurrence,
       completedAt: occurrence.completedAt || occurrence.time || new Date().toISOString(),
-      duration: occurrence.duration || 'Atendimento demonstrativo',
+      duration: occurrence.duration || formatDuration(occurrence.assignedAt || occurrence.travelingAt || occurrence.time, occurrence.completedAt) || '—',
     }))
     .sort((first, second) => new Date(second.completedAt || 0) - new Date(first.completedAt || 0));
   const completedToday = historyItems.filter((item) => {
