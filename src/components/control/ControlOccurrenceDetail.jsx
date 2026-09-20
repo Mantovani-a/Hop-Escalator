@@ -5,15 +5,28 @@ import { formatDateTime, formatElapsedMinutes } from '../../utils/presentation';
 import useDialogFocus from '../../hooks/useDialogFocus';
 import { OPERATION_STATUS } from '../../data/operationStore';
 
-export default function ControlOccurrenceDetail({ occurrence, onClose, onReassign, onResumePart }) {
+export default function ControlOccurrenceDetail({
+  occurrence,
+  recommendedTechnician,
+  onAssignRecommended,
+  onClose,
+  onReassign,
+  onResumePart,
+}) {
   const panelRef = useRef(null);
   useDialogFocus(Boolean(occurrence), panelRef, onClose);
   if (!occurrence) return null;
-  const recordedTimeline = occurrence.workflowHistory || [];
-  const timeline = recordedTimeline.length ? recordedTimeline : [
-    { label: 'Falha detectada', at: occurrence.time },
-    { label: occurrence.technician ? `${occurrence.technician.name} atribuído` : 'Aguardando atribuição', at: occurrence.assignedAt || occurrence.time },
-  ];
+  const recordedTimeline = (occurrence.workflowHistory || []).filter((item) => Boolean(item.at));
+  const timeline = recordedTimeline.length > 0
+    ? recordedTimeline
+    : [
+        occurrence.time && { label: 'Chamado aberto', at: occurrence.time },
+        occurrence.assignedAt && {
+          label: occurrence.technician ? `${occurrence.technician.name} atribuído` : 'Técnico atribuído',
+          at: occurrence.assignedAt,
+        },
+        occurrence.completedAt && { label: 'Atendimento concluído', at: occurrence.completedAt },
+      ].filter(Boolean);
   const automaticAssignment = occurrence.metadata?.automaticAssignment?.mode === 'automatic'
     ? occurrence.metadata.automaticAssignment
     : null;
@@ -47,12 +60,45 @@ export default function ControlOccurrenceDetail({ occurrence, onClose, onReassig
                 </ul>
               )}
             </div>
+          ) : recommendedTechnician ? (
+            <div className="control-dispatch-recommendation">
+              <p className="eyebrow eyebrow--dark">Técnico recomendado</p>
+              <div className="control-assignee">
+                <ProfileAvatar name={recommendedTechnician.name} src={recommendedTechnician.avatar} size="md" decorative />
+                <div>
+                  <strong>{recommendedTechnician.name}</strong>
+                  <small>Disponível · {Number(recommendedTechnician.distanceKm ?? 0).toFixed(1).replace('.', ',')} km · {recommendedTechnician.specialty}</small>
+                </div>
+              </div>
+              <button className="btn btn-primary w-100" type="button" onClick={onAssignRecommended}>
+                ATRIBUIR {recommendedTechnician.name}
+              </button>
+            </div>
           ) : (
             <p className="control-empty-note m-0">{occurrence.metadata?.automaticDispatch?.status === 'no-technician' ? 'Despacho automático concluído sem técnico disponível.' : 'Nenhum técnico atribuído.'}</p>
           )}
-          {![OPERATION_STATUS.WAITING_PART, OPERATION_STATUS.WAITING_SUPPORT].includes(occurrence.workflowStatus) && <button className="btn btn-outline-primary w-100 mt-2" type="button" onClick={() => onReassign(occurrence)}>Reatribuir</button>}
+          {![OPERATION_STATUS.WAITING_PART, OPERATION_STATUS.WAITING_SUPPORT].includes(occurrence.workflowStatus) && (
+            <button className="btn btn-outline-primary w-100 mt-2" type="button" onClick={() => onReassign(occurrence)}>
+              {occurrence.technician ? 'Reatribuir' : 'Escolher outro técnico'}
+            </button>
+          )}
         </section>
-        <section><h3>Histórico operacional</h3><ol className="control-event-timeline">{timeline.map((event, index) => <li key={`${event.at}-${index}`}><time>{formatDateTime(event.at)}</time><span>{event.label}</span>{index < timeline.length - 1 && <i aria-hidden="true" />}</li>)}</ol></section>
+        <section>
+          <h3>Histórico operacional</h3>
+          {timeline.length > 0 ? (
+            <ol className="control-event-timeline">
+              {timeline.map((event, index) => (
+                <li key={`${event.at}-${index}`}>
+                  <time>{formatDateTime(event.at)}</time>
+                  <span>{event.label}</span>
+                  {index < timeline.length - 1 && <i aria-hidden="true" />}
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p className="control-empty-note m-0">Nenhum evento com data e hora registrado.</p>
+          )}
+        </section>
       </aside>
     </div>
   );

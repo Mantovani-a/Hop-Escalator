@@ -1,3 +1,10 @@
+import {
+  clientGeoPositions,
+  technicianGeoPositions,
+  getEstablishmentGeoPoint,
+  getTechnicianGeoPoint,
+} from '../data/geoCoordinates.js';
+
 const normalize = (value = '') => value
   .normalize('NFD')
   .replace(/[\u0300-\u036f]/g, '')
@@ -13,7 +20,44 @@ const executionStatuses = new Set([
 ]);
 
 const activeOccurrenceFor = (occurrence) => occurrence.workflowStatus !== 'Resolvido'
-  && occurrence.operationalStatus !== 'Resolvido';
+  && occurrence.operationalStatus !== 'Resolvido'
+  && occurrence.status !== 'resolvida';
+
+export const calculateHaversineDistanceKm = (lat1, lon1, lat2, lon2) => {
+  const R = 6371; // Raio da Terra em km
+  const toRad = (deg) => (deg * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
+
+const getTechnicianCoords = (technician) => {
+  if (technician?.lat != null && technician?.lng != null) {
+    return [technician.lat, technician.lng];
+  }
+  if (technician?.id && technicianGeoPositions[technician.id]) {
+    const pos = technicianGeoPositions[technician.id];
+    return [pos.lat, pos.lng];
+  }
+  return getTechnicianGeoPoint(technician);
+};
+
+const getOccurrenceCoords = (occurrence) => {
+  if (occurrence?.lat != null && occurrence?.lng != null) {
+    return [occurrence.lat, occurrence.lng];
+  }
+  const clientId = occurrence?.clientId || occurrence?.client?.id;
+  if (clientId && clientGeoPositions[clientId]) {
+    const pos = clientGeoPositions[clientId];
+    return [pos.lat, pos.lng];
+  }
+  return getEstablishmentGeoPoint(clientId);
+};
 
 const getSpecialtyMatch = (technician, occurrence) => {
   const specialty = normalize(technician?.specialty);
@@ -55,17 +99,32 @@ export const rankTechniciansForDispatch = (occurrence, technicians, activeOccurr
       return technicianId === technician.id && activeOccurrenceFor(item);
     });
     const executing = assignedOccurrences.some((item) => executionStatuses.has(item.workflowStatus || item.operationalStatus));
-    const load = assignedOccurrences.length;
+    const load = assignedOccurrences.length || (technician.currentService ? 1 : 0);
     const available = technician.status === 'disponível' && !executing && load < 2;
     const specialty = getSpecialtyMatch(technician, occurrence);
-    const distanceKm = Number(technician.distanceKm ?? occurrence?.metadata?.distanceKm ?? 10);
+
+    const [techLat, techLng] = getTechnicianCoords(technician);
+    const [occLat, occLng] = getOccurrenceCoords(occurrence);
+    let distanceKm = 10;
+    if (techLat != null && techLng != null && occLat != null && occLng != null) {
+      distanceKm = Math.round(calculateHaversineDistanceKm(techLat, techLng, occLat, occLng) * 10) / 10;
+    } else if (technician.distanceKm != null) {
+      distanceKm = Number(technician.distanceKm);
+    }
+
     const proximityScore = Math.max(0, 28 - distanceKm * 2.6);
-    const loadScore = Math.max(0, 22 - load * 11);
-    const score = Math.round(40 + specialty.score + proximityScore + loadScore);
-    const loadReason = load === 0 ? 'Sem chamados ativos' : `Carga atual: ${load} chamado${load > 1 ? 's' : ''}`;
+    // Penalidade para técnicos que já possuem ocorrências em aberto/atribuídas
+    const loadPenalty = load * 15;
+    const score = Math.max(0, Math.round(40 + specialty.score + proximityScore - loadPenalty));
+    const loadReason = load === 0
+      ? 'Sem chamados em aberto'
+      : `Penalidade de carga: -${loadPenalty} pts (${load} chamado${load > 1 ? 's' : ''} em aberto)`;
 
     return {
-      technician,
+      technician: {
+        ...technician,
+        distanceKm,
+      },
       available,
       score,
       load,
@@ -73,7 +132,7 @@ export const rankTechniciansForDispatch = (occurrence, technicians, activeOccurr
       reasons: [
         'Disponível para despacho',
         specialty.reason,
-        `Proximidade estimada de ${distanceKm.toFixed(1).replace('.', ',')} km`,
+        `Distância real de ${distanceKm.toFixed(1).replace('.', ',')} km (Haversine)`,
         loadReason,
       ],
     };
@@ -86,5 +145,12 @@ export const rankTechniciansForDispatch = (occurrence, technicians, activeOccurr
 export const getTechnicianRecommendation = (occurrence, technicians, activeOccurrences = []) =>
   rankTechniciansForDispatch(occurrence, technicians, activeOccurrences)[0] || null;
 
-export const recommendTechnician = (occurrence, technicians, activeOccurrences = []) =>
-  getTechnicianRecommendation(occurrence, technicians, activeOccurrences)?.technician || null;
+export const recommendTechnician = (occurrence, technicians, activeOccurrences = []) => {
+  const candidate = getTechnicianRecommendation(occurrence, technicians, activeOccurrences);
+  if (!candidate) return null;
+  return {
+    ...candidate.technician,
+    distanceKm: candidate.distanceKm,
+    dispatchScore: candidate.score,
+  };
+};

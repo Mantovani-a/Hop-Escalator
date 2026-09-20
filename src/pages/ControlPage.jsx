@@ -18,6 +18,7 @@ import ControlElevators from './control/ControlElevators';
 import ControlOccurrences from './control/ControlOccurrences';
 import ControlOverview from './control/ControlOverview';
 import ControlTechnicians from './control/ControlTechnicians';
+import { recommendTechnician } from '../utils/dispatchRecommendation';
 
 export default function ControlPage({ route = '/control' }) {
   const [baseRoute, routeQuery = ''] = route.split('?');
@@ -63,6 +64,31 @@ export default function ControlPage({ route = '/control' }) {
   const partResumeOccurrence = controlOccurrences.find((item) => item.id === partResumeId);
   const historyElevatorId = new URLSearchParams(routeQuery).get('history');
   const availableTechnicians = controlTechnicians.filter((item) => item.status === 'disponível' && item.id !== reassignmentOccurrence?.technicianId);
+  const recommendedTechnician = selectedOccurrence && !selectedOccurrence.technicianId
+    ? recommendTechnician(selectedOccurrence, controlTechnicians, controlOccurrences)
+    : null;
+
+  const assignRecommendedTechnician = () => {
+    if (!selectedOccurrence || !recommendedTechnician) return;
+    const assignedAt = new Date().toISOString();
+    updateOperationOccurrence(selectedOccurrence.id, {
+      technicianId: recommendedTechnician.id,
+      assignedTechnicianId: recommendedTechnician.id,
+      assignedAt,
+      workflowStatus: OPERATION_STATUS.TECHNICIAN_ASSIGNED,
+      status: 'em atendimento',
+      workflowHistory: [
+        ...(selectedOccurrence.workflowHistory || []),
+        {
+          status: OPERATION_STATUS.TECHNICIAN_ASSIGNED,
+          label: `${recommendedTechnician.name} atribuído pela central`,
+          at: assignedAt,
+          technicianId: recommendedTechnician.id,
+          technicianName: recommendedTechnician.name,
+        },
+      ],
+    });
+  };
   const confirmReassignment = (technicianId) => {
     const occurrence = reassignmentOccurrence;
     if (!occurrence) return;
@@ -73,6 +99,7 @@ export default function ControlPage({ route = '/control' }) {
       assignedTechnicianId: technicianId,
       assignedAt: reassignedAt,
       workflowStatus: OPERATION_STATUS.TECHNICIAN_ASSIGNED,
+      status: 'em atendimento',
       metadata: {
         ...occurrence.metadata,
         assignedTechnicianUnavailable: false,
@@ -124,7 +151,14 @@ export default function ControlPage({ route = '/control' }) {
   return (
     <ControlShell route={baseRoute} user={controlUser}>
       {pageContent}
-      <ControlOccurrenceDetail occurrence={selectedOccurrence} onClose={() => setSelectedOccurrenceId(null)} onReassign={(occurrence) => setReassignmentId(occurrence.id)} onResumePart={(occurrence) => setPartResumeId(occurrence.id)} />
+      <ControlOccurrenceDetail
+        occurrence={selectedOccurrence}
+        recommendedTechnician={recommendedTechnician}
+        onAssignRecommended={assignRecommendedTechnician}
+        onClose={() => setSelectedOccurrenceId(null)}
+        onReassign={(occurrence) => setReassignmentId(occurrence.id)}
+        onResumePart={(occurrence) => setPartResumeId(occurrence.id)}
+      />
       <ControlTechnicianDetail technician={selectedTechnician} onClose={() => setSelectedTechnicianId(null)} />
       <ControlReassignmentModal occurrence={reassignmentOccurrence} technicians={availableTechnicians} onCancel={() => setReassignmentId(null)} onConfirm={confirmReassignment} />
       <ControlPartResumeModal occurrence={partResumeOccurrence} technicians={controlTechnicians.filter((technician) => technician.status === 'disponível')} onCancel={() => setPartResumeId(null)} onConfirm={resumePartOccurrence} />

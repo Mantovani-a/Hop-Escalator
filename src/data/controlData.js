@@ -109,9 +109,21 @@ export const buildControlTechnicians = (controlOccurrences, operatorShiftActive 
   ].includes(occurrence.operationalStatus));
   const currentOccurrence = executionOccurrence || technicianOccurrences[0] || null;
   let status = technician.status;
-  if (technician.id === 'TEC-010' && !executionOccurrence) status = 'disponível';
-  if ([OPERATION_STATUS.TRAVELING, OPERATION_STATUS.TRAVELING_TO_PICKUP, OPERATION_STATUS.RETURNING_TO_CLIENT].includes(executionOccurrence?.operationalStatus)) status = 'em deslocamento';
-  if (executionOccurrence && ![OPERATION_STATUS.TRAVELING, OPERATION_STATUS.TRAVELING_TO_PICKUP, OPERATION_STATUS.RETURNING_TO_CLIENT].includes(executionOccurrence.operationalStatus)) status = 'em atendimento';
+
+  if (technicianOccurrences.length > 0) {
+    if ([OPERATION_STATUS.TRAVELING, OPERATION_STATUS.TRAVELING_TO_PICKUP, OPERATION_STATUS.RETURNING_TO_CLIENT].includes(currentOccurrence?.operationalStatus)) {
+      status = 'em deslocamento';
+    } else {
+      status = 'em atendimento';
+    }
+  } else {
+    if (technician.id === 'TEC-010') {
+      status = operatorShiftActive ? 'disponível' : 'indisponível';
+    } else if (technician.status !== 'indisponível') {
+      status = 'disponível';
+    }
+  }
+
   if (technician.id === 'TEC-010' && !operatorShiftActive) status = 'indisponível';
   return {
     ...technician,

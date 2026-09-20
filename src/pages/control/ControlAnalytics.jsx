@@ -46,20 +46,30 @@ export default function ControlAnalytics({ occurrences }) {
     };
   });
 
-  // --- Tempo médio de atendimento real (ocorrências resolvidas com timestamps) ---
-  const resolved = occurrences.filter((occ) => occ.time && occ.completedAt);
+  // --- Tempo médio de atendimento real (ocorrências resolvidas nos dados/store) ---
+  const resolved = occurrences.filter(
+    (occ) =>
+      (occ.operationalStatus === OPERATION_STATUS.RESOLVED ||
+        occ.status === 'resolvida' ||
+        occ.workflowStatus === OPERATION_STATUS.RESOLVED ||
+        Boolean(occ.completedAt)) &&
+      Boolean(occ.completedAt) &&
+      Boolean(occ.assignedAt || occ.time),
+  );
   let avgLabel = '—';
   let avgDetail = 'sem dados suficientes';
   if (resolved.length > 0) {
     const totalMin = resolved.reduce((sum, occ) => {
-      const diff = (new Date(occ.completedAt).getTime() - new Date(occ.time).getTime()) / 60000;
+      const start = new Date(occ.assignedAt || occ.time).getTime();
+      const end = new Date(occ.completedAt).getTime();
+      const diff = (end - start) / 60000;
       return sum + Math.max(0, diff);
     }, 0);
     const avg = Math.round(totalMin / resolved.length);
     const h = Math.floor(avg / 60);
     const m = avg % 60;
-    avgLabel = h ? `${h}h ${m}min` : `${m} min`;
-    avgDetail = `média de ${resolved.length} atendimentos resolvidos`;
+    avgLabel = h ? (m ? `${h}h ${m}min` : `${h}h`) : `${m} min`;
+    avgDetail = `média de ${resolved.length} atendimento${resolved.length > 1 ? 's' : ''} resolvido${resolved.length > 1 ? 's' : ''}`;
   }
 
   return (

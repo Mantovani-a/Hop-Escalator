@@ -23,15 +23,14 @@ import OperatorOccurrences from './operator/OperatorOccurrences';
 import OperatorProfile from './operator/OperatorProfile';
 import OperatorServicePage from './operator/OperatorServicePage';
 import { playNotificationSound } from '../utils/notificationSound';
+import { formatElapsedMinutes } from '../utils/presentation';
 
-const formatDuration = (startedAt, completedAt) => {
-  const start = new Date(startedAt).getTime();
+const calculateRealDuration = (assignedAt, completedAt, fallbackStart) => {
+  const start = new Date(assignedAt || fallbackStart).getTime();
   const end = new Date(completedAt).getTime();
   if (!Number.isFinite(start) || !Number.isFinite(end) || end < start) return null;
-  const minutes = Math.max(1, Math.round((end - start) / 60000));
-  const hours = Math.floor(minutes / 60);
-  const remaining = minutes % 60;
-  return hours ? `${hours}h${remaining ? ` ${remaining}min` : ''}` : `${minutes} min`;
+  const diffMinutes = Math.max(0, Math.round((end - start) / 60000));
+  return formatElapsedMinutes(diffMinutes);
 };
 
 export default function OperatorPage({ route = '/operator' }) {
@@ -172,7 +171,7 @@ export default function OperatorPage({ route = '/operator' }) {
     updateOperationOccurrence(occurrenceId, (current) => ({
       workflowStatus: OPERATION_STATUS.RESOLVED,
       completedAt,
-      duration: formatDuration(occurrence.assignedAt || occurrence.travelingAt || occurrence.time, completedAt),
+      duration: calculateRealDuration(occurrence.assignedAt, completedAt, occurrence.travelingAt || occurrence.time),
       finalDiagnosis: details.result,
       solution: details.action,
       finalCondition,
@@ -214,7 +213,7 @@ export default function OperatorPage({ route = '/operator' }) {
       occurrenceId: occurrence.id,
       occurrence,
       completedAt: occurrence.completedAt || occurrence.time || new Date().toISOString(),
-      duration: occurrence.duration || formatDuration(occurrence.assignedAt || occurrence.travelingAt || occurrence.time, occurrence.completedAt) || '—',
+      duration: occurrence.duration || calculateRealDuration(occurrence.assignedAt, occurrence.completedAt, occurrence.travelingAt || occurrence.time) || '—',
     }))
     .sort((first, second) => new Date(second.completedAt || 0) - new Date(first.completedAt || 0));
   const completedToday = historyItems.filter((item) => {
