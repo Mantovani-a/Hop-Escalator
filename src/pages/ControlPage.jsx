@@ -4,6 +4,7 @@ import ControlReassignmentModal from '../components/control/ControlReassignmentM
 import ControlShell from '../components/control/ControlShell';
 import ControlTechnicianDetail from '../components/control/ControlTechnicianDetail';
 import ControlPartResumeModal from '../components/control/ControlPartResumeModal';
+import ControlTechnicalReport from '../components/control/ControlTechnicalReport';
 import { getTechnicianById } from '../data/mockData';
 import {
   buildControlOccurrences,
@@ -27,6 +28,7 @@ export default function ControlPage({ route = '/control' }) {
   const [selectedTechnicianId, setSelectedTechnicianId] = useState(null);
   const [reassignmentId, setReassignmentId] = useState(null);
   const [partResumeId, setPartResumeId] = useState(null);
+  const [reportOccurrenceId, setReportOccurrenceId] = useState(null);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
@@ -44,6 +46,7 @@ export default function ControlPage({ route = '/control' }) {
         setSelectedOccurrenceId(null);
         setSelectedTechnicianId(null);
         setPartResumeId(null);
+        setReportOccurrenceId(null);
       }
     };
     window.addEventListener('keydown', closeOnEscape);
@@ -62,6 +65,7 @@ export default function ControlPage({ route = '/control' }) {
   const selectedTechnician = controlTechnicians.find((item) => item.id === selectedTechnicianId);
   const reassignmentOccurrence = controlOccurrences.find((item) => item.id === reassignmentId);
   const partResumeOccurrence = controlOccurrences.find((item) => item.id === partResumeId);
+  const reportOccurrence = controlOccurrences.find((item) => item.id === reportOccurrenceId);
   const historyElevatorId = new URLSearchParams(routeQuery).get('history');
   const availableTechnicians = controlTechnicians.filter((item) => item.status === 'disponível' && item.id !== reassignmentOccurrence?.technicianId);
   const recommendedTechnician = selectedOccurrence && !selectedOccurrence.technicianId
@@ -142,7 +146,7 @@ export default function ControlPage({ route = '/control' }) {
 
   let pageContent;
   if (baseRoute === '/control') pageContent = <ControlOverview occurrences={controlOccurrences} technicians={controlTechnicians} onSelectOccurrence={setSelectedOccurrenceId} onSelectTechnician={setSelectedTechnicianId} onReassignOccurrence={setReassignmentId} />;
-  else if (baseRoute === '/control/occurrences') pageContent = <ControlOccurrences occurrences={controlOccurrences} onSelectOccurrence={setSelectedOccurrenceId} />;
+  else if (baseRoute === '/control/occurrences') pageContent = <ControlOccurrences occurrences={controlOccurrences} onSelectOccurrence={setSelectedOccurrenceId} onViewReport={setReportOccurrenceId} />;
   else if (baseRoute === '/control/technicians') pageContent = <ControlTechnicians technicians={controlTechnicians} onSelectTechnician={setSelectedTechnicianId} />;
   else if (baseRoute === '/control/elevators') pageContent = <ControlElevators elevators={elevatorOverview} historyElevatorId={historyElevatorId} />;
   else if (baseRoute === '/control/analytics') pageContent = <ControlAnalytics occurrences={controlOccurrences} />;
@@ -159,6 +163,8 @@ export default function ControlPage({ route = '/control' }) {
         onReassign={(occurrence) => setReassignmentId(occurrence.id)}
         onResumePart={(occurrence) => setPartResumeId(occurrence.id)}
       />
+      <ControlOccurrenceDetail occurrence={selectedOccurrence} onClose={() => setSelectedOccurrenceId(null)} onReassign={(occurrence) => setReassignmentId(occurrence.id)} onResumePart={(occurrence) => setPartResumeId(occurrence.id)} />
+      <ControlTechnicalReport occurrence={reportOccurrence} onClose={() => setReportOccurrenceId(null)} />
       <ControlTechnicianDetail technician={selectedTechnician} onClose={() => setSelectedTechnicianId(null)} />
       <ControlReassignmentModal occurrence={reassignmentOccurrence} technicians={availableTechnicians} onCancel={() => setReassignmentId(null)} onConfirm={confirmReassignment} />
       <ControlPartResumeModal occurrence={partResumeOccurrence} technicians={controlTechnicians.filter((technician) => technician.status === 'disponível')} onCancel={() => setPartResumeId(null)} onConfirm={resumePartOccurrence} />
